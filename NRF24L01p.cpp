@@ -343,14 +343,17 @@ void NRF24L01p::PRX(){
             Payload_t payload;
             memcpy(payload.data, rxData, width);
             payload.RxPipe = (pipe_t) pipe;
-            
             if(fifo_write(&RxFifo, &payload) <= 0)break;
-            if(!readable()) break;
+            
+            
+            if(get_fifo_flag_rx_empty()) break;
         }
         clear_data_ready_flag();
         RadioMode(originalState);
     }
 }
+
+
 void NRF24L01p::PTX(){
     Payload_t payload;
     int r = fifo_read(&TxFifo, &payload);
