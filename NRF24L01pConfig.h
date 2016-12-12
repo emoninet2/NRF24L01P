@@ -15,11 +15,11 @@
 #define NRF24L01PCONFIG_H
 
 #include <stdio.h>
+#include <strings.h>
 
 
 
-
-#define NRF24L01P_FIFO_SIZE 5
+#define NRF24L01P_FIFO_SIZE 10
 
 #endif /* NRF24L01PCONFIG_H */
 

@@ -13,7 +13,9 @@
 
 #include "NRF24L01p.h"
 
-
+#include <stdio.h>
+#include <string.h>
+#include <cstdlib>
 
 NRF24L01p::NRF24L01p() {
 }
@@ -24,10 +26,10 @@ NRF24L01p::NRF24L01p(const NRF24L01p& orig) {
 NRF24L01p::~NRF24L01p() {
 }
 
-int NRF24L01p::fifo_init(fifo_t *f, Payload_t  *pld){
+int NRF24L01p::fifo_init(fifo_t *f, Payload_t  *pld, unsigned int size){
     f->head = 0;
     f->tail = 0;
-    f->size = NRF24L01P_FIFO_SIZE;
+    f->size = size;
     f->payload = pld;
 }
 
@@ -83,9 +85,10 @@ void NRF24L01p::initialize(){
     
 
     
-    fifo_init(&TxFifo, TxFifoBuffer);
-    fifo_init(&RxFifo, RxFifoBuffer);
+    fifo_init(&TxFifo, TxFifoBuffer, NRF24L01P_FIFO_SIZE);
+    fifo_init(&RxFifo, RxFifoBuffer, NRF24L01P_FIFO_SIZE);
     
+    TxAddr = 0xe7e7e7e7e7;
 }
 
 
@@ -194,208 +197,197 @@ void NRF24L01p::RadioMode(NRF24L01p::StateType mode){
 
 
 bool NRF24L01p::readable(){
-    return get_data_ready_flag();
+    return get_data_ready_flag() || !get_fifo_flag_rx_empty();
 }
 bool NRF24L01p::writable(){
     return !get_fifo_flag_tx_empty();
 }
 
-void NRF24L01p::TxFifo2RadioTxFifo(){
-    Payload_t pld;
-    Payload_t pldN;
-    uint64_t TxAddr;
-    if((fifo_peekNext(&TxFifo, &pld) == -1)){
-        printf("am quitting this shit\r\n");
-        return;
-    }else{
-        TxAddr = pld.TxAddr;
-        printf("MAGIC MAGIC MAGIC %llx\r\n", TxAddr);
+
+
+
+
+int NRF24L01p::write_payload_to_send(uint8_t *data, int datalen){
+	if ( datalen <= 0 ) return 0;
+	if ( datalen > _NRF24L01P_FIFO_SIZE ) datalen = _NRF24L01P_FIFO_SIZE;
+
+	if(get_tx_fifo_full_flag()) return -1;
+	//while(_nrf24l01p_get_tx_fifo_full_flag());
+	write_tx_payload(data,datalen);
+	return 0;
+
+}
+
+int NRF24L01p::write_payload_to_send_to_address(uint64_t address, uint8_t *data, int datalen){
+	//_nrf24l01p_disable_payload_with_ack();
+	if(address != TxAddr){
+            set_TX_pipe_address(address);
+            TxAddr = address;
+            //set_RX_pipe_address(PIPE_P0, address);
+        }
+	return write_payload_to_send(data,datalen);
+}
+
+int NRF24L01p::write_payload_to_send_to_address_ack(uint64_t address, uint8_t *data, int datalen){
+	//enable_payload_with_ack();
+        if(address != TxAddr){
+            set_TX_pipe_address(address);
+            TxAddr = address;
+            set_RX_pipe_address(PIPE_P0, address);
+        }
+	return write_payload_to_send(data,datalen);
+}
+
+
+int NRF24L01p::write_payload_to_send_to_address_noack(pipeAddrType_t address, uint8_t *data, int datalen){
+    	enable_payload_with_ack();
+        
+        if(address != TxAddr){
+            set_TX_pipe_address(address);
+            TxAddr = address;
+        }
+	//_nrf24l01p_set_RX_pipe_address(_NRF24L01P_PIPE_P0, address);
+        write_tx_payload_noack(data,datalen);  
+        return 0;
+
+}
+
+
+
+
+
+bool NRF24L01p::readableOnPipe(pipe_t pipe){
+	bool flag = 0;
+	if((pipe >=0)   && (pipe <=5)){
+		int status = get_status();
+		if(   (status&_NRF24L01P_STATUS_RX_DR)  && ((status&_NRF24L01P_STATUS_RX_P_NO)>>1)==pipe){
+			flag = 1;
+		}
+		else{
+			flag = 0;
+		}
+	}
+	return flag;
+}
+
+
+
+
+
+int NRF24L01p::read_payload(pipe_t pipe, uint8_t *data, int datalen){
+	int rxPayloadWidth;
+	if ( ( pipe < 0 ) || ( pipe > 5 ) ) {
+            return -1;
+	}
+	if (readableOnPipe(pipe) ) {
+            rxPayloadWidth = _NRF24L01P_FIFO_SIZE;
+            if ( ( rxPayloadWidth < 0 ) || ( rxPayloadWidth > _NRF24L01P_FIFO_SIZE ) ) {
+                flush_rx();
+            }
+            else{
+                read_rx_payload(data,rxPayloadWidth);
+                if(get_fifo_flag_rx_empty()) {
+                        clear_data_ready_flag();
+                }
+            }
+            return rxPayloadWidth;
+	}
+	//if RX FIFO is full even after reading data, then flush RX FIFO
+	if(get_fifo_flag_rx_full()){
+            clear_data_ready_flag();
+            flush_rx();
+	}
+	return 0;	
+}
+
+
+
+int NRF24L01p::read_payload_dyn(pipe_t pipe, uint8_t *data){
+    int rxPayloadWidth;
+    if ( ( pipe < 0 ) || ( pipe > 5 ) ) {
+            return -1;
     }
-    
-    
-    while(1){
-        if(get_tx_fifo_full_flag()) {
-            printf("-----tx fifo full\r\n");
-            break;// if TX fifo is full in Radio, then break
-        }
-        
-        if(fifo_read(&TxFifo, &pld) == -1) {
-            printf("-----no data to write\r\n");
-            break;//read from FIFO to pld. if -1, means no data in fifo. then break
-        }
-        else {
-            printf("-----has data now writing\r\n");
-            write_tx_payload(pld.data,sizeof(pld.data));  //write the payload read from fifo into Radio Tx fifo
-            //set_TX_pipe_address(pld.TxAddr);
-            //set_RX_pipe_address(PIPE_P0, pld.TxAddr);
-        }
-        
-        if((fifo_peekNext(&TxFifo, &pldN) == -1)){
-            printf("-----peeked but no data\r\n");
-            break; //peek into the next FIFO payload. if -1, means no new data
+    if (readableOnPipe(pipe) ) {
+        rxPayloadWidth = read_rx_payload_width();
+        if ( ( rxPayloadWidth < 0 ) || ( rxPayloadWidth > _NRF24L01P_FIFO_SIZE ) ) {
+            flush_rx();
         }
         else{
+            read_rx_payload(data,rxPayloadWidth);
+            if(get_fifo_flag_rx_empty()) {
+                clear_data_ready_flag();
+            }
+        }
+        return rxPayloadWidth;
+    }
+    else {//if pipe not readable
+            return -1;
+    }
+    return 0;
+
+}
+
+
+void NRF24L01p::PRX(){
+    if(readable()){
+        StateType  originalState = RadioState;
+        while(1){
+            uint8_t rxData[32];
+            pipe_t pipe =  get_rx_payload_pipe();
+            int width = read_payload_dyn(pipe, rxData);
             
-            if(pldN.TxAddr != pld.TxAddr  ){
-                printf("-----peeked.next payload address not matching\r\n");
-                break;//if new data, then check if the address is same as the one sent. if not , break
-            }else{
-                printf("-----peeked.next payload address MATCHED\r\n");
-            }
+            Payload_t payload;
+            memcpy(payload.data, rxData, width);
+            payload.RxPipe = (pipe_t) pipe;
+            
+            if(fifo_write(&RxFifo, &payload) <= 0)break;
+            if(!readable()) break;
         }
+        
+        RadioMode(originalState);
     }
-
-    //enable_payload_with_ack();
-    set_TX_pipe_address(TxAddr);
-    set_RX_pipe_address(PIPE_P0, TxAddr);
-    //printf("*****CONFIRMING Tx address is %llx\r\n", get_TX_pipe_address());
-    
 }
+void NRF24L01p::PTX(){
+    Payload_t payload;
+    if(fifo_read(&TxFifo, &payload) == -1) return;
+    else{
+        //enable_payload_with_ack();
+        write_payload_to_send_to_address_ack(payload.TxAddr, payload.data, sizeof(payload.data));
 
+        StateType  originalState = RadioState;
 
-void NRF24L01p::RadioRxFifo2RxFifo(){
-
-}
-
-
-
-
-int NRF24L01p::RX(){
-
-}
-int NRF24L01p::TX(){
-    
-}
-
-
-int NRF24L01p::sendSingleWithAck(Payload_t *payload){
-    int retval;
-
-    flush_tx();
-    flush_rx();
-
-
-    enable_payload_with_ack();
-    set_TX_pipe_address(payload->TxAddr);
-    set_RX_pipe_address(PIPE_P0, payload->TxAddr);
-    write_tx_payload(payload->data,sizeof(payload->data));
-    
-    
-    //backup original machine state
-    StateType originalMode = RadioState;
-
-    //has data to write and no data to read. Do not enter PTX with data in PRX payload.
-    //This is because, if the PRX is full, then sending a data and will forever wait for ACK
-    //and it will never get the ACK because the PRX fifo is full
-    if(writable() && !readable()){
-        //switching to STANDBY to avoid data reception during state check (ATOMIC state check)
-        RadioMode(MODE_STANDBY);
-
-        //clear data sent flag before the next packet is sent
-        clear_data_sent_flag();
-        //strobe CE for single transmission
-        RadioMode(MODE_TX);
-
-
-        //uint8_t observe;
-
-        while(1){
-           //break when DS flag is set and a single payload is sent or all data on RX FIFO sent
-            if(get_data_sent_flag() ){
-                retval = 0;
-                printf("got ACK\r\n");
-                break;
-            }
-            //if max retry flag is set
-            if(get_max_retry_flag() ) {
-                clear_max_retry_flag();
-                if(get_plos_count() >=15){
-                    retval = -1;
-                            set_frequency_offset(2);//to reset PLOS_CNT
-                            break;
+        if(writable() && !get_fifo_flag_rx_full())   {
+            while(1){
+                RadioMode(MODE_TX);   
+                RadioMode(MODE_STANDBY);   
+                
+                if(get_data_sent_flag()|| !writable()  )break;
+                
+                if(get_max_retry_flag()){
+                    clear_max_retry_flag();
+                    
+                    if(get_plos_count()>=15){
+                        set_frequency_offset(2);
+                        break;
+                    }
                 }
             }
-        }
-
-        RadioMode(MODE_STANDBY);
+            
+        //RadioMode(MODE_STANDBY);
         //clear data sent flag
         clear_data_sent_flag();
 
         //if got ack packet, just flush it
         if(get_data_ready_flag()){
             //do what needs to be done with the ACK payload here
-            flush_rx();
+            //flush_rx();//if you want to flush RX, (use only if the PTX started when RX was empty)
         }
 
         //restore original machine state
-        RadioMode(originalMode);
-        flush_tx();
+        RadioMode(originalState);
+        //flush_tx();
+           
+        } 
     }
-    
-    return retval;
-    
 }
 
-void NRF24L01p::func(){
-   int retval;
-
-    flush_tx();
-    flush_rx();
-
-
-    TxFifo2RadioTxFifo();
-    
-    
-    //backup original machine state
-    StateType originalMode = RadioState;
-
-    //has data to write and no data to read. Do not enter PTX with data in PRX payload.
-    //This is because, if the PRX is full, then sending a data and will forever wait for ACK
-    //and it will never get the ACK because the PRX fifo is full
-    if(writable() && !readable()){
-        //switching to STANDBY to avoid data reception during state check (ATOMIC state check)
-        RadioMode(MODE_STANDBY);
-
-        //clear data sent flag before the next packet is sent
-        clear_data_sent_flag();
-        //strobe CE for single transmission
-        RadioMode(MODE_TX);
-
-
-        //uint8_t observe;
-
-        while(1){
-           //break when DS flag is set and a single payload is sent or all data on RX FIFO sent
-            if(get_data_sent_flag() ){
-                retval = 0;
-                printf("got ACK\r\n");
-                break;
-            }
-            //if max retry flag is set
-            if(get_max_retry_flag() ) {
-                clear_max_retry_flag();
-                if(get_plos_count() >=15){
-                    retval = -1;
-                            set_frequency_offset(2);//to reset PLOS_CNT
-                            break;
-                }
-            }
-        }
-
-        RadioMode(MODE_STANDBY);
-        //clear data sent flag
-        clear_data_sent_flag();
-
-        //if got ack packet, just flush it
-        if(get_data_ready_flag()){
-            //do what needs to be done with the ACK payload here
-            flush_rx();
-        }
-
-        //restore original machine state
-        RadioMode(originalMode);
-        flush_tx();
-    }
-    
-
-}

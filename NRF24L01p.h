@@ -18,6 +18,7 @@
 #include "NRF24L01pConfig.h"
 
 
+
 class NRF24L01p : public NRF24L01pDriver{
 public:
     
@@ -51,7 +52,7 @@ public:
     }fifo_t;
     
     
-    int fifo_init(fifo_t *f, Payload_t  *pld);
+    int fifo_init(fifo_t *f, Payload_t  *pld, unsigned int size);
     int fifo_read(fifo_t *f, Payload_t  *pld);
     int fifo_peekNext(fifo_t *f, Payload_t  *pld);
     int fifo_write(fifo_t *f, Payload_t  *pld);
@@ -59,12 +60,16 @@ public:
     
     StateType RadioState;
     
-    Payload_t RxFifoBuffer[NRF24L01P_FIFO_SIZE];
-    Payload_t TxFifoBuffer[NRF24L01P_FIFO_SIZE];
+    Payload_t RxFifoBuffer[NRF24L01P_FIFO_SIZE ];
+    Payload_t TxFifoBuffer[NRF24L01P_FIFO_SIZE ];
     
     fifo_t TxFifo;
     fifo_t RxFifo;
 
+    uint64_t TxAddr;
+    
+    
+    
     void initialize();
     int startup();
     int default_config();
@@ -72,19 +77,20 @@ public:
     
     bool readable();
     bool writable();
+   
     
-    void TxFifo2RadioTxFifo();
-    void RadioRxFifo2RxFifo();
-    
-    int RX();
-    int TX();
-    
-    
-    
-    
-    
-    int sendSingleWithAck(Payload_t *payload);
-    void func();
+
+    int write_payload_to_send(uint8_t *data, int datalen);
+    int write_payload_to_send_to_address(pipeAddrType_t address, uint8_t *data, int datalen);
+    int write_payload_to_send_to_address_ack(pipeAddrType_t address, uint8_t *data, int datalen);
+    int write_payload_to_send_to_address_noack(pipeAddrType_t address, uint8_t *data, int datalen);
+    bool readableOnPipe(pipe_t pipe);
+    int read_payload(pipe_t pipe, uint8_t *data, int datalen);
+    int read_payload_dyn(pipe_t pipe, uint8_t *data);
+    void write_ack(pipe_t pipe, uint8_t *data, int datalen);
+
+    void PRX();
+    void PTX();
     
 private:
 
