@@ -396,7 +396,7 @@ void NRF24L01p::PTX(){
 
         //restore original machine state
         RadioMode(originalState);
-        //flush_tx();
+        flush_tx();
            
         } 
     }
