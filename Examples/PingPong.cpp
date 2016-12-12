@@ -64,12 +64,14 @@ int main(int argc, char** argv) {
         if(radio.fifo_read(&radio.RxFifo, &pld) == 0){
             printf("%s\r\n", pld.data);
         }
+        radio.flush_rx();
+        radio.flush_tx();
 #endif
         
 #if defined(PONG)    
-radio.Port_Delay_ms(100);
+        radio.Port_Delay_ms(10);
         NRF24L01p::Payload_t pld;
-        radio.PRX();
+        
 
         if(radio.fifo_read(&radio.RxFifo, &pld) == 0){
             printf("%s\r\n", pld.data);
@@ -78,9 +80,12 @@ radio.Port_Delay_ms(100);
             memcpy(myPayload.data, "PONG", sizeof("PONG"));
             myPayload.TxAddr = 0x6f6d6f6e31;
             int ret = radio.fifo_write(&radio.TxFifo, &myPayload);
-            radio.PTX();
+            
         }
-
+        
+        radio.PRX();
+        radio.PTX();
+        
         radio.flush_rx();
         radio.flush_tx();
 #endif   
