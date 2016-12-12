@@ -261,7 +261,6 @@ void NRF24L01pDriver::disable_cont_wave(){
 }
 
 bool NRF24L01pDriver::get_tx_fifo_full_flag(){
-    printf("status : %x\r\n", get_status());
     if(get_status()&_NRF24L01P_STATUS_TX_FULL) return 1;
     else return 0;
 }
