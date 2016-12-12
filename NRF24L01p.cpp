@@ -335,18 +335,17 @@ int NRF24L01p::read_payload_dyn(pipe_t pipe, uint8_t *data){
 void NRF24L01p::PRX(){
     if(readable()){
         StateType  originalState = RadioState;
-        clear_data_ready_flag();
         while(1){
             uint8_t rxData[32];
             pipe_t pipe =  get_rx_payload_pipe();
             int width = read_payload_dyn(pipe, rxData);
-            
-            Payload_t payload;
-            memcpy(payload.data, rxData, width);
-            payload.RxPipe = (pipe_t) pipe;
-            if(fifo_write(&RxFifo, &payload) <= 0)break;
-            
-            
+            if(width>0){
+                Payload_t payload;
+                memcpy(payload.data, rxData, width);
+                payload.RxPipe = (pipe_t) pipe;
+                if(fifo_write(&RxFifo, &payload) <= 0)break;
+            }
+
             if(get_fifo_flag_rx_empty()) break;
         }
         
