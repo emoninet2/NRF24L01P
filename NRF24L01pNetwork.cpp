@@ -35,9 +35,7 @@ void NRF24L01pNetwork::init_network(uint16_t networkID, uint16_t nodeID){
     ownNetworkId = networkID;
     ownNodeId = nodeID;
     set_RX_pipe_address(PIPE_P1, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)0xC2);
-    
 
-    
 }
 
 
@@ -59,7 +57,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     }
     else{
         printf("bouncing packet\r\n");
-        sendToNetwork(network_pld);
+        //sendToNetwork(network_pld);
     }
 }
 
@@ -80,14 +78,34 @@ int NRF24L01pNetwork::sendToNetwork(network_payload_t *Netpayload){
 	//	sendToNodeDirect(Netpayload);
 	//}
 	//else{
-		sendToAllAdjacent(Netpayload);
+		bool adjAddrMatch = 0;
+		int i;
+		for(i=0;i<5;i++){
+			if(Netpayload->toNodeId == reachable_Nodes[i]) {
+				sendToNodeDirect(Netpayload);
+				adjAddrMatch = 1;
+				break;
+			}
+		}
+
+		if(adjAddrMatch == 0){
+			sendToAllAdjacent(Netpayload);
+		}
 	//}
 	return 0;
 }
 
 
 int NRF24L01pNetwork::sendToNodeDirect(network_payload_t *Netpayload){
-
+    Payload_t payload;
+    payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(Netpayload->toNodeId)<<8) + (uint64_t)0xC2;
+    strcpy((char*)payload.data, (char*)Netpayload);
+    if (fifo_write(&TxFifo, &payload)){
+    	return 1;
+    }
+    else{
+    	return 0;
+    }
 }
 
 int NRF24L01pNetwork::sendToAllAdjacent(network_payload_t *Netpayload){
