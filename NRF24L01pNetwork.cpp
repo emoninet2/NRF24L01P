@@ -45,7 +45,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     //printf("your message was : %s\r\n", payload->data);
     //printf("your address was : %llx\r\n", payload.TXaddress);
     //printf("your pipe was : %d\r\n", payload->RXpipe);
-    printf("\r\n");
+    printf("\r\n%d\r\n", strlen((char*)payload->data));
     printf("fromAddr : %x\r\n", network_pld->fromNodeId);
     printf("toAddr : %x\r\n", network_pld->toNodeId);
     printf("pid : %x\r\n", network_pld->pid);
