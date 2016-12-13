@@ -328,7 +328,6 @@ int NRF24L01p::read_payload_dyn(pipe_t pipe, uint8_t *data){
             return -1;
     }
     return 0;
-
 }
 
 
@@ -342,14 +341,13 @@ void NRF24L01p::PRX(){
             rxData[width] = '\0';
             if(width>0){
                 Payload_t payload;
-                memcpy(payload.data, rxData, width);
+                //strcpy((char*)payload.data, (char*)rxData);
+                memcpy(payload.data,rxData,32);
                 payload.RxPipe = (pipe_t) pipe;
                 if(fifo_write(&RxFifo, &payload) <= 0)break;
             }
-
             if(get_fifo_flag_rx_empty()) break;
         }
-        
         RadioMode(originalState);
     }
 }
