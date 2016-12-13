@@ -339,6 +339,7 @@ void NRF24L01p::PRX(){
             uint8_t rxData[32];
             pipe_t pipe =  get_rx_payload_pipe();
             int width = read_payload_dyn(pipe, rxData);
+            rxData[width] = '\0';
             if(width>0){
                 Payload_t payload;
                 memcpy(payload.data, rxData, width);
