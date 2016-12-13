@@ -64,7 +64,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     
     Node_t returnNode;
     returnNode.RxPipe = payload->RxPipe;
-    returnNode.NodeId = AdjacentNodes[returnNode.RxPipe].NodeId;
+    returnNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
     
     if(ownIdMatched(payload) ){
         printf("wallahi address matched from adj: %x pipe : %d \r\n", returnNode.NodeId,returnNode.RxPipe );
@@ -74,7 +74,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     else{
         printf("bouncing packet\r\n");
         //sendToNetwork(network_pld);
-        xBounceToNetworkExceptNode(&ackPld, &returnNode);
+        xBounceToNetworkExceptNode(network_pld, &returnNode);
     }
 }
 
@@ -207,6 +207,7 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     for(i=0;i<5;i++){
         if(AdjacentNodes[i].NodeId != AdjNode->NodeId){
             payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC0 | AdjacentNodes[i].RxPipe);
+            printf("bouncing to : %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
         }
     }
