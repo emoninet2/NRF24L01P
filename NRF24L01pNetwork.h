@@ -48,7 +48,9 @@ public:
     bool ownIdMatched(Payload_t *payload);
     
     int sendToNetwork(network_payload_t *Netpayload);
+    int sendToNetworkViaNode(network_payload_t *Netpayload, uint16_t node);
     int sendToNodeDirect(network_payload_t *Netpayload);
+    int sendToNodeSpecific(network_payload_t *Netpayload, uint16_t node);
     int sendToAllAdjacent(network_payload_t *Netpayload);
     bool isNodeReachable(uint16_t NodeId);
     

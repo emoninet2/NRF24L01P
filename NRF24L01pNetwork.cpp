@@ -51,9 +51,17 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     printf("pid : %x\r\n", network_pld->pid);
     printf("payload data : %s\r\n", network_pld->payload);
     
-
+    network_payload_t ackPld;
+    ackPld.toNodeId = network_pld->fromNodeId;
+    ackPld.fromNodeId = network_pld->toNodeId;
+    ackPld.pid = network_pld->pid;
+    ackPld.packet_info = network_pld->packet_info;
+    sprintf((char*)ackPld.payload, "ACK");
+    
+    
     if(ownIdMatched(payload) ){
-        printf("address matched\r\n");
+        printf("wallahi address matched from adj: %x\r\n", reachable_Nodes[payload->RxPipe - 1]);
+        sendToNodeSpecific(&ackPld,reachable_Nodes[payload->RxPipe - 1]);
     }
     else{
         printf("bouncing packet\r\n");
@@ -74,6 +82,27 @@ bool NRF24L01pNetwork::ownIdMatched(Payload_t *payload){
 
 
 int NRF24L01pNetwork::sendToNetwork(network_payload_t *Netpayload){
+    //if( isNodeReachable(Netpayload->toNodeId)){
+    //	sendToNodeDirect(Netpayload);
+    //}
+    //else{
+        bool adjAddrMatch = 0;
+        int i;
+        for(i=0;i<5;i++){
+            if( (Netpayload->toNodeId == reachable_Nodes[i]  ) {
+                    sendToNodeDirect(Netpayload);
+                    adjAddrMatch = 1;
+                    break;
+            }
+        }
+
+        if(adjAddrMatch == 0){
+            sendToAllAdjacent(Netpayload);
+        }
+    //}
+    return 0;
+}
+int NRF24L01pNetwork::sendToNetworkViaNode(network_payload_t *Netpayload, uint16_t node){
 	//if( isNodeReachable(Netpayload->toNodeId)){
 	//	sendToNodeDirect(Netpayload);
 	//}
@@ -81,20 +110,15 @@ int NRF24L01pNetwork::sendToNetwork(network_payload_t *Netpayload){
 		bool adjAddrMatch = 0;
 		int i;
 		for(i=0;i<5;i++){
-			if(Netpayload->toNodeId == reachable_Nodes[i]) {
-				sendToNodeDirect(Netpayload);
-				adjAddrMatch = 1;
-				break;
+			if(node == reachable_Nodes[i]) {
+                            sendToNodeDirect(Netpayload);
+                            adjAddrMatch = 1;
+                            break;
 			}
-		}
-
-		if(adjAddrMatch == 0){
-			sendToAllAdjacent(Netpayload);
 		}
 	//}
 	return 0;
 }
-
 
 int NRF24L01pNetwork::sendToNodeDirect(network_payload_t *Netpayload){
     Payload_t payload;
@@ -107,7 +131,18 @@ int NRF24L01pNetwork::sendToNodeDirect(network_payload_t *Netpayload){
     	return 0;
     }
 }
-
+int NRF24L01pNetwork::sendToNodeSpecific(network_payload_t *Netpayload, uint16_t node){
+    Payload_t payload;
+    payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(node)<<8) + (uint64_t)0xC2;
+    printf("sending via ADDR : %llx\r\n", payload.TxAddr);
+    strcpy((char*)payload.data, (char*)Netpayload);
+    if (fifo_write(&TxFifo, &payload)){
+    	return 1;
+    }
+    else{
+    	return 0;
+    }
+}
 int NRF24L01pNetwork::sendToAllAdjacent(network_payload_t *Netpayload){
 
     Payload_t payload;
@@ -119,6 +154,7 @@ int NRF24L01pNetwork::sendToAllAdjacent(network_payload_t *Netpayload){
     }
     return 0;
 }
+
 
 
 bool NRF24L01pNetwork::isNodeReachable(uint16_t NodeId){
