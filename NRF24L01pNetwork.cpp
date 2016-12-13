@@ -73,7 +73,8 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     }
     else{
         printf("bouncing packet\r\n");
-        sendToNetwork(network_pld);
+        //sendToNetwork(network_pld);
+        xBounceToNetworkExceptNode(&ackPld, &returnNode);
     }
 }
 
