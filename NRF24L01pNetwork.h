@@ -33,7 +33,13 @@ public:
         uint8_t payload[26];
     }network_payload_t;
 
-    uint16_t reachable_Nodes[5];
+    typedef struct adjacent_nodes{
+        uint16_t NodeId;
+        pipe_t RxPipe;
+    }AdjNodes_t;
+    
+    AdjNodes_t AdjacentNodes[5];
+    //uint16_t reachable_Nodes[5];
     
     uint16_t ownNetworkId;
     uint16_t ownNodeId;

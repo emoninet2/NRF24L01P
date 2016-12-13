@@ -34,8 +34,12 @@ NRF24L01pNetwork::~NRF24L01pNetwork() {
 void NRF24L01pNetwork::init_network(uint16_t networkID, uint16_t nodeID){
     ownNetworkId = networkID;
     ownNodeId = nodeID;
-    set_RX_pipe_address(PIPE_P1, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)0xC2);
-
+    set_RX_pipe_address(PIPE_P1, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P1));
+    set_RX_pipe_address(PIPE_P2, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P2));
+    set_RX_pipe_address(PIPE_P3, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P3));
+    set_RX_pipe_address(PIPE_P4, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P4));
+    set_RX_pipe_address(PIPE_P5, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P5));
+    
 }
 
 
@@ -60,8 +64,8 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     
     
     if(ownIdMatched(payload) ){
-        printf("wallahi address matched from adj: %x\r\n", reachable_Nodes[payload->RxPipe - 1]);
-        sendToNodeSpecific(&ackPld,reachable_Nodes[payload->RxPipe - 1]);
+        printf("wallahi address matched from adj: %x\r\n", AdjacentNodes[payload->RxPipe - 1].NodeId);
+        sendToNodeSpecific(&ackPld,AdjacentNodes[payload->RxPipe - 1].NodeId);
     }
     else{
         printf("bouncing packet\r\n");
@@ -89,7 +93,7 @@ int NRF24L01pNetwork::sendToNetwork(network_payload_t *Netpayload){
         bool adjAddrMatch = 0;
         int i;
         for(i=0;i<5;i++){
-            if( (Netpayload->toNodeId == reachable_Nodes[i]  )) {
+            if( (Netpayload->toNodeId == AdjacentNodes[i].NodeId  )) {
                     sendToNodeDirect(Netpayload);
                     adjAddrMatch = 1;
                     break;
@@ -109,7 +113,7 @@ int NRF24L01pNetwork::sendToNetworkViaNode(network_payload_t *Netpayload, uint16
 		bool adjAddrMatch = 0;
 		int i;
 		for(i=0;i<5;i++){
-			if(node == reachable_Nodes[i]) {
+			if(node == AdjacentNodes[i].NodeId) {
                             sendToNodeDirect(Netpayload);
                             adjAddrMatch = 1;
                             break;
@@ -148,7 +152,7 @@ int NRF24L01pNetwork::sendToAllAdjacent(network_payload_t *Netpayload){
     int i;
     strcpy((char*)payload.data, (char*)Netpayload);
     for(i=0;i<5;i++){
-        payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(reachable_Nodes[i])<<8) + (uint64_t)0xC2;
+        payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)0xC2;
         fifo_write(&TxFifo, &payload);
     }
     return 0;
