@@ -90,7 +90,7 @@ int NRF24L01pNetwork::sendToAllAdjacent(network_payload_t *Netpayload){
 
     Payload_t payload;
     int i;
-    memcpy((char*)payload.data, (char*)Netpayload, 32);
+    strcpy((char*)payload.data, (char*)Netpayload);
     for(i=0;i<5;i++){
         payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(reachable_Nodes[i])<<8) + (uint64_t)0xC2;
         fifo_write(&TxFifo, &payload);
