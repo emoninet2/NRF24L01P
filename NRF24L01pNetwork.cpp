@@ -89,13 +89,12 @@ int NRF24L01pNetwork::sendToNetwork(network_payload_t *Netpayload){
         bool adjAddrMatch = 0;
         int i;
         for(i=0;i<5;i++){
-            if( (Netpayload->toNodeId == reachable_Nodes[i]  ) {
+            if( (Netpayload->toNodeId == reachable_Nodes[i]  )) {
                     sendToNodeDirect(Netpayload);
                     adjAddrMatch = 1;
                     break;
             }
         }
-
         if(adjAddrMatch == 0){
             sendToAllAdjacent(Netpayload);
         }
