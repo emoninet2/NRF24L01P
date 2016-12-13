@@ -36,9 +36,9 @@ public:
     typedef struct adjacent_nodes{
         uint16_t NodeId;
         pipe_t RxPipe;
-    }AdjNodes_t;
+    }Node_t;
     
-    AdjNodes_t AdjacentNodes[5];
+    Node_t AdjacentNodes[5];
     //uint16_t reachable_Nodes[5];
     
     uint16_t ownNetworkId;
@@ -54,11 +54,25 @@ public:
     bool ownIdMatched(Payload_t *payload);
     
     int sendToNetwork(network_payload_t *Netpayload);
+    
     int sendToNetworkViaNode(network_payload_t *Netpayload, uint16_t node);
     int sendToNodeDirect(network_payload_t *Netpayload);
     int sendToNodeSpecific(network_payload_t *Netpayload, uint16_t node);
     int sendToAllAdjacent(network_payload_t *Netpayload);
     bool isNodeReachable(uint16_t NodeId);
+    
+
+    
+    
+    void xInit_network(uint16_t networkID, uint16_t nodeID);
+    void xProcessPacket(Payload_t *payload);
+    bool xOwnIdMatched(Payload_t *payload);
+    int xSendToNetworkViaNode(network_payload_t *Netpayload, Node_t *AdjNode);
+    int xBounceToNetworkExceptNode(network_payload_t *Netpayload, Node_t *AdjNode);
+    int xIsNodeAdjacent(Node_t AdjNode);
+    int xIsNodeReachable(Node_t AdjNode);
+    
+    
     
 private:
 

@@ -62,10 +62,14 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     ackPld.packet_info = network_pld->packet_info;
     sprintf((char*)ackPld.payload, "ACK");
     
+    Node_t returnNode;
+    returnNode.RxPipe = payload->RxPipe;
+    returnNode.NodeId = AdjacentNodes[returnNode.RxPipe].NodeId;
     
     if(ownIdMatched(payload) ){
         printf("wallahi address matched from adj: %x\r\n", AdjacentNodes[payload->RxPipe - 1].NodeId);
-        sendToNodeSpecific(&ackPld,AdjacentNodes[payload->RxPipe - 1].NodeId);
+        //sendToNodeSpecific(&ackPld,AdjacentNodes[payload->RxPipe - 1].NodeId);
+        xSendToNetworkViaNode(&ackPld, &returnNode);
     }
     else{
         printf("bouncing packet\r\n");
@@ -161,5 +165,57 @@ int NRF24L01pNetwork::sendToAllAdjacent(network_payload_t *Netpayload){
 
 
 bool NRF24L01pNetwork::isNodeReachable(uint16_t NodeId){
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void NRF24L01pNetwork::xInit_network(uint16_t networkID, uint16_t nodeID){
+
+}
+void NRF24L01pNetwork::xProcessPacket(Payload_t *payload){
+
+}
+bool NRF24L01pNetwork::xOwnIdMatched(Payload_t *payload){
+
+}
+int NRF24L01pNetwork::xSendToNetworkViaNode(network_payload_t *Netpayload, Node_t *AdjNode){
+    Payload_t payload;
+    payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjNode->NodeId)<<8) + (uint64_t)(0xC0| AdjNode->RxPipe);
+    strcpy((char*)payload.data, (char*)Netpayload);
+    if (fifo_write(&TxFifo, &payload)){
+    	return 1;
+    }
+    else{
+    	return 0;
+    }
+}
+int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, Node_t *AdjNode){
+    Payload_t payload;
+    int i;
+    strcpy((char*)payload.data, (char*)Netpayload);
+    for(i=0;i<5;i++){
+        if(AdjacentNodes[i].NodeId != AdjNode->NodeId){
+            payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC0 | AdjacentNodes[i].RxPipe);
+            fifo_write(&TxFifo, &payload);
+        }
+    }
+    return 0;
+}
+int NRF24L01pNetwork::xIsNodeAdjacent(Node_t AdjNode){
+
+}
+
+
+int NRF24L01pNetwork::xIsNodeReachable(Node_t AdjNode){
 
 }
