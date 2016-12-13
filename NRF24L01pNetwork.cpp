@@ -67,7 +67,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     returnNode.NodeId = AdjacentNodes[returnNode.RxPipe].NodeId;
     
     if(ownIdMatched(payload) ){
-        printf("wallahi address matched from adj: %x\r\n", AdjacentNodes[payload->RxPipe - 1].NodeId);
+        printf("wallahi address matched from adj: %x pipe : %d \r\n", returnNode.NodeId,returnNode.RxPipe );
         //sendToNodeSpecific(&ackPld,AdjacentNodes[payload->RxPipe - 1].NodeId);
         xSendToNetworkViaNode(&ackPld, &returnNode);
     }

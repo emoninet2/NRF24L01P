@@ -71,6 +71,7 @@ public:
     int xBounceToNetworkExceptNode(network_payload_t *Netpayload, Node_t *AdjNode);
     int xIsNodeAdjacent(Node_t AdjNode);
     int xIsNodeReachable(Node_t AdjNode);
+
     
     
     
