@@ -205,7 +205,7 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     int i;
     strcpy((char*)payload.data, (char*)Netpayload);
     for(i=0;i<5;i++){
-        if(AdjacentNodes[i].NodeId != AdjNode->NodeId){
+        if((AdjacentNodes[i].NodeId == Netpayload->toNodeId)&&(AdjacentNodes[i].NodeId != AdjNode->NodeId)){
             payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC0 | AdjacentNodes[i].RxPipe);
             printf("bouncing to : %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
@@ -213,6 +213,7 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     }
     return 0;
 }
+
 int NRF24L01pNetwork::xIsNodeAdjacent(Node_t AdjNode){
 
 }
