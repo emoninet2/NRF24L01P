@@ -361,7 +361,7 @@ void NRF24L01p::PTX(){
     }
     else{
         //enable_payload_with_ack();
-        write_payload_to_send_to_address_ack(payload.TxAddr, payload.data, strlen(payload.data));
+        write_payload_to_send_to_address_ack(payload.TxAddr, payload.data, strlen((char*)payload.data));
 
         StateType  originalState = RadioState;
 
