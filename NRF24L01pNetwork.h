@@ -43,7 +43,7 @@ public:
     NRF24L01pNetwork(const NRF24L01pNetwork& orig);
     virtual ~NRF24L01pNetwork();
     
-    void init_network();
+    void init_network(uint16_t networkID, uint16_t nodeID);
     void processPacket(Payload_t *payload);
     bool ownIdMatched(Payload_t *payload);
     

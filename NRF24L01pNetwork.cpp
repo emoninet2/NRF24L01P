@@ -31,7 +31,9 @@ NRF24L01pNetwork::~NRF24L01pNetwork() {
 
 
 
-void NRF24L01pNetwork::init_network(){
+void NRF24L01pNetwork::init_network(uint16_t networkID, uint16_t nodeID){
+    ownNetworkId = networkID;
+    ownNodeId = nodeID;
     set_RX_pipe_address(PIPE_P1, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)0xC2);
 }
 
