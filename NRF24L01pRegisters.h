@@ -114,7 +114,7 @@
 #define _NRF24L01P_RF_SETUP_RF_DR_LOW_BIT        (1 << 5)
 #define _NRF24L01P_RF_SETUP_RF_DR_MASK           (_NRF24L01P_RF_SETUP_RF_DR_LOW_BIT|_NRF24L01P_RF_SETUP_RF_DR_HIGH_BIT)
 #define _NRF24L01P_RF_SETUP_PLL_LOCK             (1<<4)
-#define _NRF24L01p_RF_CONT_WAVE                  (1<<7)
+#define _NRF24L01P_RF_CONT_WAVE                  (1<<7)
 /**@}*/ 
 
 

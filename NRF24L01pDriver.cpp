@@ -255,12 +255,12 @@ void NRF24L01pDriver::disble_pll_lock(){
 }
 void NRF24L01pDriver::enable_cont_wave(){
     uint8_t temp = read_register(_NRF24L01P_REG_RF_SETUP);
-    temp |= _NRF24L01p_RF_CONT_WAVE;
+    temp |= _NRF24L01P_RF_CONT_WAVE;
     write_register(_NRF24L01P_REG_RF_SETUP,temp);
 }
 void NRF24L01pDriver::disable_cont_wave(){
     uint8_t temp = read_register(_NRF24L01P_REG_RF_SETUP);
-    temp &= ~_NRF24L01p_RF_CONT_WAVE;
+    temp &= ~_NRF24L01P_RF_CONT_WAVE;
     write_register(_NRF24L01P_REG_RF_SETUP,temp);
 }
 
