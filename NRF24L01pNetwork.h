@@ -38,8 +38,15 @@ public:
         pipe_t RxPipe;
     }Node_t;
     
+    
+    typedef struct fwrd_addr{
+        uint16_t SrcNodeId;
+        Node_t AdjNode;
+    }fwrd_addr_t;
+    
     Node_t AdjacentNodes[5];
-    //uint16_t reachable_Nodes[5];
+    fwrd_addr_t AddressCache[20];
+    unsigned int AddressCacheLevel = 0;
     
     uint16_t ownNetworkId;
     uint16_t ownNodeId;

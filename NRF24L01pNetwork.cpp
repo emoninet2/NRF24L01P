@@ -66,6 +66,21 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     returnNode.RxPipe = payload->RxPipe;
     returnNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
     
+    
+    int i;
+    int addrOnList = 0;
+    for(i=0;i<20;i++){
+        if(AddressCache[i].SrcNodeId == network_pld->fromNodeId) addrOnList = 1;
+    }
+    if(addrOnList == 0){
+        AddressCache[AddressCacheLevel].SrcNodeId = network_pld->fromNodeId;
+        AddressCache[AddressCacheLevel].AdjNode.RxPipe = payload->RxPipe;
+        AddressCache[AddressCacheLevel].AdjNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
+        AddressCacheLevel++;
+        if(AddressCacheLevel>=20)AddressCacheLevel = 0;
+    }
+    
+    
     if(ownIdMatched(payload) ){
         printf("wallahi address matched from adj: %x pipe : %d \r\n", returnNode.NodeId,returnNode.RxPipe );
         //sendToNodeSpecific(&ackPld,AdjacentNodes[payload->RxPipe - 1].NodeId);
@@ -204,6 +219,7 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     Payload_t payload;
     int i;
     int matched_adjacent = 0;
+    int matched_addrCache = 0;
     strcpy((char*)payload.data, (char*)Netpayload);
     for(i=0;i<5;i++){
         if((AdjacentNodes[i].NodeId == Netpayload->toNodeId)&&(AdjacentNodes[i].NodeId != AdjNode->NodeId)){
@@ -211,14 +227,28 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
             printf("bouncing to : %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
             matched_adjacent = 1;
+            return 0;
         }
     }
     
-    if(matched_adjacent == 0){
+    for(i=0;i<20;i++){
+        if((AddressCache[i].SrcNodeId == Netpayload->toNodeId)){
+            payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AddressCache[i].AdjNode.NodeId)<<8) + (uint64_t)(0xC0 | AddressCache[i].AdjNode.RxPipe);
+            printf("bouncing to : %llx\r\n", payload.TxAddr);
+            fifo_write(&TxFifo, &payload);
+            matched_adjacent = 1;
+            return 0;
+        }
+    }
+    
+    
+    
+    if((matched_adjacent == 0) && (matched_addrCache == 0)){
         for(i=0;i<5;i++){
             payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC0 | AdjacentNodes[i].RxPipe);
             printf("bouncing to : %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
+            return 0;
         }
     }
     
