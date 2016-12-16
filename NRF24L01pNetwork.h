@@ -46,7 +46,7 @@ public:
     
     AdjNode_t AdjacentNodes[5];
     fwrd_addr_t RoutingTable[20];
-    unsigned int RoutingTableLevel = 0;
+    unsigned int RoutingTableLevel;
     
     uint16_t ownNetworkId;
     uint16_t ownNodeId;
