@@ -210,7 +210,7 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     
     for(i=0;i<20;i++){
         if((RoutingTable[i].SrcNodeId == Netpayload->toNodeId)){
-            payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(RoutingTable[i].AdjNode.NodeId)<<8) + (uint64_t)(0xC0 | RoutingTable[i].AdjNode.RxPipe);
+            payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(RoutingTable[i].AdjNode.NodeId)<<8) + (uint64_t)(0xC1 + RoutingTable[i].AdjNode.RxPipe);
             printf("bouncing to Routing Table Node: %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
             matched_adjacent = 1;
