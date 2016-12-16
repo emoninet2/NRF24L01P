@@ -209,7 +209,10 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     }
     
     for(i=0;i<20;i++){
-        if((RoutingTable[i].SrcNodeId == Netpayload->toNodeId)){
+        //printf("FINDING match [%d : %d]\r\n",RoutingTable[i].SrcNodeId , Netpayload->fromNodeId );
+        //printf("DIFFERENCE %d \r\n"  ,  Netpayload->fromNodeId - RoutingTable[i].SrcNodeId );
+        if(((RoutingTable[i].SrcNodeId) == (Netpayload->fromNodeId)  )){
+            //printf("MATCH FOUND\r\n");
             payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(RoutingTable[i].AdjNode.NodeId)<<8) + (uint64_t)(0xC1 + RoutingTable[i].AdjNode.RxPipe);
             printf("bouncing to Routing Table Node: %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
@@ -241,21 +244,26 @@ int NRF24L01pNetwork::xIsNodeReachable(AdjNode_t AdjNode){
 }
 
 int NRF24L01pNetwork::RoutingTableHandler(Payload_t *payload){
+    printf("ROUTING TABLE HANDLER\r\n");
     network_payload_t *network_pld = (network_payload_t*) payload->data;
 
-    AdjNode_t returnNode;
-    returnNode.RxPipe = payload->RxPipe;
-    returnNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
+    AdjNode_t viaNode;
+    viaNode.RxPipe = payload->RxPipe;
+    viaNode.NodeId = AdjacentNodes[viaNode.RxPipe-1].NodeId;
    
     int i;
 
     for(i=0;i<20;i++){
         if(RoutingTable[i].SrcNodeId == network_pld->fromNodeId) return 0;
+        printf("%x : %x\r\n",RoutingTable[i].SrcNodeId, network_pld->fromNodeId );
+        
+        
     }
 
+    printf("storing to routing table\r\n");
     RoutingTable[RoutingTableLevel].SrcNodeId = network_pld->fromNodeId;
     RoutingTable[RoutingTableLevel].AdjNode.RxPipe = payload->RxPipe;
-    RoutingTable[RoutingTableLevel].AdjNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
+    RoutingTable[RoutingTableLevel].AdjNode.NodeId = AdjacentNodes[viaNode.RxPipe-1].NodeId;
     RoutingTableLevel++;
     if(RoutingTableLevel>=20)RoutingTableLevel = 0;
     
