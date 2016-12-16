@@ -222,7 +222,7 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     
     if((matched_adjacent == 0) && (matched_addrCache == 0)){
         for(i=0;i<5;i++){
-            payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC0 | AdjacentNodes[i].RxPipe);
+            payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC1 + AdjacentNodes[i].RxPipe);
             printf("bouncing to All Adjacent: %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
             return 0;
