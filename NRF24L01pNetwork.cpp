@@ -271,9 +271,7 @@ int NRF24L01pNetwork::RoutingTableHandler(Payload_t *payload){
     RoutingTableLevel++;
     if(RoutingTableLevel>=20)RoutingTableLevel = 0;
     
-    
-    
-    
+
 }
 
 int NRF24L01pNetwork::setAdjacentNode(pipe_t RxPipe, AdjNode_t *AdjNode){
