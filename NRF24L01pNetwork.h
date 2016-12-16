@@ -45,8 +45,8 @@ public:
     }fwrd_addr_t;
     
     Node_t AdjacentNodes[5];
-    fwrd_addr_t AddressCache[20];
-    unsigned int AddressCacheLevel = 0;
+    fwrd_addr_t RoutingTable[20];
+    unsigned int RoutingTableLevel = 0;
     
     uint16_t ownNetworkId;
     uint16_t ownNodeId;

@@ -70,14 +70,14 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     int i;
     int addrOnList = 0;
     for(i=0;i<20;i++){
-        if(AddressCache[i].SrcNodeId == network_pld->fromNodeId) addrOnList = 1;
+        if(RoutingTable[i].SrcNodeId == network_pld->fromNodeId) addrOnList = 1;
     }
     if(addrOnList == 0){
-        AddressCache[AddressCacheLevel].SrcNodeId = network_pld->fromNodeId;
-        AddressCache[AddressCacheLevel].AdjNode.RxPipe = payload->RxPipe;
-        AddressCache[AddressCacheLevel].AdjNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
-        AddressCacheLevel++;
-        if(AddressCacheLevel>=20)AddressCacheLevel = 0;
+        RoutingTable[RoutingTableLevel].SrcNodeId = network_pld->fromNodeId;
+        RoutingTable[RoutingTableLevel].AdjNode.RxPipe = payload->RxPipe;
+        RoutingTable[RoutingTableLevel].AdjNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
+        RoutingTableLevel++;
+        if(RoutingTableLevel>=20)RoutingTableLevel = 0;
     }
     
     
@@ -232,8 +232,8 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     }
     
     for(i=0;i<20;i++){
-        if((AddressCache[i].SrcNodeId == Netpayload->toNodeId)){
-            payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AddressCache[i].AdjNode.NodeId)<<8) + (uint64_t)(0xC0 | AddressCache[i].AdjNode.RxPipe);
+        if((RoutingTable[i].SrcNodeId == Netpayload->toNodeId)){
+            payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(RoutingTable[i].AdjNode.NodeId)<<8) + (uint64_t)(0xC0 | RoutingTable[i].AdjNode.RxPipe);
             printf("bouncing to : %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
             matched_adjacent = 1;
