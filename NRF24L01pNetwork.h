@@ -36,15 +36,15 @@ public:
     typedef struct adjacent_nodes{
         uint16_t NodeId;
         pipe_t RxPipe;
-    }AdjNode_t;
+    }Node_t;
     
     
     typedef struct fwrd_addr{
         uint16_t SrcNodeId;
-        AdjNode_t AdjNode;
+        Node_t AdjNode;
     }fwrd_addr_t;
     
-    AdjNode_t AdjacentNodes[5];
+    Node_t AdjacentNodes[5];
     fwrd_addr_t RoutingTable[20];
     unsigned int RoutingTableLevel;
     
@@ -59,27 +59,14 @@ public:
     void init_network(uint16_t networkID, uint16_t nodeID);
     void processPacket(Payload_t *payload);
     bool ownIdMatched(Payload_t *payload);
-    
-    int sendToNetwork(network_payload_t *Netpayload);
-    
-    int sendToNetworkViaNode(network_payload_t *Netpayload, uint16_t node);
-    int sendToNodeDirect(network_payload_t *Netpayload);
-    int sendToNodeSpecific(network_payload_t *Netpayload, uint16_t node);
-    int sendToAllAdjacent(network_payload_t *Netpayload);
-    bool isNodeReachable(uint16_t NodeId);
-    
 
+    int SendToNetworkViaNode(network_payload_t *Netpayload, Node_t *AdjNode);
+    int BounceToNetworkExceptNode(network_payload_t *Netpayload, Node_t *AdjNode);
     
-    
-    void xInit_network(uint16_t networkID, uint16_t nodeID);
-    void xProcessPacket(Payload_t *payload);
-    bool xOwnIdMatched(Payload_t *payload);
-    int xSendToNetworkViaNode(network_payload_t *Netpayload, AdjNode_t *AdjNode);
-    int xBounceToNetworkExceptNode(network_payload_t *Netpayload, AdjNode_t *AdjNode);
-    int xIsNodeAdjacent(AdjNode_t AdjNode);
-    int xIsNodeReachable(AdjNode_t AdjNode);
+    int IsNodeAdjacent(Node_t AdjNode);
+    int IsNodeReachable(Node_t AdjNode);
     int RoutingTableHandler(Payload_t *payload);
-    int setAdjacentNode(pipe_t RxPipe, AdjNode_t *AdjNode);
+    int setAdjacentNode(pipe_t RxPipe, Node_t *AdjNode);
     
     
 private:
