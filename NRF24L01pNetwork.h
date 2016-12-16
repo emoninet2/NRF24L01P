@@ -36,15 +36,15 @@ public:
     typedef struct adjacent_nodes{
         uint16_t NodeId;
         pipe_t RxPipe;
-    }Node_t;
+    }AdjNode_t;
     
     
     typedef struct fwrd_addr{
         uint16_t SrcNodeId;
-        Node_t AdjNode;
+        AdjNode_t AdjNode;
     }fwrd_addr_t;
     
-    Node_t AdjacentNodes[5];
+    AdjNode_t AdjacentNodes[5];
     fwrd_addr_t RoutingTable[20];
     unsigned int RoutingTableLevel = 0;
     
@@ -74,11 +74,11 @@ public:
     void xInit_network(uint16_t networkID, uint16_t nodeID);
     void xProcessPacket(Payload_t *payload);
     bool xOwnIdMatched(Payload_t *payload);
-    int xSendToNetworkViaNode(network_payload_t *Netpayload, Node_t *AdjNode);
-    int xBounceToNetworkExceptNode(network_payload_t *Netpayload, Node_t *AdjNode);
-    int xIsNodeAdjacent(Node_t AdjNode);
-    int xIsNodeReachable(Node_t AdjNode);
-
+    int xSendToNetworkViaNode(network_payload_t *Netpayload, AdjNode_t *AdjNode);
+    int xBounceToNetworkExceptNode(network_payload_t *Netpayload, AdjNode_t *AdjNode);
+    int xIsNodeAdjacent(AdjNode_t AdjNode);
+    int xIsNodeReachable(AdjNode_t AdjNode);
+    int RoutingTableHandler(Payload_t *payload);
     
     
     

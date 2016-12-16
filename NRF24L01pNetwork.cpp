@@ -46,6 +46,7 @@ void NRF24L01pNetwork::init_network(uint16_t networkID, uint16_t nodeID){
 
 void NRF24L01pNetwork::processPacket(Payload_t *payload){
     network_payload_t *network_pld = (network_payload_t*) payload->data;
+    
     //printf("your message was : %s\r\n", payload->data);
     //printf("your address was : %llx\r\n", payload.TXaddress);
     //printf("your pipe was : %d\r\n", payload->RXpipe);
@@ -54,36 +55,24 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     printf("toAddr : %x\r\n", network_pld->toNodeId);
     printf("pid : %x\r\n", network_pld->pid);
     printf("payload data : %s\r\n", network_pld->payload);
-    
-    network_payload_t ackPld;
-    ackPld.toNodeId = network_pld->fromNodeId;
-    ackPld.fromNodeId = network_pld->toNodeId;
-    ackPld.pid = network_pld->pid;
-    ackPld.packet_info = network_pld->packet_info;
-    sprintf((char*)ackPld.payload, "ACK");
-    
-    Node_t returnNode;
+
+    AdjNode_t returnNode;
     returnNode.RxPipe = payload->RxPipe;
     returnNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
     
     
-    int i;
-    int addrOnList = 0;
-    for(i=0;i<20;i++){
-        if(RoutingTable[i].SrcNodeId == network_pld->fromNodeId) addrOnList = 1;
-    }
-    if(addrOnList == 0){
-        RoutingTable[RoutingTableLevel].SrcNodeId = network_pld->fromNodeId;
-        RoutingTable[RoutingTableLevel].AdjNode.RxPipe = payload->RxPipe;
-        RoutingTable[RoutingTableLevel].AdjNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
-        RoutingTableLevel++;
-        if(RoutingTableLevel>=20)RoutingTableLevel = 0;
-    }
+    RoutingTableHandler(payload);
     
     
     if(ownIdMatched(payload) ){
         printf("wallahi address matched from adj: %x pipe : %d \r\n", returnNode.NodeId,returnNode.RxPipe );
         //sendToNodeSpecific(&ackPld,AdjacentNodes[payload->RxPipe - 1].NodeId);
+        network_payload_t ackPld;
+        ackPld.toNodeId = network_pld->fromNodeId;
+        ackPld.fromNodeId = network_pld->toNodeId;
+        ackPld.pid = network_pld->pid;
+        ackPld.packet_info = network_pld->packet_info;
+        sprintf((char*)ackPld.payload, "ACK");
         xSendToNetworkViaNode(&ackPld, &returnNode);
     }
     else{
@@ -126,21 +115,21 @@ int NRF24L01pNetwork::sendToNetwork(network_payload_t *Netpayload){
     return 0;
 }
 int NRF24L01pNetwork::sendToNetworkViaNode(network_payload_t *Netpayload, uint16_t node){
-	//if( isNodeReachable(Netpayload->toNodeId)){
-	//	sendToNodeDirect(Netpayload);
-	//}
-	//else{
-		bool adjAddrMatch = 0;
-		int i;
-		for(i=0;i<5;i++){
-			if(node == AdjacentNodes[i].NodeId) {
-                            sendToNodeDirect(Netpayload);
-                            adjAddrMatch = 1;
-                            break;
-			}
-		}
-	//}
-	return 0;
+    //if( isNodeReachable(Netpayload->toNodeId)){
+    //	sendToNodeDirect(Netpayload);
+    //}
+    //else{
+        bool adjAddrMatch = 0;
+        int i;
+        for(i=0;i<5;i++){
+            if(node == AdjacentNodes[i].NodeId) {
+                sendToNodeDirect(Netpayload);
+                adjAddrMatch = 1;
+                break;
+            }
+        }
+    //}
+    return 0;
 }
 
 int NRF24L01pNetwork::sendToNodeDirect(network_payload_t *Netpayload){
@@ -180,19 +169,6 @@ int NRF24L01pNetwork::sendToAllAdjacent(network_payload_t *Netpayload){
 
 
 
-bool NRF24L01pNetwork::isNodeReachable(uint16_t NodeId){
-
-}
-
-
-
-
-
-
-
-
-
-
 
 
 void NRF24L01pNetwork::xInit_network(uint16_t networkID, uint16_t nodeID){
@@ -204,7 +180,7 @@ void NRF24L01pNetwork::xProcessPacket(Payload_t *payload){
 bool NRF24L01pNetwork::xOwnIdMatched(Payload_t *payload){
 
 }
-int NRF24L01pNetwork::xSendToNetworkViaNode(network_payload_t *Netpayload, Node_t *AdjNode){
+int NRF24L01pNetwork::xSendToNetworkViaNode(network_payload_t *Netpayload, AdjNode_t *AdjNode){
     Payload_t payload;
     payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjNode->NodeId)<<8) + (uint64_t)(0xC0| AdjNode->RxPipe);
     strcpy((char*)payload.data, (char*)Netpayload);
@@ -215,7 +191,7 @@ int NRF24L01pNetwork::xSendToNetworkViaNode(network_payload_t *Netpayload, Node_
     	return 0;
     }
 }
-int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, Node_t *AdjNode){
+int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, AdjNode_t *AdjNode){
     Payload_t payload;
     int i;
     int matched_adjacent = 0;
@@ -224,7 +200,7 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     for(i=0;i<5;i++){
         if((AdjacentNodes[i].NodeId == Netpayload->toNodeId)&&(AdjacentNodes[i].NodeId != AdjNode->NodeId)){
             payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC0 | AdjacentNodes[i].RxPipe);
-            printf("bouncing to : %llx\r\n", payload.TxAddr);
+            printf("bouncing to Adjacent Node: %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
             matched_adjacent = 1;
             return 0;
@@ -234,7 +210,7 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     for(i=0;i<20;i++){
         if((RoutingTable[i].SrcNodeId == Netpayload->toNodeId)){
             payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(RoutingTable[i].AdjNode.NodeId)<<8) + (uint64_t)(0xC0 | RoutingTable[i].AdjNode.RxPipe);
-            printf("bouncing to : %llx\r\n", payload.TxAddr);
+            printf("bouncing to Routing Table Node: %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
             matched_adjacent = 1;
             return 0;
@@ -246,7 +222,7 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     if((matched_adjacent == 0) && (matched_addrCache == 0)){
         for(i=0;i<5;i++){
             payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC0 | AdjacentNodes[i].RxPipe);
-            printf("bouncing to : %llx\r\n", payload.TxAddr);
+            printf("bouncing to All Adjacent: %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
             return 0;
         }
@@ -255,11 +231,32 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     return 0;
 }
 
-int NRF24L01pNetwork::xIsNodeAdjacent(Node_t AdjNode){
+int NRF24L01pNetwork::xIsNodeAdjacent(AdjNode_t AdjNode){
 
 }
 
 
-int NRF24L01pNetwork::xIsNodeReachable(Node_t AdjNode){
+int NRF24L01pNetwork::xIsNodeReachable(AdjNode_t AdjNode){
 
+}
+
+int NRF24L01pNetwork::RoutingTableHandler(Payload_t *payload){
+    network_payload_t *network_pld = (network_payload_t*) payload->data;
+
+    AdjNode_t returnNode;
+    returnNode.RxPipe = payload->RxPipe;
+    returnNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
+   
+    int i;
+
+    for(i=0;i<20;i++){
+        if(RoutingTable[i].SrcNodeId == network_pld->fromNodeId) return 0;
+    }
+
+    RoutingTable[RoutingTableLevel].SrcNodeId = network_pld->fromNodeId;
+    RoutingTable[RoutingTableLevel].AdjNode.RxPipe = payload->RxPipe;
+    RoutingTable[RoutingTableLevel].AdjNode.NodeId = AdjacentNodes[returnNode.RxPipe-1].NodeId;
+    RoutingTableLevel++;
+    if(RoutingTableLevel>=20)RoutingTableLevel = 0;
+    
 }
