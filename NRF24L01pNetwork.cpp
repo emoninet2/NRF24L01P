@@ -68,13 +68,17 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     if(ownIdMatched(payload) ){
         printf("wallahi address matched from adj: %x pipe : %d \r\n", returnNode.NodeId,returnNode.RxPipe );
         //sendToNodeSpecific(&ackPld,AdjacentNodes[payload->RxPipe - 1].NodeId);
-        network_payload_t ackPld;
-        ackPld.toNodeId = network_pld->fromNodeId;
-        ackPld.fromNodeId = network_pld->toNodeId;
-        ackPld.pid = network_pld->pid;
-        ackPld.packet_info = network_pld->packet_info;
-        sprintf((char*)ackPld.payload, "ACK");
-        xSendToNetworkViaNode(&ackPld, &returnNode);
+        if(network_pld->packet_info&0x01){
+            network_payload_t ackPld;
+            ackPld.toNodeId = network_pld->fromNodeId;
+            ackPld.fromNodeId = network_pld->toNodeId;
+            ackPld.pid = (network_pld->pid)&0b11111110;
+            ackPld.packet_info = network_pld->packet_info;
+            sprintf((char*)ackPld.payload, "ACK");
+            xSendToNetworkViaNode(&ackPld, &returnNode);
+        }
+        
+
     }
     else{
         printf("bouncing packet\r\n");
