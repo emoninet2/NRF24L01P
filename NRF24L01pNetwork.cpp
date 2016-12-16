@@ -219,13 +219,12 @@ int NRF24L01pNetwork::xBounceToNetworkExceptNode(network_payload_t *Netpayload, 
     }
     
     
-    
     if((matched_adjacent == 0) && (matched_addrCache == 0)){
+        
         for(i=0;i<5;i++){
             payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC1 + AdjacentNodes[i].RxPipe);
             printf("bouncing to All Adjacent: %llx\r\n", payload.TxAddr);
             fifo_write(&TxFifo, &payload);
-            return 0;
         }
     }
     
@@ -260,4 +259,8 @@ int NRF24L01pNetwork::RoutingTableHandler(Payload_t *payload){
     RoutingTableLevel++;
     if(RoutingTableLevel>=20)RoutingTableLevel = 0;
     
+}
+
+int NRF24L01pNetwork::setAdjacentNode(pipe_t RxPipe, AdjNode_t *AdjNode){
+    AdjacentNodes[RxPipe - 1 ] = {AdjNode->NodeId, AdjNode->RxPipe};
 }

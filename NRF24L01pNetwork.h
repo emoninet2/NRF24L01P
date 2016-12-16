@@ -79,7 +79,7 @@ public:
     int xIsNodeAdjacent(AdjNode_t AdjNode);
     int xIsNodeReachable(AdjNode_t AdjNode);
     int RoutingTableHandler(Payload_t *payload);
-    
+    int setAdjacentNode(pipe_t RxPipe, AdjNode_t *AdjNode);
     
     
 private:
