@@ -72,8 +72,8 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
             network_payload_t ackPld;
             ackPld.toNodeId = network_pld->fromNodeId;
             ackPld.fromNodeId = network_pld->toNodeId;
-            ackPld.pid = (network_pld->pid)&0b11111110;
-            ackPld.packet_info = network_pld->packet_info;
+            ackPld.pid = (network_pld->pid);
+            ackPld.packet_info = (network_pld->packet_info)&0b11111110;
             sprintf((char*)ackPld.payload, "ACK");
             xSendToNetworkViaNode(&ackPld, &returnNode);
         }
