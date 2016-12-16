@@ -277,5 +277,6 @@ int NRF24L01pNetwork::RoutingTableHandler(Payload_t *payload){
 }
 
 int NRF24L01pNetwork::setAdjacentNode(pipe_t RxPipe, AdjNode_t *AdjNode){
-    AdjacentNodes[RxPipe - 1 ] = {AdjNode->NodeId, AdjNode->RxPipe};
+    AdjacentNodes[RxPipe - 1 ].NodeId = AdjNode->NodeId;
+    AdjacentNodes[RxPipe - 1 ].RxPipe = AdjNode->RxPipe;
 }
