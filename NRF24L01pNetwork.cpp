@@ -66,6 +66,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     }
     else{
         printf("forwarding packet\r\n");
+        forwardNetPayloadExceptAdjNode(network_pld, AdjacentNodes[payload->RxPipe-1].NodeId);
     }
     
     
