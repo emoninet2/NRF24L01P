@@ -26,27 +26,27 @@
 class NRF24L01pNetwork : public NRF24L01p{
 public:
     typedef struct network_payload{
-        uint16_t fromNodeId;
-        uint16_t toNodeId;
+        uint16_t srcNodeId;
+        uint16_t destNodeId;
         uint8_t pid;
-        uint8_t packet_info;
+        uint8_t packetInfo;
         uint8_t payload[26];
     }network_payload_t;
-
-    typedef struct adjacent_nodes{
+    
+    typedef struct AdjNode{
         uint16_t NodeId;
         pipe_t RxPipe;
-    }Node_t;
+    }AdjNode_t;
+    
+    typedef struct ForwardingNode{
+        uint16_t NodeId;
+        AdjNode_t AdjNode;
+    }FrwdNode_t;
     
     
-    typedef struct fwrd_addr{
-        uint16_t SrcNodeId;
-        Node_t AdjNode;
-    }fwrd_addr_t;
     
-    Node_t AdjacentNodes[5];
-    fwrd_addr_t RoutingTable[NRF24L01P_NETWORK_ROUTING_TABLE_SIZE];
-    unsigned int RoutingTablePtrLvl;
+    AdjNode_t AdjNode[5];
+    
     
     uint16_t ownNetworkId;
     uint16_t ownNodeId;
@@ -58,7 +58,11 @@ public:
     
   
     void init_network(uint16_t networkID, uint16_t nodeID);
+    void setAdjacentNode(pipe_t RxPipe, uint16_t nodeId, pipe_t AdjNodeRxPipe);
     void processPacket(Payload_t *payload);
+    
+    void forwardPacket(Payload_t *payload);
+    
 private:
 
 };

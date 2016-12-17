@@ -39,7 +39,11 @@ void NRF24L01pNetwork::init_network(uint16_t networkID, uint16_t nodeID){
     set_RX_pipe_address(PIPE_P4, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P4));
     set_RX_pipe_address(PIPE_P5, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P5));
     
+}
 
+void NRF24L01pNetwork::setAdjacentNode(pipe_t RxPipe, uint16_t nodeId, pipe_t AdjNodeRxPipe){
+    AdjNode[RxPipe-1].NodeId = nodeId;
+    AdjNode[RxPipe-1].RxPipe = AdjNodeRxPipe;
 }
 
 void NRF24L01pNetwork::processPacket(Payload_t *payload){
@@ -47,12 +51,26 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     printf("your message was : %s\r\n", payload->data);
     //printf("your address was : %llx\r\n", payload.TXaddress);
     printf("your pipe was : %d\r\n", payload->RxPipe);
-    //printf("\r\n%d bytes on pipe %d\r\n", strlen((char*)payload->data), payload->RxPipe);
-    //printf("fromAddr : %x\r\n", network_pld->fromNodeId);
-    //printf("toAddr : %x\r\n", network_pld->toNodeId);
-    //printf("pid : %x\r\n", network_pld->pid);
-    //printf("payload data : %s\r\n", network_pld->payload);
+    printf("\r\n%d bytes on pipe %d\r\n", strlen((char*)payload->data), payload->RxPipe);
+    printf("fromAddr : %x\r\n", network_pld->srcNodeId);
+    printf("toAddr : %x\r\n", network_pld->destNodeId);
+    printf("pid : %x\r\n", network_pld->pid);
+    printf("payload data : %s\r\n", network_pld->payload);
     
+    //check if destination is own
+    if(network_pld->destNodeId == ownNodeId){
+        printf("packet destination matched own ID\r\n");
+    }
+    else{
+        printf("forwarding packet");
+    }
+    
+    
+}
 
-
+void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
+    network_payload_t *network_pld = (network_payload_t*) payload->data;
+    
+    
+    
 }
