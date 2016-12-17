@@ -55,6 +55,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     printf("fromAddr : %x\r\n", network_pld->srcNodeId);
     printf("toAddr : %x\r\n", network_pld->destNodeId);
     printf("pid : %x\r\n", network_pld->pid);
+    printf("info : %x\r\n", network_pld->packetInfo);
     printf("payload data : %s\r\n", network_pld->payload);
     
     //check if destination is own
