@@ -56,12 +56,7 @@ public:
     NRF24L01pNetwork(const NRF24L01pNetwork& orig);
     virtual ~NRF24L01pNetwork();
     
-    void init_network(uint16_t networkID, uint16_t nodeID);
-    void processPacket(Payload_t *payload);
-    void processRoutingTable(Payload_t *payload);
-
-    void sendNetPayload(network_payload_t *netPayload);
-    void forwardNetPayloadExceptAdjNode(network_payload_t *netPayload, uint16_t returnNode);
+  
 
     
 private:
