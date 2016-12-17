@@ -59,12 +59,10 @@ public:
     void init_network(uint16_t networkID, uint16_t nodeID);
     void processPacket(Payload_t *payload);
     void processRoutingTable(Payload_t *payload);
-    void sendToNode(Payload_t *payload, uint16_t Node);
-    
-    
-    void sendPacketViaAdjacent(Payload_t *payload, uint16_t AdjNode);
-    void forwardPacket(Payload_t *payload);
-    
+
+    void sendNetPayload(network_payload_t *netPayload);
+    void forwardNetPayloadExceptAdjNode(network_payload_t *netPayload, uint16_t returnNode);
+
     
 private:
 
