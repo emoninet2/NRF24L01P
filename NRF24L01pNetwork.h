@@ -45,7 +45,7 @@ public:
     }fwrd_addr_t;
     
     Node_t AdjacentNodes[5];
-    fwrd_addr_t RoutingTable[20];
+    fwrd_addr_t RoutingTable[NRF24L01P_NETWORK_ROUTING_TABLE_SIZE];
     unsigned int RoutingTableLevel;
     
     uint16_t ownNetworkId;
@@ -58,15 +58,12 @@ public:
     
     void init_network(uint16_t networkID, uint16_t nodeID);
     void processPacket(Payload_t *payload);
-    bool ownIdMatched(Payload_t *payload);
-
-    int SendToNetworkViaNode(network_payload_t *Netpayload, Node_t *AdjNode);
-    int BounceToNetworkExceptNode(network_payload_t *Netpayload, Node_t *AdjNode);
+    void processRoutingTable(Payload_t *payload);
+    void sendToNode(Payload_t *payload, uint16_t Node);
     
-    int IsNodeAdjacent(Node_t AdjNode);
-    int IsNodeReachable(Node_t AdjNode);
-    int RoutingTableHandler(Payload_t *payload);
-    int setAdjacentNode(pipe_t RxPipe, Node_t *AdjNode);
+    
+    void sendPacketViaAdjacent(Payload_t *payload, uint16_t AdjNode);
+    void forwardPacket(Payload_t *payload);
     
     
 private:
