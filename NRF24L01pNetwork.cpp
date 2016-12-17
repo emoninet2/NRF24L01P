@@ -40,7 +40,7 @@ void NRF24L01pNetwork::init_network(uint16_t networkID, uint16_t nodeID){
     set_RX_pipe_address(PIPE_P4, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC1 + PIPE_P4));
     set_RX_pipe_address(PIPE_P5, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC1 + PIPE_P5));
     
-    RoutingTableLevel = 0;
+    RoutingTablePtrLvl = 0;
 }
 
 
@@ -59,7 +59,17 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     
     processRoutingTable(payload);
     
-    forwardPacket(payload);
+    
+    if(network_pld->toNodeId == ownNodeId){
+        printf("packet matched own address\r\n");
+    }
+    else{
+        printf("forwarding packet\r\n");
+        forwardPacket(payload);
+    }
+    
+    
+    
     
     
 
@@ -67,6 +77,33 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
 
 void NRF24L01pNetwork::processRoutingTable(Payload_t *payload){
     network_payload_t *network_pld = (network_payload_t*) payload->data;
+    
+    int i;
+    
+    //check if destination node is adjacent node
+    for(i=0;i<5;i++){
+        if(network_pld->fromNodeId == AdjacentNodes[i].NodeId){
+            printf("not storing on routing table. is adjacent\r\n");
+            return;
+        }
+    }
+    
+    //check if forwarding node information is available on RoutingTable
+    for(i=0;i<NRF24L01P_NETWORK_ROUTING_TABLE_SIZE;i++){
+        if(network_pld->fromNodeId == RoutingTable[i].SrcNodeId){
+            printf("not storing on routing table. is on routing table\r\n");
+            return;
+        }
+    }
+    
+    Node_t viaNode;
+    viaNode.NodeId = AdjacentNodes[payload->RxPipe - 1].NodeId;
+    viaNode.RxPipe = AdjacentNodes[payload->RxPipe - 1].RxPipe;        
+    
+    printf("storing routing information\r\n  %x-->[%x:%d]\r\n", network_pld->fromNodeId, viaNode.NodeId,viaNode.RxPipe );
+    
+    RoutingTable[RoutingTablePtrLvl].SrcNodeId = network_pld->fromNodeId;
+ 
 }
 
 void NRF24L01pNetwork::sendToNode(Payload_t *payload, uint16_t Node){
@@ -101,7 +138,7 @@ void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
             ForwardPayload.TxAddr =  ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjacentNodes[i].NodeId)<<8) + (uint64_t)(0xC1 +  AdjacentNodes[i].RxPipe);
             strcpy((char*)ForwardPayload.data, (char*)network_pld);
             fifo_write(&TxFifo, &ForwardPayload);
-            printf("adjacent match\r\n");
+            printf("destination matched adjacent [%x:%d]r\n", ((AdjacentNodes[i].NodeId)<<8), AdjacentNodes[i].RxPipe);
             return;
         }
     }
@@ -112,7 +149,7 @@ void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
             ForwardPayload.TxAddr =  ((uint64_t)ownNetworkId<<24) +( (uint64_t)(RoutingTable[i].AdjNode.NodeId)<<8) + (uint64_t)(0xC1 +  RoutingTable[i].AdjNode.RxPipe);
             strcpy((char*)ForwardPayload.data, (char*)network_pld);
             fifo_write(&TxFifo, &ForwardPayload);
-            printf("routing table match\r\n");
+            printf("routing table match  %x-->[%x:%d]\r\n",RoutingTable[i].SrcNodeId,(RoutingTable[i].AdjNode.NodeId), RoutingTable[i].AdjNode.RxPipe  );
             return;
         }
     }

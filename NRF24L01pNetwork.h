@@ -46,7 +46,7 @@ public:
     
     Node_t AdjacentNodes[5];
     fwrd_addr_t RoutingTable[NRF24L01P_NETWORK_ROUTING_TABLE_SIZE];
-    unsigned int RoutingTableLevel;
+    unsigned int RoutingTablePtrLvl;
     
     uint16_t ownNetworkId;
     uint16_t ownNodeId;
