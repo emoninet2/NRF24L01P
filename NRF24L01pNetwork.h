@@ -57,8 +57,8 @@ public:
     virtual ~NRF24L01pNetwork();
     
   
-
-    
+    void init_network(uint16_t networkID, uint16_t nodeID);
+    void processPacket(Payload_t *payload);
 private:
 
 };

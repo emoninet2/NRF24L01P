@@ -29,3 +29,30 @@ NRF24L01pNetwork::NRF24L01pNetwork(const NRF24L01pNetwork& orig) {
 NRF24L01pNetwork::~NRF24L01pNetwork() {
 }
 
+
+void NRF24L01pNetwork::init_network(uint16_t networkID, uint16_t nodeID){
+    ownNetworkId = networkID;
+    ownNodeId = nodeID;
+    set_RX_pipe_address(PIPE_P1, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P1));
+    set_RX_pipe_address(PIPE_P2, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P2));
+    set_RX_pipe_address(PIPE_P3, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P3));
+    set_RX_pipe_address(PIPE_P4, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P4));
+    set_RX_pipe_address(PIPE_P5, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P5));
+    
+
+}
+
+void NRF24L01pNetwork::processPacket(Payload_t *payload){
+    network_payload_t *network_pld = (network_payload_t*) payload->data;
+    printf("your message was : %s\r\n", payload->data);
+    //printf("your address was : %llx\r\n", payload.TXaddress);
+    printf("your pipe was : %d\r\n", payload->RxPipe);
+    //printf("\r\n%d bytes on pipe %d\r\n", strlen((char*)payload->data), payload->RxPipe);
+    //printf("fromAddr : %x\r\n", network_pld->fromNodeId);
+    //printf("toAddr : %x\r\n", network_pld->toNodeId);
+    //printf("pid : %x\r\n", network_pld->pid);
+    //printf("payload data : %s\r\n", network_pld->payload);
+    
+
+
+}
