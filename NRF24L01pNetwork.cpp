@@ -44,6 +44,7 @@ void NRF24L01pNetwork::init_network(uint16_t networkID, uint16_t nodeID){
 void NRF24L01pNetwork::setAdjacentNode(pipe_t RxPipe, uint16_t nodeId, pipe_t AdjNodeRxPipe){
     AdjNode[RxPipe-1].NodeId = nodeId;
     AdjNode[RxPipe-1].RxPipe = AdjNodeRxPipe;
+    AdjNode[RxPipe-1].enable = 1;
 }
 
 void NRF24L01pNetwork::processPacket(Payload_t *payload){
@@ -69,9 +70,41 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     
 }
 
+void NRF24L01pNetwork::sendToAdjacent(network_payload_t *NetPayload, AdjNode_t *AdjNode){
+        Payload_t payload;
+        payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjNode->NodeId)<<8) + (uint64_t)(0xC0+AdjNode->RxPipe);
+        memcpy(payload.data, NetPayload, 32);
+        int ret = fifo_write(&TxFifo, &payload);
+}
+
+void NRF24L01pNetwork::sendToNode(network_payload_t *NetPayload, uint16_t Node){
+        Payload_t payload;
+        memcpy(payload.data, NetPayload, 32);
+        int i;
+        
+        printf("checking if node is adjacent\r\n");
+        for(i=0;i<5;i++){
+            if(Node == AdjNode[i].NodeId){
+                payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjNode[i].NodeId)<<8) + (uint64_t)(0xC0+AdjNode[i].RxPipe);
+                printf("node is adjacent. Sending to : %llx\r\n", payload.TxAddr);
+                int ret = fifo_write(&TxFifo, &payload);
+                return;
+            }
+        }
+
+        
+        printf("bouncing to all adjacent\r\n");
+        for(i=0;i<5;i++){
+            if(AdjNode[i].enable == 1){
+                payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjNode[i].NodeId)<<8) + (uint64_t)(0xC0+AdjNode[i].RxPipe);
+                int ret = fifo_write(&TxFifo, &payload);
+            }
+        }
+        
+}
+
+
 void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
     network_payload_t *network_pld = (network_payload_t*) payload->data;
-    
-    
     
 }

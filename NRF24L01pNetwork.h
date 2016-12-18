@@ -36,31 +36,29 @@ public:
     typedef struct AdjNode{
         uint16_t NodeId;
         pipe_t RxPipe;
+        bool enable;
     }AdjNode_t;
     
     typedef struct ForwardingNode{
         uint16_t NodeId;
         AdjNode_t AdjNode;
     }FrwdNode_t;
-    
-    
-    
+
     AdjNode_t AdjNode[5];
-    
-    
+   
     uint16_t ownNetworkId;
     uint16_t ownNodeId;
-    
-    
+ 
     NRF24L01pNetwork();
     NRF24L01pNetwork(const NRF24L01pNetwork& orig);
     virtual ~NRF24L01pNetwork();
-    
-  
+
     void init_network(uint16_t networkID, uint16_t nodeID);
     void setAdjacentNode(pipe_t RxPipe, uint16_t nodeId, pipe_t AdjNodeRxPipe);
     void processPacket(Payload_t *payload);
     
+    void sendToAdjacent(network_payload_t *payload, AdjNode_t *AdjNode);
+    void sendToNode(network_payload_t *NetPayload, uint16_t Node);
     void forwardPacket(Payload_t *payload);
     
 private:
