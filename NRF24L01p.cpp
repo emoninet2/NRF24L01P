@@ -393,7 +393,7 @@ void NRF24L01p::PTX(){
         if(get_data_ready_flag()){
             //do what needs to be done with the ACK payload here
             flush_rx();//if you want to flush RX, (use only if the PTX started when RX was empty)
-            clear_data_ready_flag();
+            //clear_data_ready_flag();
         }
 
         //restore original machine state
