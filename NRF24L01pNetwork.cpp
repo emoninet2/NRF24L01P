@@ -101,9 +101,9 @@ void NRF24L01pNetwork::sendToNode(network_payload_t *NetPayload, uint16_t Node){
         printf("checking if node is on Routing Table\r\n");
         for(i=0;i<20;i++){
             if((NetPayload->destNodeId == RoutingTable[i].NodeId)){
-                FwrdPayload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(RoutingTable[i].FwrdAdjNode.NodeId)<<8) + (uint64_t)(0xC0+ RoutingTable[i].FwrdAdjNode.RxPipe);
-                printf("node is on routing table. sending to : %llx\r\n", FwrdPayload.TxAddr);
-                int ret = fifo_write(&TxFifo, &FwrdPayload);
+                payload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(RoutingTable[i].FwrdAdjNode.NodeId)<<8) + (uint64_t)(0xC0+ RoutingTable[i].FwrdAdjNode.RxPipe);
+                printf("node is on routing table. sending to : %llx\r\n", payload.TxAddr);
+                int ret = fifo_write(&TxFifo, &payload);
                 return;
             }
         }
