@@ -44,8 +44,18 @@ public:
         AdjNode_t AdjNode;
     }FrwdNode_t;
 
+    
+    typedef struct RoutingNode{
+        uint16_t NodeId;
+        AdjNode_t FwrdAdjNode;
+    }RoutingNode_t;
+    
+    
+    
     AdjNode_t AdjNode[5];
-   
+   RoutingNode RoutingTable[20];
+   unsigned int RoutingTableAddr;
+    
     uint16_t ownNetworkId;
     uint16_t ownNodeId;
  
@@ -60,6 +70,10 @@ public:
     void sendToAdjacent(network_payload_t *payload, AdjNode_t *AdjNode);
     void sendToNode(network_payload_t *NetPayload, uint16_t Node);
     void forwardPacket(Payload_t *payload);
+    
+    void routingTableUpdate(Payload_t *payload);
+    
+    
     
 private:
 

@@ -39,6 +39,7 @@ void NRF24L01pNetwork::init_network(uint16_t networkID, uint16_t nodeID){
     set_RX_pipe_address(PIPE_P4, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P4));
     set_RX_pipe_address(PIPE_P5, ((uint64_t)ownNetworkId<<24) +( (uint64_t)(ownNodeId)<<8) + (uint64_t)(0xC0 | PIPE_P5));
     
+    RoutingTableAddr = 0;
 }
 
 void NRF24L01pNetwork::setAdjacentNode(pipe_t RxPipe, uint16_t nodeId, pipe_t AdjNodeRxPipe){
@@ -58,6 +59,10 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     printf("pid : %x\r\n", network_pld->pid);
     printf("info : %x\r\n", network_pld->packetInfo);
     printf("payload data : %s\r\n", network_pld->payload);
+    
+    
+    routingTableUpdate(payload);
+    
     
     //check if destination is own
     if(network_pld->destNodeId == ownNodeId){
@@ -135,4 +140,29 @@ void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
             int ret = fifo_write(&TxFifo, &FwrdPayload);
         }
     }
+}
+
+
+void NRF24L01pNetwork::routingTableUpdate(Payload_t *payload){
+    network_payload_t *NetPayload = (network_payload_t*) payload->data;
+    int i;
+    
+    for(i=0;i<20;i++){
+        if(NetPayload->srcNodeId == RoutingTable[i].NodeId){
+            printf("already on routing table. Not storing\r\n");
+            return;
+        }
+    }
+    printf("storing to routing table\r\n");
+    RoutingTable[RoutingTableAddr].NodeId = NetPayload->srcNodeId;
+    RoutingTable[RoutingTableAddr].FwrdAdjNode.NodeId = AdjNode[payload->RxPipe-1].NodeId;
+    RoutingTable[RoutingTableAddr].FwrdAdjNode.RxPipe = AdjNode[payload->RxPipe-1].RxPipe;
+    RoutingTableAddr++;
+    if(RoutingTableAddr>=20) RoutingTableAddr = 0;
+    
+    printf("New Routing table\r\n");
+    for(i=0;i<20;i++){
+        printf("\t\t%x --> [%x:%d]\r\n",RoutingTable[i].NodeId,RoutingTable[i].FwrdAdjNode.NodeId,RoutingTable[i].FwrdAdjNode.RxPipe  );
+    }
+    
 }
