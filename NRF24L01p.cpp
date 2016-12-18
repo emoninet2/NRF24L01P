@@ -201,7 +201,9 @@ void NRF24L01p::RadioMode(NRF24L01p::StateType mode){
 
 
 bool NRF24L01p::readable(){
-    return get_data_ready_flag() || !get_fifo_flag_rx_empty();
+    return get_data_ready_flag() || !get_fifo_flag_rx_empty(); 
+    //return get_data_ready_flag();
+    
 }
 bool NRF24L01p::writable(){
     return !get_fifo_flag_tx_empty();
@@ -391,6 +393,7 @@ void NRF24L01p::PTX(){
         if(get_data_ready_flag()){
             //do what needs to be done with the ACK payload here
             flush_rx();//if you want to flush RX, (use only if the PTX started when RX was empty)
+            clear_data_ready_flag();
         }
 
         //restore original machine state
