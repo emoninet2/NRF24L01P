@@ -176,7 +176,7 @@ void NRF24L01pNetwork::sendAcknowledgement(Payload_t *payload){
         AckPayload.destNodeId = NetPayload->srcNodeId;
         AckPayload.srcNodeId = ownNodeId;
         AckPayload.pid = NetPayload->pid;
-        AckPayload.packetInfo = NetPayload->packetInfo;
+        AckPayload.packetInfo = (NetPayload->packetInfo)%0b11111110;
         sprintf((char*) AckPayload.payload, "ACK");
 
         sendToNetwork(&AckPayload);
