@@ -67,6 +67,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     //check if destination is own
     if(network_pld->destNodeId == ownNodeId){
         printf("packet destination matched own ID\r\n");
+        sendAcknowledgement(payload);
     }
     else{
         printf("forwarding packet\r\n");
@@ -166,17 +167,22 @@ void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
 }
 
 void NRF24L01pNetwork::sendAcknowledgement(Payload_t *payload){
-    printf("\r\tSENDING ACKNOWLEDGEMENT\r\n");
+    
     network_payload_t *NetPayload = (network_payload_t*) payload->data;
-    network_payload_t AckPayload;
     
-    AckPayload.destNodeId = NetPayload->srcNodeId;
-    AckPayload.srcNodeId = ownNodeId;
-    AckPayload.pid = NetPayload->pid;
-    AckPayload.packetInfo = NetPayload->packetInfo;
-    sprintf((char*) AckPayload.payload, "ACK");
+    if(NetPayload->packetInfo&(1<<0)){
+        printf("\r\tSENDING ACKNOWLEDGEMENT\r\n");
+        network_payload_t AckPayload;
+        AckPayload.destNodeId = NetPayload->srcNodeId;
+        AckPayload.srcNodeId = ownNodeId;
+        AckPayload.pid = NetPayload->pid;
+        AckPayload.packetInfo = NetPayload->packetInfo;
+        sprintf((char*) AckPayload.payload, "ACK");
+
+        sendToNetwork(&AckPayload);
+    }
     
-    sendToNetwork(&AckPayload);
+
     
     
     
