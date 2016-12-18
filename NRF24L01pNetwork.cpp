@@ -50,9 +50,9 @@ void NRF24L01pNetwork::setAdjacentNode(pipe_t RxPipe, uint16_t nodeId, pipe_t Ad
 
 void NRF24L01pNetwork::processPacket(Payload_t *payload){
     network_payload_t *network_pld = (network_payload_t*) payload->data;
-    printf("your message was : %s\r\n", payload->data);
+    //printf("your message was : %s\r\n", payload->data);
     //printf("your address was : %llx\r\n", payload.TXaddress);
-    printf("your pipe was : %d\r\n", payload->RxPipe);
+    //printf("your pipe was : %d\r\n", payload->RxPipe);
     printf("\r\n%d bytes on pipe %d\r\n", strlen((char*)payload->data), payload->RxPipe);
     printf("fromAddr : %x\r\n", network_pld->srcNodeId);
     printf("toAddr : %x\r\n", network_pld->destNodeId);
