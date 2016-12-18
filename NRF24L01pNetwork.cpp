@@ -83,7 +83,7 @@ void NRF24L01pNetwork::sendToAdjacent(network_payload_t *NetPayload, AdjNode_t *
         int ret = fifo_write(&TxFifo, &payload);
 }
 
-void NRF24L01pNetwork::sendToNode(network_payload_t *NetPayload){
+void NRF24L01pNetwork::sendToNetwork(network_payload_t *NetPayload){
         Payload_t payload;
         memcpy(payload.data, NetPayload, 32);
         int i;
