@@ -147,8 +147,15 @@ void NRF24L01pNetwork::routingTableUpdate(Payload_t *payload){
     network_payload_t *NetPayload = (network_payload_t*) payload->data;
     int i;
     
+    for(i=0;i<5;i++){
+        if((NetPayload->srcNodeId == AdjNode[i].NodeId)  ){
+            printf("already Adjacent. Not storing\r\n");
+            return;
+        }
+    }
+
     for(i=0;i<20;i++){
-        if(NetPayload->srcNodeId == RoutingTable[i].NodeId){
+        if((NetPayload->srcNodeId == RoutingTable[i].NodeId)  ){
             printf("already on routing table. Not storing\r\n");
             return;
         }
