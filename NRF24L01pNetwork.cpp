@@ -111,12 +111,13 @@ void NRF24L01pNetwork::sendToNode(network_payload_t *NetPayload, uint16_t Node){
 
 
 void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
+    printf("\r\tFORWARDING PACKET\r\n");
     network_payload_t *NetPayload = (network_payload_t*) payload->data;
     Payload_t FwrdPayload;
     AdjNode_t viaNode;
     viaNode.NodeId = AdjNode[payload->RxPipe - 1].NodeId;
     viaNode.RxPipe = AdjNode[payload->RxPipe - 1].RxPipe;
-    printf("via Node is : %x:%d\r\n", viaNode.NodeId, viaNode.RxPipe);
+    printf("incoming Node is : %x:%d\r\n", viaNode.NodeId, viaNode.RxPipe);
 
     memcpy(payload->data, NetPayload, 32);
     int i;
@@ -144,6 +145,7 @@ void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
 
 
 void NRF24L01pNetwork::routingTableUpdate(Payload_t *payload){
+    printf("\r\tROUTING TABLE HANDLER\r\n");
     network_payload_t *NetPayload = (network_payload_t*) payload->data;
     int i;
     
