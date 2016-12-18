@@ -165,6 +165,24 @@ void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
     }
 }
 
+void NRF24L01pNetwork::sendAcknowledgement(Payload_t *payload){
+    printf("\r\tSENDING ACKNOWLEDGEMENT\r\n");
+    network_payload_t *NetPayload = (network_payload_t*) payload->data;
+    network_payload_t AckPayload;
+    
+    AckPayload.destNodeId = NetPayload->srcNodeId;
+    AckPayload.srcNodeId = ownNodeId;
+    AckPayload.pid = NetPayload->pid;
+    AckPayload.packetInfo = NetPayload->packetInfo;
+    sprintf((char*) AckPayload.payload, "ACK");
+    
+    sendToNetwork(&AckPayload);
+    
+    
+    
+}
+
+
 
 void NRF24L01pNetwork::routingTableUpdate(Payload_t *payload){
     printf("\r\tROUTING TABLE HANDLER\r\n");

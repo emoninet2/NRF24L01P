@@ -70,6 +70,7 @@ public:
     void sendToAdjacent(network_payload_t *payload, AdjNode_t *AdjNode);
     void sendToNetwork(network_payload_t *NetPayload);
     void forwardPacket(Payload_t *payload);
+    void sendAcknowledgement(Payload_t *payload);
     
     void routingTableUpdate(Payload_t *payload);
     
