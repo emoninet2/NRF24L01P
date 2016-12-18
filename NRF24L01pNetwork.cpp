@@ -111,6 +111,8 @@ void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
     AdjNode_t viaNode;
     viaNode.NodeId = AdjNode[payload->RxPipe - 1].NodeId;
     viaNode.RxPipe = AdjNode[payload->RxPipe - 1].RxPipe;
+    printf("via Node is : %x:%d\r\n", viaNode.NodeId, viaNode.RxPipe);
+    
     
     
     memcpy(payload->data, NetPayload, 32);
