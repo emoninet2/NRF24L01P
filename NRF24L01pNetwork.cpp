@@ -64,7 +64,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
         printf("packet destination matched own ID\r\n");
     }
     else{
-        printf("forwarding packet");
+        printf("forwarding packet\r\n");
         forwardPacket(payload);
     }
     
@@ -131,6 +131,7 @@ void NRF24L01pNetwork::forwardPacket(Payload_t *payload){
     for(i=0;i<5;i++){
         if((AdjNode[i].enable == 1)&&(viaNode.NodeId != AdjNode[i].NodeId)){
             FwrdPayload.TxAddr = ((uint64_t)ownNetworkId<<24) +( (uint64_t)(AdjNode[i].NodeId)<<8) + (uint64_t)(0xC0+AdjNode[i].RxPipe);
+            printf("bouncing to : %llx\r\n", FwrdPayload.TxAddr);
             int ret = fifo_write(&TxFifo, &FwrdPayload);
         }
     }
