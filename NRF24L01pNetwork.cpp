@@ -68,6 +68,7 @@ void NRF24L01pNetwork::processPacket(Payload_t *payload){
     //check if destination is own
     if(network_pld->destNodeId == ownNodeId){
         //printf("packet destination matched own ID\r\n");
+        printf("payload data : %s\r\n", network_pld->payload);
         sendAcknowledgement(payload);
     }
     else{
@@ -209,7 +210,7 @@ void NRF24L01pNetwork::routingTableUpdate(Payload_t *payload){
             return;
         }
     }
-    printf("storing to routing table\r\n");
+    //printf("storing to routing table\r\n");
     RoutingTable[RoutingTableAddr].NodeId = NetPayload->srcNodeId;
     RoutingTable[RoutingTableAddr].FwrdAdjNode.NodeId = AdjNode[payload->RxPipe-1].NodeId;
     RoutingTable[RoutingTableAddr].FwrdAdjNode.RxPipe = AdjNode[payload->RxPipe-1].RxPipe;
