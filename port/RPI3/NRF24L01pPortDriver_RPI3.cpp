@@ -22,10 +22,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define nrf24l01p_csn_pin 6//28
-#define nrf24l01p_ce_pin 10//29
+#define nrf24l01p_csn_pin 29
+#define nrf24l01p_ce_pin 1
 
-#define nrf24l01p_SPI 0
+#define nrf24l01p_SPI 1
 
 
 NRF24L01pPortDriver::NRF24L01pPortDriver() {
