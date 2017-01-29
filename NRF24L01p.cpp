@@ -363,9 +363,13 @@ int NRF24L01p::TransmitPacket(Payload_t *payload){
 
     //if got ack packet, just flush it
     if(get_data_ready_flag()){
+        printf("now reading the ack payload\r\n");
         //do what needs to be done with the ACK payload here
-        flush_rx();//if you want to flush RX, (use only if the PTX started when RX was empty)
-        //clear_data_ready_flag();
+        retval |= ReceivePacket(payload);
+        if(payload->RxPipe == 0){
+            retval = 0;
+        }
+    
     }
 
     //restore original machine state
