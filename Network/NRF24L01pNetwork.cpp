@@ -52,22 +52,25 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
     
     switch(message->Cmd){
         case GENERAL_CALL_REPLY : {
+            printf("\tgonna reply\r\n");
             respMesg.Cmd = REPLY_GENERAL_CALL;
             broadcastPacket((Payload_t*)&respMesg);
             break;
         }        
         case PING_UID : {
+            printf("\tgonna send pong\r\n");
             respMesg.Cmd = PONG_UID;
             broadcastPacket((Payload_t*)&respMesg);
             break;
         }
         case REQ_FREE_PIPE : {
+            printf("\tgonna say free pipe\r\n");
             respMesg.Cmd = RESP_AVAILABLE_FREE_PIPE;
             broadcastPacket((Payload_t*)&respMesg);
             break;
         }
         case SEND_ADJNODE_REQUEST : {
-
+            printf("\tgonna send assigned node id\r\n");
             break;
         }
     }
@@ -96,7 +99,7 @@ int NRF24L01pNetwork::requestNetworkJoin(){
         }
         port_DelayMs(1000);
     }
-    printf("REPLY FOUND : friend : %x\r\n", message.srcUID);
+    printf("\tREPLY FOUND : friend : %x\r\n", message.srcUID);
     
     BroadcastMessage_t message2;
     while(1){//loop until a general call reply is received
@@ -108,11 +111,12 @@ int NRF24L01pNetwork::requestNetworkJoin(){
         
         broadcastPacket((Payload_t*)&message2);
         if((message.Cmd == RESP_AVAILABLE_FREE_PIPE) && message2.destUID == uid ){
+            printf(">>>>>>>>>>>yeahh baby\r\n");
             break;
         }
         port_DelayMs(1000);
     }
-    
+    printf("\tFRIEND NODE HAS FREE PIPE\r\n");
 }
 
 
