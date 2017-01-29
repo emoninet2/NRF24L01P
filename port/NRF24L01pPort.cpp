@@ -37,7 +37,7 @@ NRF24L01pPort::~NRF24L01pPort() {
 
 void NRF24L01pPort::port_Initialize(){
 
-    //setenv("WIRINGPI_GPIOMEM", "1", 1);
+    setenv("WIRINGPI_GPIOMEM", "1", 1);
     wiringPiSetup () ;
     pinMode(nrf24l01p_csn_pin ,OUTPUT);//CSN pin as OUTPUT
     pinMode(nrf24l01p_ce_pin ,OUTPUT);//CE pin as OUTPUT

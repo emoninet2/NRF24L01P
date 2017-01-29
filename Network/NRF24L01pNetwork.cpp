@@ -52,8 +52,21 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
     
     switch(message->Cmd){
         case GENERAL_CALL_REPLY : {
-                respMesg.Cmd = REPLY_GENERAL_CALL;
-                broadcastPacket((Payload_t*)&respMesg);
+            respMesg.Cmd = REPLY_GENERAL_CALL;
+            broadcastPacket((Payload_t*)&respMesg);
+            break;
+        }        
+        case PING_UID : {
+            respMesg.Cmd = PONG_UID;
+            broadcastPacket((Payload_t*)&respMesg);
+            break;
+        }
+        case REQ_FREE_PIPE : {
+
+            break;
+        }
+        case SEND_ADJNODE_REQUEST : {
+
             break;
         }
     }
@@ -67,24 +80,26 @@ int NRF24L01pNetwork::broadcastPacket(Payload_t *payload){
 }
 
 int NRF24L01pNetwork::requestNetworkJoin(){
-    BroadcastMessage_t message;
     Payload_t payload;
-
-    message.destUID = 0xABACADAE;
-    message.srcUID = uid;
-    message.NetworkID = NetworkId;
-    message.Cmd = GENERAL_CALL_REPLY;
-    message.len = 0x45;
-    
-    
-    memcpy((void*) &payload.data, (void*) &message, 32);
-    broadcastPacket(&payload);
-    printf("got ack and the len is : %d\r\n", payload.len);
-    int i;
-    for(i=0;i<32;i++){
-        printf("%x ", payload.data[i]);
+    BroadcastMessage_t message;
+    while(1){//loop until a general call reply is received
+        message.destUID = 0;
+        message.srcUID = uid;
+        message.NetworkID = NetworkId;
+        message.Cmd = GENERAL_CALL_REPLY;
+        message.len = 0x45;
+        
+        broadcastPacket((Payload_t*)&message);
+        if((message.Cmd == 0xC2) && message.destUID == uid ){
+            break;
+        }
+        port_DelayMs(1000);
     }
-    printf("\r\n");
+    //uint32_t *x = &message.srcUID;
+    printf("REPLY FOUND : friend : %x\r\n", message.srcUID);
+    
+    
+    
 }
 
 
