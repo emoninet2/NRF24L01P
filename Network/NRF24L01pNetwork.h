@@ -25,10 +25,8 @@ public:
         REPLY_GENERAL_CALL = 0xC2,
         PING_UID = 0xC3,
         PONG_UID = 0xC4,
-        REQ_FREE_PIPE = 0xC5,
-        RESP_AVAILABLE_FREE_PIPE = 0xC6,
-        SEND_ADJNODE_REQUEST = 0xC7,
-        ACCEPT_ADJNODE_REQUEST = 0xC8,          
+        REQUEST_CONNECTION = 0xC5,
+        RESPOND_CONNECTION = 0xC6,          
     }BroadcastCommand_t;
     
     typedef struct networkPayload{

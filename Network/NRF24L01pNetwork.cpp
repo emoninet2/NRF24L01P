@@ -63,16 +63,13 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
             broadcastPacket((Payload_t*)&respMesg);
             break;
         }
-        case REQ_FREE_PIPE : {
+        case REQUEST_CONNECTION : {
             printf("\tgonna say free pipe\r\n");
-            respMesg.Cmd = RESP_AVAILABLE_FREE_PIPE;
+            respMesg.Cmd = RESPOND_CONNECTION;
             broadcastPacket((Payload_t*)&respMesg);
             break;
         }
-        case SEND_ADJNODE_REQUEST : {
-            printf("\tgonna send assigned node id\r\n");
-            break;
-        }
+
     }
     
     
@@ -106,17 +103,21 @@ int NRF24L01pNetwork::requestNetworkJoin(){
         message2.destUID = message.srcUID;
         message2.srcUID = uid;
         message2.NetworkID = NetworkId;
-        message2.Cmd = REQ_FREE_PIPE;
+        message2.Cmd = REQUEST_CONNECTION;
         message2.len = 32;
         
         broadcastPacket((Payload_t*)&message2);
-        if((message.Cmd == RESP_AVAILABLE_FREE_PIPE) && message2.destUID == uid ){
+        if((message2.Cmd == RESPOND_CONNECTION) && message2.destUID == uid ){
             printf(">>>>>>>>>>>yeahh baby\r\n");
             break;
         }
         port_DelayMs(1000);
     }
     printf("\tFRIEND NODE HAS FREE PIPE\r\n");
+    
+    
+    port_DelayMs(5000);
+    
 }
 
 
