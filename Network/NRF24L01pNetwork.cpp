@@ -35,6 +35,12 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
     printf("got broadcast packet\r\n");
     BroadcastMessage_t *message = (BroadcastMessage_t*)payload;
     
+    int i;
+    for(i=0;i<32;i++){
+        printf("%x ", payload->data[i]);
+    }
+    printf("\r\n");
+    
     printf("srcUID : %x\r\n", message->srcUID);
     printf("destUID : %x\r\n", message->destUID);
     printf("NetworkId : %x\r\n", message->NetworkID);
@@ -73,7 +79,12 @@ int NRF24L01pNetwork::requestNetworkJoin(){
     
     memcpy((void*) &payload.data, (void*) &message, 32);
     broadcastPacket(&payload);
-    
+    printf("got ack and the len is : %d\r\n", payload.len);
+    int i;
+    for(i=0;i<32;i++){
+        printf("%x ", payload.data[i]);
+    }
+    printf("\r\n");
 }
 
 
