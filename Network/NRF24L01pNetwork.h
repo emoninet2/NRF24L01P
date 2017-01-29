@@ -43,16 +43,16 @@ public:
     AdjNode_t AdjNode[5];
     RoutingNode_t RoutingTable[20];
 
-    
-    uint16_t ownNetworkId;
-    uint16_t ownNodeId;
+    uint32_t uid;
+    uint16_t NetworkId;
+    uint16_t NodeId;
     
     
     NRF24L01pNetwork();
     NRF24L01pNetwork(const NRF24L01pNetwork& orig);
     virtual ~NRF24L01pNetwork();
     
-    
+    void setUID(uint32_t uid);
     void enableBroadcast(bool sel);
     int processBroadcastPacket(Payload_t *payload);
     int broadcastPacket(Payload_t *payload);

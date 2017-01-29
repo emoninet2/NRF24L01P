@@ -21,7 +21,9 @@ NRF24L01pNetwork::NRF24L01pNetwork(const NRF24L01pNetwork& orig) {
 
 NRF24L01pNetwork::~NRF24L01pNetwork() {
 }
-
+void NRF24L01pNetwork::setUID(uint32_t val){
+    uid = val;
+}
 void NRF24L01pNetwork::enableBroadcast(bool sel){
 
     set_RX_pipe_address((pipe_t) 0,NRF24L01P_NETWORK_BROADCAST_ADDR);
@@ -35,5 +37,5 @@ int NRF24L01pNetwork::broadcastPacket(Payload_t *payload){
     return ret;
 }
 int NRF24L01pNetwork::assignToAdjacent(AdjNode_t *node){
-
+    
 }
