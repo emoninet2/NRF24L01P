@@ -21,8 +21,14 @@
 class NRF24L01pNetwork : public NRF24L01p{
 public:
     typedef enum{
-        JOIN = 0xC1,
-        GENERAL = 0xC2,
+        GENERAL_CALL_REPLY = 0xC1,
+        REPLY_GENERAL_CALL = 0xC2,
+        PING_UID = 0xC3,
+        PONG_UID = 0xC4,
+        REQ_FREE_PIPE = 0xC5,
+        RESP_AVAILABLE_FREE_PIPE = 0xC6,
+        SEND_ADJNODE_REQUEST = 0xC7,
+        ACCEPT_ADJNODE_REQUEST = 0xC8,          
     }BroadcastCommand_t;
     
     typedef struct networkPayload{

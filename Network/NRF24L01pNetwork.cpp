@@ -35,8 +35,8 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
     printf("got broadcast packet\r\n");
     BroadcastMessage_t *message = (BroadcastMessage_t*)payload;
     
-    printf("srcUID : %llx\r\n", message->srcUID);
-    printf("destUID : %llx\r\n", message->destUID);
+    printf("srcUID : %x\r\n", message->srcUID);
+    printf("destUID : %x\r\n", message->destUID);
     printf("NetworkId : %x\r\n", message->NetworkID);
     printf("Command : %x\r\n", message->Cmd);
     
@@ -54,7 +54,7 @@ int NRF24L01pNetwork::requestNetworkJoin(){
     message.destUID = 0xABACADAE;
     message.srcUID = uid;
     message.NetworkID = NetworkId;
-    message.Cmd = JOIN;
+    message.Cmd = GENERAL_CALL_REPLY;
     message.len = 0x45;
     
     
