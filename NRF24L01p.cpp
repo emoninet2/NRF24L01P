@@ -336,12 +336,13 @@ void NRF24L01p::PRX(){
             uint8_t rxData[32];
             pipe_t pipe =  get_rx_payload_pipe();
             int width = read_payload_dyn(pipe, rxData);
-            rxData[width] = '\0';
+            //rxData[width] = '\0';
             if(width>0){
                 Payload_t payload;
                 payload.len = width;
                 //strcpy((char*)payload.data, (char*)rxData);
                 memcpy(payload.data,rxData,payload.len);
+                payload.data[payload.len] = '\0';
                 payload.RxPipe = (pipe_t) pipe;
                 if(fifo_write(&RxFifo, &payload) <= 0)break;
             }
