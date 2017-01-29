@@ -21,6 +21,7 @@
 class NRF24L01pNetwork : public NRF24L01p{
 public:
     typedef enum{
+        GENERAL_BROADCAST = 0xC0,
         GENERAL_CALL_REPLY = 0xC1,
         REPLY_GENERAL_CALL = 0xC2,
         PING_UID = 0xC3,

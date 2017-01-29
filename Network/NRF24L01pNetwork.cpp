@@ -58,15 +58,19 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
             break;
         }        
         case PING_UID : {
-            printf("\tgonna send pong\r\n");
-            respMesg.Cmd = PONG_UID;
-            broadcastPacket((Payload_t*)&respMesg);
+            if(message->destUID == uid){
+                printf("\tgonna send pong\r\n");
+                respMesg.Cmd = PONG_UID;
+                broadcastPacket((Payload_t*)&respMesg);
+            }
             break;
         }
         case REQUEST_CONNECTION : {
-            printf("\tgonna say free pipe\r\n");
-            respMesg.Cmd = RESPOND_CONNECTION;
-            broadcastPacket((Payload_t*)&respMesg);
+            if(message->destUID == uid){
+                printf("\tgonna say free pipe\r\n");
+                respMesg.Cmd = RESPOND_CONNECTION;
+                broadcastPacket((Payload_t*)&respMesg);
+            }
             break;
         }
 
