@@ -8,14 +8,10 @@
  * File:   NRF24L01p.cpp
  * Author: emon1
  * 
- * Created on December 11, 2016, 10:45 PM
+ * Created on January 29, 2017, 7:10 AM
  */
 
 #include "NRF24L01p.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <cstdlib>
 
 NRF24L01p::NRF24L01p() {
 }
@@ -83,7 +79,7 @@ int NRF24L01p::fifo_write(fifo_t *f, Payload_t  *pld){
 
 void NRF24L01p::initialize(){
     
-    Port_Initialize();
+    port_Initialize();
 
     startup();
     default_config();
@@ -98,10 +94,10 @@ void NRF24L01p::initialize(){
 
 
 int NRF24L01p::startup(){
-    Port_CE_pin(0);
-    Port_CSN_pin(0);
+    port_Pin_CE(0);
+    port_Pin_CSN(0);
 
-    Port_Delay_ms(_NRF24L01P_TIMING_PowerOnReset_ms);
+    port_DelayMs(_NRF24L01P_TIMING_PowerOnReset_ms);
 
     RadioMode(MODE_POWER_DOWN);
     RadioMode(MODE_RX);
@@ -158,27 +154,27 @@ void NRF24L01p::RadioMode(NRF24L01p::StateType mode){
     switch(mode){
         case MODE_POWER_DOWN: {
             power_down();
-            Port_CE_pin(0);
+            port_Pin_CE(0);
             RadioState = MODE_POWER_DOWN;
             break;
         }
         case MODE_STANDBY: {
             if(RadioState == MODE_POWER_DOWN){
                     power_up();
-                    Port_Delay_us(_NRF24L01P_TIMING_Tpd2stby_us);
+                    port_DelayUs(_NRF24L01P_TIMING_Tpd2stby_us);
             }
             else{
-                    Port_CE_pin(0);
+                    port_Pin_CE(0);
             }
             RadioState = MODE_STANDBY;
             break;
         }
         case MODE_RX: {
             if(RadioState != MODE_RX){
-                Port_CE_pin(0);
+                port_Pin_CE(0);
                 rx_mode();
-                Port_CE_pin(1);
-                Port_Delay_us(_NRF24L01P_TIMING_Tstby2a_us);
+                port_Pin_CE(1);
+                port_DelayUs(_NRF24L01P_TIMING_Tstby2a_us);
                 RadioState = MODE_RX;
             }
 
@@ -186,10 +182,10 @@ void NRF24L01p::RadioMode(NRF24L01p::StateType mode){
         }
         case MODE_TX: {
             if(RadioState != MODE_TX){
-                Port_CE_pin(0);
+                port_Pin_CE(0);
                 tx_mode();
-                Port_CE_pin(1);
-                Port_Delay_us(_NRF24L01P_TIMING_Tstby2a_us);
+                port_Pin_CE(1);
+                port_DelayUs(_NRF24L01P_TIMING_Tstby2a_us);
                 RadioState = MODE_TX;
             }
 
@@ -343,8 +339,9 @@ void NRF24L01p::PRX(){
             rxData[width] = '\0';
             if(width>0){
                 Payload_t payload;
-                strcpy((char*)payload.data, (char*)rxData);
-                //memcpy(payload.data,rxData,32);
+                payload.len = width;
+                //strcpy((char*)payload.data, (char*)rxData);
+                memcpy(payload.data,rxData,payload.len);
                 payload.RxPipe = (pipe_t) pipe;
                 if(fifo_write(&RxFifo, &payload) <= 0)break;
             }
@@ -363,7 +360,7 @@ void NRF24L01p::PTX(){
     }
     else{
         //enable_payload_with_ack();
-        write_payload_to_send_to_address_ack(payload.TxAddr, payload.data, strlen((char*)payload.data));
+        write_payload_to_send_to_address_ack(payload.TxAddr, payload.data, payload.len);
 
         StateType  originalState = RadioState;
 
@@ -403,4 +400,3 @@ void NRF24L01p::PTX(){
         } 
     }
 }
-

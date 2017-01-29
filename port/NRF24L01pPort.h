@@ -5,21 +5,35 @@
  */
 
 /* 
- * File:   NRF24L01pPortConfig.h
+ * File:   NRF24L01pPort.h
  * Author: emon1
  *
- * Created on December 11, 2016, 7:59 PM
+ * Created on January 29, 2017, 8:03 AM
  */
 
 #ifndef NRF24L01PPORT_H
 #define NRF24L01PPORT_H
 
+#include <stdint.h>
 
+class NRF24L01pPort {
+public:
+    NRF24L01pPort();
+    NRF24L01pPort(const NRF24L01pPort& orig);
+    virtual ~NRF24L01pPort();
+    
+    void port_Initialize();
+    void port_DeInitialize();
+    void port_Pin_CE(bool val);
+    void port_Pin_CSN(bool val);
+    int port_SPI_Transcieve(uint8_t *dataInOut, unsigned int size);
+    void port_DelayMs(unsigned int ms);
+    void port_DelayUs(unsigned int us);
+    unsigned int port_ClockMs();
+    
+private:
 
-
-//#define NRF24L01P_PORT_STM32F3
-#define NRF24L01P_PORT_RPI3
-//#define NRF24L01P_PORT_MBED
+};
 
 #endif /* NRF24L01PPORT_H */
 

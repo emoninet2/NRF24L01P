@@ -8,18 +8,18 @@
  * File:   NRF24L01pDriver.h
  * Author: emon1
  *
- * Created on December 11, 2016, 8:07 PM
+ * Created on January 29, 2017, 7:56 AM
  */
 
 #ifndef NRF24L01PDRIVER_H
 #define NRF24L01PDRIVER_H
 
-#include "port/NRF24L01pPortDriver.h"
+#include <stdint.h>
+#include "port/NRF24L01pPort.h"
 #include "NRF24L01pRegisters.h"
 
-class NRF24L01pDriver : public NRF24L01pPortDriver{
+class NRF24L01pDriver : public NRF24L01pPort{
 public:
-    
      typedef enum {
            CONFIG_CRC_NONE      =  (0),
            CONFIG_CRC_8BIT      =  (_NRF24L01P_CONFIG_EN_CRC),
@@ -54,15 +54,14 @@ public:
            PIPE_P5       =    5,/**< Pipe 5 */
     }pipe_t;
 
-
-    
     typedef uint64_t pipeAddrType_t;
+    
     
     
     NRF24L01pDriver();
     NRF24L01pDriver(const NRF24L01pDriver& orig);
     virtual ~NRF24L01pDriver();
-
+    
     void power_up();
     void power_down();
     void rx_mode();
@@ -161,9 +160,7 @@ public:
     
     
 private:
-   
-    
-    
+
 };
 
 #endif /* NRF24L01PDRIVER_H */

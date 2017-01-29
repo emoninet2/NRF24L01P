@@ -8,7 +8,7 @@
  * File:   NRF24L01p.h
  * Author: emon1
  *
- * Created on December 11, 2016, 10:45 PM
+ * Created on January 29, 2017, 7:10 AM
  */
 
 #ifndef NRF24L01P_H
@@ -18,22 +18,18 @@
 #include "NRF24L01pConfig.h"
 
 
-
 class NRF24L01p : public NRF24L01pDriver{
 public:
-    
     NRF24L01p();
     NRF24L01p(const NRF24L01p& orig);
     virtual ~NRF24L01p();
     
     
-    
-//Version 1 API functions 
-    
-    typedef struct{
+        typedef struct{
         uint8_t data[32];
         uint64_t TxAddr;
         pipe_t RxPipe;
+        uint8_t len;
     }Payload_t;
     
     typedef enum {
@@ -67,9 +63,7 @@ public:
     fifo_t RxFifo;
 
     uint64_t TxAddr;
-    
-    
-    
+
     void initialize();
     int startup();
     int default_config();
@@ -77,8 +71,6 @@ public:
     
     bool readable();
     bool writable();
-   
-    
 
     int write_payload_to_send(uint8_t *data, int datalen);
     int write_payload_to_send_to_address(pipeAddrType_t address, uint8_t *data, int datalen);
@@ -91,6 +83,8 @@ public:
 
     void PRX();
     void PTX();
+    
+    
     
 private:
 

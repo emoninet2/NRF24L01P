@@ -8,20 +8,20 @@
  * File:   NRF24L01pConfig.h
  * Author: emon1
  *
- * Created on December 12, 2016, 1:26 AM
+ * Created on January 29, 2017, 7:11 AM
  */
 
 #ifndef NRF24L01PCONFIG_H
 #define NRF24L01PCONFIG_H
 
-#include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
+
+#define NRF24L01P_PORT_RPI3
 
 
 #define NRF24L01P_FIFO_SIZE 10
 #define NRF24L01P_NETWORK_ROUTING_TABLE_SIZE    20
-
 
 #endif /* NRF24L01PCONFIG_H */
 
