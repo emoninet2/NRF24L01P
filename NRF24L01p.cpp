@@ -353,6 +353,10 @@ void NRF24L01p::PRX(){
 
 
 void NRF24L01p::PTX(){
+    if(readable()){
+        return;
+    }
+    
     Payload_t payload;
     int r = fifo_read(&TxFifo, &payload);
     if(r == -1){
@@ -360,7 +364,7 @@ void NRF24L01p::PTX(){
     }
     else{
         //enable_payload_with_ack();
-        write_payload_to_send_to_address_ack(payload.TxAddr, payload.data, 32);
+        write_payload_to_send_to_address_ack(payload.TxAddr, payload.data, payload.len);
 
         StateType  originalState = RadioState;
 
