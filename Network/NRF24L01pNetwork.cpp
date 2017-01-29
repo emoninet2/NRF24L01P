@@ -26,15 +26,12 @@ void NRF24L01pNetwork::enableBroadcast(bool sel){
     set_RX_pipe_address((pipe_t) 0,NRF24L01P_NETWORK_BROADCAST_ADDR);
 }
 int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
-
+    printf("got broadcast packet\r\n");
 }
 int NRF24L01pNetwork::broadcastPacket(Payload_t *payload){
     printf("sending broadcast\r\n");
     payload->TxAddr = NRF24L01P_NETWORK_BROADCAST_ADDR;
     int ret = TransmitPacket(payload);
-    if(ret ==0) {
-        printf("\tgot ack\r\n");
-    }
     return ret;
 }
 int NRF24L01pNetwork::assignToAdjacent(AdjNode_t *node){
