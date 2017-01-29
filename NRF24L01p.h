@@ -25,7 +25,7 @@ public:
     virtual ~NRF24L01p();
     
     
-        typedef struct{
+    typedef struct{
         uint8_t data[32];
         uint64_t TxAddr;
         pipe_t RxPipe;

@@ -20,6 +20,11 @@
 
 class NRF24L01pNetwork : public NRF24L01p{
 public:
+    typedef enum{
+        JOIN = 0xC1,
+        GENERAL = 0xC2,
+    }BroadcastCommand_t;
+    
     typedef struct networkPayload{
         uint16_t srcNodeId;
         uint16_t destNodeId;
@@ -40,6 +45,18 @@ public:
         unsigned int PacketCount;
     }RoutingNode_t;
     
+    typedef struct{
+        uint32_t srcUID;
+        uint32_t destUID;
+        uint16_t NetworkID;
+        BroadcastCommand_t Cmd; 
+        uint8_t len;
+        uint8_t data[25];
+    }BroadcastMessage_t;
+    
+    
+
+    
     AdjNode_t AdjNode[5];
     RoutingNode_t RoutingTable[20];
 
@@ -53,9 +70,13 @@ public:
     virtual ~NRF24L01pNetwork();
     
     void setUID(uint32_t uid);
+    void NetworkUID(uint32_t id);
     void enableBroadcast(bool sel);
     int processBroadcastPacket(Payload_t *payload);
     int broadcastPacket(Payload_t *payload);
+    
+    
+    int requestNetworkJoin();
     int assignToAdjacent(AdjNode_t *node);
     
     

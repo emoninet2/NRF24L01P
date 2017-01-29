@@ -24,18 +24,46 @@ NRF24L01pNetwork::~NRF24L01pNetwork() {
 void NRF24L01pNetwork::setUID(uint32_t val){
     uid = val;
 }
-void NRF24L01pNetwork::enableBroadcast(bool sel){
 
+void NRF24L01pNetwork::NetworkUID(uint32_t id){
+    NetworkId = id;
+}
+void NRF24L01pNetwork::enableBroadcast(bool sel){
     set_RX_pipe_address((pipe_t) 0,NRF24L01P_NETWORK_BROADCAST_ADDR);
 }
 int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
     printf("got broadcast packet\r\n");
+    BroadcastMessage_t *message = (BroadcastMessage_t*)payload;
+    
+    printf("srcUID : %llx\r\n", message->srcUID);
+    printf("destUID : %llx\r\n", message->destUID);
+    printf("NetworkId : %x\r\n", message->NetworkID);
+    printf("Command : %x\r\n", message->Cmd);
+    
 }
 int NRF24L01pNetwork::broadcastPacket(Payload_t *payload){
     payload->TxAddr = NRF24L01P_NETWORK_BROADCAST_ADDR;
     int ret = TransmitPacket(payload);
     return ret;
 }
+
+int NRF24L01pNetwork::requestNetworkJoin(){
+    BroadcastMessage_t message;
+    Payload_t payload;
+
+    message.destUID = 0xABACADAE;
+    message.srcUID = uid;
+    message.NetworkID = NetworkId;
+    message.Cmd = JOIN;
+    message.len = 0x45;
+    
+    
+    memcpy((void*) &payload.data, (void*) &message, 32);
+    broadcastPacket(&payload);
+    
+}
+
+
 int NRF24L01pNetwork::assignToAdjacent(AdjNode_t *node){
     
 }
