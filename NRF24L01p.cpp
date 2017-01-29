@@ -372,17 +372,21 @@ int NRF24L01p::TransmitPacket(Payload_t *payload){
         }
 
         //do what needs to be done with the ACK payload here
-        retval |= ReceivePacket(payload);
-        if(payload->RxPipe == 0){
-            retval = 0;
-        }
+        //retval |= ReceivePacket(payload);
+        //if(payload->RxPipe == 0){
+        //    retval = 0;
+        //}
     
+    }
+    else{
+        //flush_tx();
+        flush_rx();
     }
 
     //restore original machine state
     RadioMode(originalState);
     flush_tx();
-    flush_rx();
+    //flush_rx();
     }
     else{
         retval = -1;//width of payload less is 0;
