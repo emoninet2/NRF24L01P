@@ -62,7 +62,8 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
             break;
         }
         case REQ_FREE_PIPE : {
-
+            respMesg.Cmd = RESP_AVAILABLE_FREE_PIPE;
+            broadcastPacket((Payload_t*)&respMesg);
             break;
         }
         case SEND_ADJNODE_REQUEST : {
@@ -87,7 +88,7 @@ int NRF24L01pNetwork::requestNetworkJoin(){
         message.srcUID = uid;
         message.NetworkID = NetworkId;
         message.Cmd = GENERAL_CALL_REPLY;
-        message.len = 0x45;
+        message.len = 32;
         
         broadcastPacket((Payload_t*)&message);
         if((message.Cmd == 0xC2) && message.destUID == uid ){
@@ -95,10 +96,22 @@ int NRF24L01pNetwork::requestNetworkJoin(){
         }
         port_DelayMs(1000);
     }
-    //uint32_t *x = &message.srcUID;
     printf("REPLY FOUND : friend : %x\r\n", message.srcUID);
     
-    
+    BroadcastMessage_t message2;
+    while(1){//loop until a general call reply is received
+        message2.destUID = message.srcUID;
+        message2.srcUID = uid;
+        message2.NetworkID = NetworkId;
+        message2.Cmd = REQ_FREE_PIPE;
+        message2.len = 32;
+        
+        broadcastPacket((Payload_t*)&message2);
+        if((message.Cmd == RESP_AVAILABLE_FREE_PIPE) && message2.destUID == uid ){
+            break;
+        }
+        port_DelayMs(1000);
+    }
     
 }
 
