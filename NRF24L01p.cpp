@@ -340,8 +340,8 @@ void NRF24L01p::PRX(){
             if(width>0){
                 Payload_t payload;
                 payload.len = width;
-                //strcpy((char*)payload.data, (char*)rxData);
-                memcpy(payload.data,rxData,payload.len);
+                strcpy((char*)payload.data, (char*)rxData);
+                //memcpy(payload.data,rxData,payload.len);
                 payload.RxPipe = (pipe_t) pipe;
                 if(fifo_write(&RxFifo, &payload) <= 0)break;
             }
