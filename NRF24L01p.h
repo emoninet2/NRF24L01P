@@ -81,6 +81,10 @@ public:
     int read_payload_dyn(pipe_t pipe, uint8_t *data);
     void write_ack(pipe_t pipe, uint8_t *data, int datalen);
 
+    int TransmitPacket(Payload_t *payload);
+    int ReceivePacket(Payload_t *payload);
+    
+    
     void PRX();
     void PTX();
     

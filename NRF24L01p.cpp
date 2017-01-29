@@ -329,6 +329,84 @@ int NRF24L01p::read_payload_dyn(pipe_t pipe, uint8_t *data){
 }
 
 
+int NRF24L01p::TransmitPacket(Payload_t *payload){
+//enable_payload_with_ack();
+    int retval;
+    write_payload_to_send_to_address_ack(payload->TxAddr, payload->data, payload->len);
+
+    StateType  originalState = RadioState;
+
+    if(writable() && !get_fifo_flag_rx_full())   {
+        clear_data_sent_flag();
+        while(1){
+            RadioMode(MODE_TX);   
+            RadioMode(MODE_STANDBY);   
+
+            if(get_data_sent_flag()|| !writable()  ){
+                retval = 0;
+                break;
+            }
+
+            if(get_max_retry_flag()){
+                clear_max_retry_flag();
+                if(get_plos_count()>=15){
+                    set_frequency_offset(2);
+                    retval = -1;
+                    break;
+                }
+            }
+        }
+
+    //RadioMode(MODE_STANDBY);
+    //clear data sent flag
+    clear_data_sent_flag();
+
+    //if got ack packet, just flush it
+    if(get_data_ready_flag()){
+        //do what needs to be done with the ACK payload here
+        flush_rx();//if you want to flush RX, (use only if the PTX started when RX was empty)
+        //clear_data_ready_flag();
+    }
+
+    //restore original machine state
+    RadioMode(originalState);
+    flush_tx();
+    flush_rx();
+    }
+    else{
+        retval = -1;//width of payload less is 0;
+    }
+    
+    return retval;
+}
+int NRF24L01p::ReceivePacket(Payload_t *payload){
+    int retval;
+    if(readable()){
+        clear_data_ready_flag();
+        StateType  originalState = RadioState;
+        uint8_t rxData[32];
+        pipe_t pipe =  get_rx_payload_pipe();
+        int width = read_payload_dyn(pipe, rxData);
+        if(width>0){
+            payload->len = width;
+            memcpy(payload->data,rxData,payload->len);
+            payload->data[payload->len] = '\0';
+            payload->RxPipe = (pipe_t) pipe;
+            retval = 0; 
+        }else {
+            retval = -1;//width of payload less is 0;
+        }
+        RadioMode(originalState);
+    }
+    else{
+        retval = -1;
+    }
+    return retval;
+}
+
+
+
+
 void NRF24L01p::PRX(){
     if(readable()){
         StateType  originalState = RadioState;
