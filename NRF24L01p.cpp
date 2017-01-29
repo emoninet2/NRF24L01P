@@ -379,10 +379,12 @@ int NRF24L01p::TransmitPacket(Payload_t *payload){
     
     return retval;
 }
+
+
 int NRF24L01p::ReceivePacket(Payload_t *payload){
     int retval;
     if(readable()){
-        clear_data_ready_flag();
+        //clear_data_ready_flag();
         StateType  originalState = RadioState;
         uint8_t rxData[32];
         pipe_t pipe =  get_rx_payload_pipe();
@@ -401,6 +403,7 @@ int NRF24L01p::ReceivePacket(Payload_t *payload){
     else{
         retval = -1;
     }
+    clear_data_ready_flag();
     return retval;
 }
 

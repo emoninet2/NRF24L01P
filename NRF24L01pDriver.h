@@ -14,6 +14,7 @@
 #ifndef NRF24L01PDRIVER_H
 #define NRF24L01PDRIVER_H
 
+#include <stdio.h>
 #include <stdint.h>
 #include "port/NRF24L01pPort.h"
 #include "NRF24L01pRegisters.h"
