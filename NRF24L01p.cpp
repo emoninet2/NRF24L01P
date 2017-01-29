@@ -364,6 +364,15 @@ int NRF24L01p::TransmitPacket(Payload_t *payload){
     //if got ack packet, just flush it
     if(get_data_ready_flag()){
         printf("now reading the ack payload\r\n");
+        payload->RxPipe = PIPE_P0;
+        uint8_t rxData[32];
+        pipe_t pipe =  get_rx_payload_pipe();
+        int width = read_payload_dyn(pipe, rxData);
+        if(width>0){
+            payload->len = width;
+            memcpy(payload->data,rxData,payload->len);
+            payload->data[payload->len] = '\0';
+        }
         //do what needs to be done with the ACK payload here
         retval |= ReceivePacket(payload);
         if(payload->RxPipe == 0){

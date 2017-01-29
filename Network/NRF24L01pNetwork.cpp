@@ -40,6 +40,19 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
     printf("NetworkId : %x\r\n", message->NetworkID);
     printf("Command : %x\r\n", message->Cmd);
     
+    BroadcastMessage_t respMesg ;
+    respMesg.destUID = message->srcUID;
+    respMesg.srcUID = uid;
+    
+    switch(message->Cmd){
+        case GENERAL_CALL_REPLY : {
+                respMesg.Cmd = REPLY_GENERAL_CALL;
+                broadcastPacket((Payload_t*)&respMesg);
+            break;
+        }
+    }
+    
+    
 }
 int NRF24L01pNetwork::broadcastPacket(Payload_t *payload){
     payload->TxAddr = NRF24L01P_NETWORK_BROADCAST_ADDR;
