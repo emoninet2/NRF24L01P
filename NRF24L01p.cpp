@@ -381,7 +381,7 @@ int NRF24L01p::TransmitPacket(Payload_t *payload){
     //restore original machine state
     RadioMode(originalState);
     flush_tx();
-    //flush_rx();
+    flush_rx();
     }
     else{
         retval = -1;//width of payload less is 0;

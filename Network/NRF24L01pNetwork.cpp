@@ -105,15 +105,16 @@ uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(BroadcastMessage_t *message)
     
     uint16_t newNodeId = rand() % (65535 + 1 - 1) + 1;
     printf("the new random number is %x\r\n", newNodeId);
-    
-    
-    
+
     respMesg.Cmd = RESPOND_CONNECTION;
     respMesg.destUID = message->srcUID;
     respMesg.srcUID = uid;
-    memcpy((void*) respMesg.data,(void*) &newNodeId, sizeof(newNodeId));
+    respMesg.NetworkID = NetworkId;
+    //memcpy((void*) respMesg.data,(void*) &newNodeId, sizeof(newNodeId));
     //respMesg.data[0] = 0x96;
     //respMesg.data[1] = 0xAB;
+
+
     broadcastPacket((Payload_t*)&respMesg);
     //printf("\tgonna say free pipe\r\n");
     
