@@ -16,7 +16,8 @@
 
 #include "../NRF24L01p.h"
 #include "NRF24L01pNetworkConfig.h"
-
+#include <stdlib.h> 
+#include <math.h>
 
 class NRF24L01pNetwork : public NRF24L01p{
 public:
@@ -50,6 +51,15 @@ public:
         unsigned int PacketCount;
     }RoutingNode_t;
     
+    
+    typedef struct{
+        uint16_t NodeId;
+        uint16_t friendNodeId;
+        uint32_t uid;
+        uint8_t status;
+    }HostClients_t;
+    
+    
     typedef struct{
         uint32_t srcUID;
         uint32_t destUID;
@@ -64,23 +74,28 @@ public:
     
     AdjNode_t AdjNode[5];
     RoutingNode_t RoutingTable[20];
-
+    HostClients_t DynamicHostClients[256];
+    
+    
     uint32_t uid;
     uint16_t NetworkId;
     uint16_t NodeId;
     
+    bool isHostController;
     
     NRF24L01pNetwork();
     NRF24L01pNetwork(const NRF24L01pNetwork& orig);
     virtual ~NRF24L01pNetwork();
     
+    void Network_init();
     void setUID(uint32_t uid);
     void NetworkUID(uint32_t id);
     void enableBroadcast(bool sel);
     int processBroadcastPacket(Payload_t *payload);
     int broadcastPacket(Payload_t *payload);
     
-    
+    int adjacentPipeAvailable();
+    uint16_t ObtainAddressDhcAdjacent(uint32_t newNodeUid);
     int requestNetworkJoin();
     int assignToAdjacent(AdjNode_t *node);
     
