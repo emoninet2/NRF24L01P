@@ -97,7 +97,7 @@ int NRF24L01pNetwork::adjacentPipeAvailable(){
 
 
 uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(BroadcastMessage_t *message){
-    printf("gonna assign Node ID for UID : %x\r\n", message->srcUID);
+    //printf("obtain Node ID for UID : %x\r\n", message->srcUID);
     //uint16_t randNodeId = 0x45BA;
     
     BroadcastMessage_t respMesg;

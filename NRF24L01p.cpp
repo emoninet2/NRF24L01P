@@ -359,11 +359,11 @@ int NRF24L01p::TransmitPacket(Payload_t *payload){
 
     //if got ack packet, just flush it
     if(get_data_ready_flag()){
-        printf("now reading the ack payload\r\n");
+        //printf("now reading the ack payload\r\n");
         uint8_t rxData[32];
         pipe_t pipe =  get_rx_payload_pipe();
         int width = read_payload_dyn(pipe, rxData);
-        printf("pipe is : %d\r\n", pipe);
+        //printf("pipe is : %d\r\n", pipe);
         if(width>0){
             payload->RxPipe = PIPE_P0;
             payload->len = width;
