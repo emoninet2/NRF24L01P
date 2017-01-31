@@ -45,7 +45,7 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
     printf("\r\n");
     int i;
     for(i=0;i<32;i++){
-        printf("%x ", payload->data[i]);
+        //printf("%x ", payload->data[i]);
     }
     printf("\r\n");
     
@@ -102,9 +102,55 @@ uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(BroadcastMessage_t *message)
     
     BroadcastMessage_t respMesg;
     
+    uint16_t newNodeId;
+    int availableClientSlot = -1;
+    int uidDuplicateInSlot = -1;
+    int i;
     
-    uint16_t newNodeId = rand() % (65535 + 1 - 1) + 1;
-    printf("the new random number is %x\r\n", newNodeId);
+    while(1){
+        newNodeId = rand() % (65535 + 1 - 1) + 1;
+        newNodeId += 4;
+        bool NodeIdDuplicate = 0;
+        for(i=0;i<265;i++){
+            
+            if( (availableClientSlot<0) && (DynamicHostClients[i].status == 0)){
+                availableClientSlot = i;
+            }
+            
+            if( (DynamicHostClients[i].uid == message->srcUID)){
+                uidDuplicateInSlot = i;
+            }
+            
+            if(newNodeId == DynamicHostClients[i].NodeId){
+                NodeIdDuplicate = 1;
+                break;
+            }
+        }
+
+        if(uidDuplicateInSlot>=0){
+            printf("ALREADY REGISTERED : %d\r\n", uidDuplicateInSlot);
+            newNodeId = DynamicHostClients[uidDuplicateInSlot].NodeId;
+        }
+
+        
+        if(NodeIdDuplicate == 0) {
+            if(uidDuplicateInSlot == -1 ){
+                printf("REGISTERING\r\n");
+                printf("SLOT USED :  %d\r\n", availableClientSlot);
+                printf("ASSIGNED NODE ID:  is %x\r\n", newNodeId);
+                DynamicHostClients[availableClientSlot].NodeId = newNodeId;
+                DynamicHostClients[availableClientSlot].uid = message->srcUID;
+                DynamicHostClients[availableClientSlot].status |= 1;
+            }
+            
+            break;
+        }
+        
+
+        
+        
+    }
+
 
     respMesg.Cmd = RESPOND_CONNECTION;
     respMesg.destUID = message->srcUID;

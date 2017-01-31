@@ -370,13 +370,8 @@ int NRF24L01p::TransmitPacket(Payload_t *payload){
             memcpy(payload->data,rxData,payload->len);
             payload->data[payload->len] = '\0';
         }
+    }
 
-    
-    }
-    else{
-        //flush_tx();
-        flush_rx();
-    }
 
     //restore original machine state
     RadioMode(originalState);
