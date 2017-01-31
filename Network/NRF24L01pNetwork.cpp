@@ -39,15 +39,15 @@ void NRF24L01pNetwork::enableBroadcast(bool sel){
     set_RX_pipe_address((pipe_t) 0,NRF24L01P_NETWORK_BROADCAST_ADDR);
 }
 int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
-    printf("got broadcast packet\r\n");
+    printf("\r\ngot broadcast packet\r\n");
     BroadcastMessage_t *message = (BroadcastMessage_t*)payload;
     
-    printf("\r\n");
-    int i;
-    for(i=0;i<32;i++){
+    //printf("\r\n");
+    //int i;
+    //for(i=0;i<32;i++){
         //printf("%x ", payload->data[i]);
-    }
-    printf("\r\n");
+    //}
+    //printf("\r\n");
     
     printf("srcUID : %x\r\n", message->srcUID);
     printf("destUID : %x\r\n", message->destUID);
@@ -170,11 +170,11 @@ uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(BroadcastMessage_t *message)
 
 
 int NRF24L01pNetwork::requestNetworkJoin(){
-
+    printf("broadcasting to find nodes on network\r\n");
     BroadcastMessage_t message;
     BroadcastMessage_t message2;
     uint16_t newNodeId ;
-    
+
     while(!((message.Cmd == REPLY_GENERAL_CALL) && (message.destUID == ownUid))){//loop until a general call reply is received
         message.destUID = 0;
         message.srcUID = ownUid;
@@ -186,11 +186,12 @@ int NRF24L01pNetwork::requestNetworkJoin(){
         port_DelayMs(1000);
     }
     
-    printf("\tFRIEND FOUND : friend : %x\r\n", message.srcUID);
+    printf("found node on network, node UID : %x\r\n", message.srcUID);
     
+    printf("sending request to join network\r\n");
     
     while(!((message2.Cmd == RESPOND_CONNECTION) && (message2.destUID == ownUid ))){//loop until a general call reply is received
-        printf("requesting node ID\r\n");
+        //printf("requesting node ID\r\n");
         message2.destUID = message.srcUID;
         message2.srcUID = ownUid;
         message2.NetworkID = ownNetworkId;
@@ -202,7 +203,7 @@ int NRF24L01pNetwork::requestNetworkJoin(){
     }
 
     memcpy((void*) &newNodeId, (void*) message2.data, sizeof(newNodeId));
-    printf("\tFRIEND NODE HAS FREE PIPE AND ASSIGNED NODE IS : %x\r\n", newNodeId);
+    printf("joined network successfully\r\nAssigned node ID is  : %x\r\n\r\n", newNodeId);
     
     ownNodeId = newNodeId;
     
