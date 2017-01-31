@@ -16,6 +16,7 @@
 
 #include "../NRF24L01p.h"
 #include "NRF24L01pNetworkConfig.h"
+#include <stdio.h>
 #include <stdlib.h> 
 #include <math.h>
 

@@ -123,9 +123,12 @@ uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(BroadcastMessage_t *message)
 
 
 int NRF24L01pNetwork::requestNetworkJoin(){
-Payload_t payload;
+
     BroadcastMessage_t message;
-    while(1){//loop until a general call reply is received
+    BroadcastMessage_t message2;
+    uint16_t newNodeId ;
+    
+    while(!(message.Cmd == REPLY_GENERAL_CALL) && !(message.destUID == uid)){//loop until a general call reply is received
         message.destUID = 0;
         message.srcUID = uid;
         message.NetworkID = NetworkId;
@@ -133,15 +136,14 @@ Payload_t payload;
         message.len = 32;
         
         broadcastPacket((Payload_t*)&message);
-        if((message.Cmd == 0xC2) && message.destUID == uid ){
-            break;
-        }
         port_DelayMs(1000);
     }
-    printf("\tREPLY FOUND : friend : %x\r\n", message.srcUID);
     
-    BroadcastMessage_t message2;
-    while(1){//loop until a general call reply is received
+    printf("\tFRIEND FOUND : friend : %x\r\n", message.srcUID);
+    
+    
+    while(!(message2.Cmd == RESPOND_CONNECTION) && !(message2.destUID == uid )){//loop until a general call reply is received
+        printf("requesting node ID\r\n");
         message2.destUID = message.srcUID;
         message2.srcUID = uid;
         message2.NetworkID = NetworkId;
@@ -149,20 +151,14 @@ Payload_t payload;
         message2.len = 32;
         
         broadcastPacket((Payload_t*)&message2);
-        if((message2.Cmd == RESPOND_CONNECTION) && message2.destUID == uid ){
-            printf(">>>>>>>>>>>yeahh baby\r\n");
-            break;
-        }
         port_DelayMs(1000);
     }
-    uint16_t newNodeId;
+
     memcpy((void*) &newNodeId, (void*) message2.data, sizeof(newNodeId));
-    
     printf("\tFRIEND NODE HAS FREE PIPE AND ASSIGNED NODE IS : %x\r\n", newNodeId);
     
-    
     port_DelayMs(5000);
-    
+    return 0;
 }
 
 
