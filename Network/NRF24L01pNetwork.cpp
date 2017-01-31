@@ -129,7 +129,7 @@ int NRF24L01pNetwork::requestNetworkJoin(){
     BroadcastMessage_t message2;
     uint16_t newNodeId ;
     
-    while(!(message.Cmd == REPLY_GENERAL_CALL) && !(message.destUID == uid)){//loop until a general call reply is received
+    while(!((message.Cmd == REPLY_GENERAL_CALL) && (message.destUID == uid))){//loop until a general call reply is received
         message.destUID = 0;
         message.srcUID = uid;
         message.NetworkID = NetworkId;
@@ -143,7 +143,7 @@ int NRF24L01pNetwork::requestNetworkJoin(){
     printf("\tFRIEND FOUND : friend : %x\r\n", message.srcUID);
     
     
-    while(!(message2.Cmd == RESPOND_CONNECTION) && !(message2.destUID == uid )){//loop until a general call reply is received
+    while(!((message2.Cmd == RESPOND_CONNECTION) && (message2.destUID == uid ))){//loop until a general call reply is received
         printf("requesting node ID\r\n");
         message2.destUID = message.srcUID;
         message2.srcUID = uid;
