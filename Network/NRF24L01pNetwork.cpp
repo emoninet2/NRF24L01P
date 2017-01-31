@@ -108,10 +108,9 @@ uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(uint32_t Uid){
 
 
 int NRF24L01pNetwork::requestNetworkJoin(){
-    Payload_t payload;
+Payload_t payload;
     BroadcastMessage_t message;
     while(1){//loop until a general call reply is received
-        printf("sending broadcast\r\n");
         message.destUID = 0;
         message.srcUID = uid;
         message.NetworkID = NetworkId;
@@ -128,7 +127,6 @@ int NRF24L01pNetwork::requestNetworkJoin(){
     
     BroadcastMessage_t message2;
     while(1){//loop until a general call reply is received
-        printf("requesting connection\r\n");
         message2.destUID = message.srcUID;
         message2.srcUID = uid;
         message2.NetworkID = NetworkId;
