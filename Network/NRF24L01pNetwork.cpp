@@ -140,7 +140,7 @@ Payload_t payload;
         }
         port_DelayMs(1000);
     }
-    printf("\tFRIEND NODE HAS FREE PIPE\r\n");
+    printf("\tFRIEND NODE HAS FREE PIPE AND ASSIGNED NODE IS : %x%x\r\n", message2.data[0], message2.data[1]);
     
     
     port_DelayMs(5000);
