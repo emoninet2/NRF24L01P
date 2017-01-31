@@ -74,11 +74,8 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
     else if(message->Cmd == REQUEST_CONNECTION){
         if(message->destUID == uid){
             printf("requesting connection\r\n");
-            ObtainAddressDhcAdjacent(message->srcUID);
-            respMesg.Cmd = RESPOND_CONNECTION;
-            //memcpy((void*) respMesg.data,(void*) &newNodeId, sizeof(newNodeId));
-            broadcastPacket((Payload_t*)&respMesg);
-            //printf("\tgonna say free pipe\r\n");
+            ObtainAddressDhcAdjacent(message);
+
         }
     }  
 
@@ -99,9 +96,27 @@ int NRF24L01pNetwork::adjacentPipeAvailable(){
 }
 
 
-uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(uint32_t Uid){
-    printf("gonna assign Node ID for UID : %x\r\n", Uid);
+uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(BroadcastMessage_t *message){
+    printf("gonna assign Node ID for UID : %x\r\n", message->srcUID);
     uint16_t randNodeId = 0;
+    
+    BroadcastMessage_t respMesg;
+    
+    
+    uint16_t newNodeId = rand() % (65535 + 1 - 1) + 1;
+    printf("the new random number is %x\r\n", newNodeId);
+    
+    
+    
+    respMesg.Cmd = RESPOND_CONNECTION;
+    respMesg.destUID = message->srcUID;
+    respMesg.srcUID = uid;
+    memcpy((void*) respMesg.data,(void*) &newNodeId, sizeof(newNodeId));
+    //respMesg.data[0] = 0x96;
+    //respMesg.data[1] = 0xAB;
+    broadcastPacket((Payload_t*)&respMesg);
+    //printf("\tgonna say free pipe\r\n");
+    
     
     return randNodeId;
 }
@@ -140,7 +155,10 @@ Payload_t payload;
         }
         port_DelayMs(1000);
     }
-    printf("\tFRIEND NODE HAS FREE PIPE AND ASSIGNED NODE IS : %x%x\r\n", message2.data[0], message2.data[1]);
+    uint16_t newNodeId;
+    memcpy((void*) &newNodeId, (void*) message2.data, sizeof(newNodeId));
+    
+    printf("\tFRIEND NODE HAS FREE PIPE AND ASSIGNED NODE IS : %x\r\n", newNodeId);
     
     
     port_DelayMs(5000);

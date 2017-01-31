@@ -95,7 +95,7 @@ public:
     int broadcastPacket(Payload_t *payload);
     
     int adjacentPipeAvailable();
-    uint16_t ObtainAddressDhcAdjacent(uint32_t newNodeUid);
+    uint16_t ObtainAddressDhcAdjacent(BroadcastMessage_t *message);
     int requestNetworkJoin();
     int assignToAdjacent(AdjNode_t *node);
     
