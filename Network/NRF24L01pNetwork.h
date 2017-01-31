@@ -78,9 +78,9 @@ public:
     HostClients_t DynamicHostClients[256];
     
     
-    uint32_t uid;
-    uint16_t NetworkId;
-    uint16_t NodeId;
+    uint32_t ownUid;
+    uint16_t ownNetworkId;
+    uint16_t ownNodeId;
     
     bool isHostController;
     

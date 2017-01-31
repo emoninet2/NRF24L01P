@@ -29,11 +29,11 @@ void NRF24L01pNetwork:: Network_init(){
 }
 
 void NRF24L01pNetwork::setUID(uint32_t val){
-    uid = val;
+    ownUid = val;
 }
 
 void NRF24L01pNetwork::NetworkUID(uint32_t id){
-    NetworkId = id;
+    ownNetworkId = id;
 }
 void NRF24L01pNetwork::enableBroadcast(bool sel){
     set_RX_pipe_address((pipe_t) 0,NRF24L01P_NETWORK_BROADCAST_ADDR);
@@ -56,7 +56,7 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
     
     BroadcastMessage_t respMesg ;
     respMesg.destUID = message->srcUID;
-    respMesg.srcUID = uid;
+    respMesg.srcUID = ownUid;
     
     
     if(message->Cmd == GENERAL_CALL_REPLY){
@@ -65,14 +65,14 @@ int NRF24L01pNetwork::processBroadcastPacket(Payload_t *payload){
         broadcastPacket((Payload_t*)&respMesg);
     }
     else if(message->Cmd == PING_UID){
-        if(message->destUID == uid){
+        if(message->destUID ==ownUid){
             printf("\tgot ping UID match\r\n");
             respMesg.Cmd = PONG_UID;
             broadcastPacket((Payload_t*)&respMesg);
         }
     }
     else if(message->Cmd == REQUEST_CONNECTION){
-        if(message->destUID == uid){
+        if(message->destUID == ownUid){
             printf("requesting connection\r\n");
             ObtainAddressDhcAdjacent(message);
 
@@ -98,7 +98,7 @@ int NRF24L01pNetwork::adjacentPipeAvailable(){
 
 uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(BroadcastMessage_t *message){
     printf("gonna assign Node ID for UID : %x\r\n", message->srcUID);
-    uint16_t randNodeId = 0;
+    //uint16_t randNodeId = 0x45BA;
     
     BroadcastMessage_t respMesg;
     
@@ -108,18 +108,18 @@ uint16_t NRF24L01pNetwork::ObtainAddressDhcAdjacent(BroadcastMessage_t *message)
 
     respMesg.Cmd = RESPOND_CONNECTION;
     respMesg.destUID = message->srcUID;
-    respMesg.srcUID = uid;
-    respMesg.NetworkID = NetworkId;
-    //memcpy((void*) respMesg.data,(void*) &newNodeId, sizeof(newNodeId));
-    //respMesg.data[0] = 0x96;
-    //respMesg.data[1] = 0xAB;
+    respMesg.srcUID = ownUid;
+    respMesg.NetworkID = ownNetworkId;
+    memcpy((void*) respMesg.data,(void*) &newNodeId, sizeof(newNodeId));
+    //respMesg.data[0] = (randNodeId);
+    //respMesg.data[1] = (randNodeId>>8);
 
 
     broadcastPacket((Payload_t*)&respMesg);
     //printf("\tgonna say free pipe\r\n");
     
     
-    return randNodeId;
+    return newNodeId;
 }
 
 
@@ -129,10 +129,10 @@ int NRF24L01pNetwork::requestNetworkJoin(){
     BroadcastMessage_t message2;
     uint16_t newNodeId ;
     
-    while(!((message.Cmd == REPLY_GENERAL_CALL) && (message.destUID == uid))){//loop until a general call reply is received
+    while(!((message.Cmd == REPLY_GENERAL_CALL) && (message.destUID == ownUid))){//loop until a general call reply is received
         message.destUID = 0;
-        message.srcUID = uid;
-        message.NetworkID = NetworkId;
+        message.srcUID = ownUid;
+        message.NetworkID = ownNetworkId;
         message.Cmd = GENERAL_CALL_REPLY;
         message.len = 32;
         
@@ -143,11 +143,11 @@ int NRF24L01pNetwork::requestNetworkJoin(){
     printf("\tFRIEND FOUND : friend : %x\r\n", message.srcUID);
     
     
-    while(!((message2.Cmd == RESPOND_CONNECTION) && (message2.destUID == uid ))){//loop until a general call reply is received
+    while(!((message2.Cmd == RESPOND_CONNECTION) && (message2.destUID == ownUid ))){//loop until a general call reply is received
         printf("requesting node ID\r\n");
         message2.destUID = message.srcUID;
-        message2.srcUID = uid;
-        message2.NetworkID = NetworkId;
+        message2.srcUID = ownUid;
+        message2.NetworkID = ownNetworkId;
         message2.Cmd = REQUEST_CONNECTION;
         message2.len = 32;
         
@@ -157,6 +157,9 @@ int NRF24L01pNetwork::requestNetworkJoin(){
 
     memcpy((void*) &newNodeId, (void*) message2.data, sizeof(newNodeId));
     printf("\tFRIEND NODE HAS FREE PIPE AND ASSIGNED NODE IS : %x\r\n", newNodeId);
+    
+    ownNodeId = newNodeId;
+    
     
     port_DelayMs(5000);
     return 0;
