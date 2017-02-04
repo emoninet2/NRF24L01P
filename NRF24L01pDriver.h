@@ -55,9 +55,9 @@ public:
            PIPE_P5       =    5,/**< Pipe 5 */
     }pipe_t;
 
-    typedef uint64_t pipeAddrType_t;
+    typedef uint64_t PipeAddr_t;
     
-    
+
     
     NRF24L01pDriver();
     NRF24L01pDriver(const NRF24L01pDriver& orig);
@@ -68,19 +68,12 @@ public:
     void rx_mode();
     void tx_mode();
     void set_CRC(crc_t opt);
-    void enable_dataReady_interrupt();
-    void disable_dataReady_interrupt();
-    void enable_dataSent_interrupt();
-    void disable_dataSent_interrupt();
-    void enable_maxRetry_interrupt();
-    void disable_maxRetry_interrupt();
+    void enable_dataReady_interrupt(bool sel);
+    void enable_dataSent_interrupt(bool sel);
+    void enable_maxRetry_interrupt(bool sel);
 
-    void enable_auto_ack(pipe_t pipe);
-    void disable_auto_ack(pipe_t pipe);
-    void disable_auto_ack_all_pipes();
-    
-    void enable_rx_on_pipe(pipe_t pipe);
-    void disable_rx_on_pipe(pipe_t pipe);
+    void enable_auto_ack(pipe_t pipe, bool sel);
+    void enable_rx_on_pipe(pipe_t pipe, bool sel);
     
     void set_address_width(aw_t width);
     aw_t get_address_width();
@@ -88,7 +81,6 @@ public:
     void set_auto_retransmission_count(uint8_t count);
     uint8_t read_auto_retransmission_count();
 
-    
     void set_auto_retransmission_delay(uint8_t times250us);
     uint8_t read_auto_retransmission_delay();
     
@@ -99,11 +91,10 @@ public:
     datarate_t get_DataRate();
     void set_RF_Power(RFpower_t RFpower);
     RFpower_t get_RF_Power();
-    void enable_pll_lock();
-    void disble_pll_lock();
-    void enable_cont_wave();
-    void disable_cont_wave();
-    
+    void enable_pll_lock(bool sel);
+
+    void enable_cont_wave(bool sel);
+
     bool get_tx_fifo_full_flag();
     bool get_max_retry_flag();
     void clear_max_retry_flag();
@@ -119,11 +110,11 @@ public:
     
     bool get_rpd();
     
-    void set_RX_pipe_address(pipe_t pipe,pipeAddrType_t address);
-    pipeAddrType_t get_RX_pipe_address(pipe_t pipe);
+    void set_RX_pipe_address(pipe_t pipe,PipeAddr_t address);
+    PipeAddr_t get_RX_pipe_address(pipe_t pipe);
     
-    void set_TX_pipe_address(pipeAddrType_t address);
-    pipeAddrType_t get_TX_pipe_address();
+    void set_TX_pipe_address(PipeAddr_t address);
+    PipeAddr_t get_TX_pipe_address();
     
     uint8_t get_RX_pipe_width(pipe_t pipe);
     
@@ -133,18 +124,12 @@ public:
     bool get_fifo_flag_tx_full();
     bool get_fifo_flag_tx_reuse();
     
-    void enable_dynamic_payload_pipe(pipe_t pipe);
-    void disable_dynamic_payload_pipe(pipe_t pipe);
-    void disable_dynamic_payload_all_pipe();
-    
-    void enable_dynamic_payload();
-    void disable_dynamic_payload();
-    void enable_payload_with_ack();
-    void disable_payload_with_ack();
-    void enable_dynamic_payload_with_ack();
-    void disable_dynamic_payload_with_ack();
- 
-    
+    void enable_dynamic_payload_pipe(pipe_t pipe, bool sel);
+
+    void enable_dynamic_payload(bool sel);
+    void enable_payload_with_ack(bool sel);
+    void enable_dynamic_payload_with_no_ack(bool sel);
+
     uint8_t read_register(uint8_t address);
     void read_register(uint8_t address, uint8_t *dataout, int len);
     void write_register(uint8_t address, uint8_t datain);

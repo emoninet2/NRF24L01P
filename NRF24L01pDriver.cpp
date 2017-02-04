@@ -143,50 +143,47 @@ void NRF24L01pDriver::set_CRC(crc_t opt){
 }
 
 
-void NRF24L01pDriver::enable_dataReady_interrupt(){
-    
-}
-void NRF24L01pDriver::disable_dataReady_interrupt(){
-    
-}
-void NRF24L01pDriver::enable_dataSent_interrupt(){
-    
-}
-void NRF24L01pDriver::disable_dataSent_interrupt(){
-    
-}
-void NRF24L01pDriver::enable_maxRetry_interrupt(){
-    
-}
-void NRF24L01pDriver::disable_maxRetry_interrupt(){
+void NRF24L01pDriver::enable_dataReady_interrupt(bool sel){
     
 }
 
-void NRF24L01pDriver::enable_auto_ack(pipe_t pipe){
-    uint8_t temp = read_register(_NRF24L01P_REG_EN_AA);
-    _nrf24l01p_set_bit(temp,pipe);
-    write_register(_NRF24L01P_REG_EN_AA,temp);   
+void NRF24L01pDriver::enable_dataSent_interrupt(bool sel){
+    
 }
-void NRF24L01pDriver::disable_auto_ack(pipe_t pipe){
-    uint8_t temp = read_register(_NRF24L01P_REG_EN_AA);
-    _nrf24l01p_clr_bit(temp,pipe);
-    write_register(_NRF24L01P_REG_EN_AA,temp);    
-}
-void NRF24L01pDriver::disable_auto_ack_all_pipes(){
-    write_register(_NRF24L01P_REG_EN_AA,0);
+
+void NRF24L01pDriver::enable_maxRetry_interrupt(bool sel){
+    
 }
 
 
-void NRF24L01pDriver::enable_rx_on_pipe(pipe_t pipe){
-    uint8_t temp = read_register(_NRF24L01P_REG_EN_RXADDR);
-    _nrf24l01p_set_bit(temp,pipe);
-    write_register(_NRF24L01P_REG_EN_RXADDR,temp);
+void NRF24L01pDriver::enable_auto_ack(pipe_t pipe, bool sel){
+    if (sel){
+        uint8_t temp = read_register(_NRF24L01P_REG_EN_AA);
+        _nrf24l01p_set_bit(temp,pipe);
+        write_register(_NRF24L01P_REG_EN_AA,temp); 
+    }else{
+        uint8_t temp = read_register(_NRF24L01P_REG_EN_AA);
+        _nrf24l01p_clr_bit(temp,pipe);
+        write_register(_NRF24L01P_REG_EN_AA,temp); 
+    }
+  
 }
-void NRF24L01pDriver::disable_rx_on_pipe(pipe_t pipe){
-    uint8_t temp = read_register(_NRF24L01P_REG_EN_RXADDR);
-    _nrf24l01p_clr_bit(temp,pipe);
-    write_register(_NRF24L01P_REG_EN_RXADDR,temp);
+
+
+
+void NRF24L01pDriver::enable_rx_on_pipe(pipe_t pipe, bool sel){
+    if(sel){
+        uint8_t temp = read_register(_NRF24L01P_REG_EN_RXADDR);
+        _nrf24l01p_set_bit(temp,pipe);
+        write_register(_NRF24L01P_REG_EN_RXADDR,temp);
+    }else{
+        uint8_t temp = read_register(_NRF24L01P_REG_EN_RXADDR);
+        _nrf24l01p_clr_bit(temp,pipe);
+        write_register(_NRF24L01P_REG_EN_RXADDR,temp);
+    }
+
 }
+
 void NRF24L01pDriver::set_address_width(aw_t width){
     write_register(_NRF24L01P_REG_SETUP_AW,(uint8_t) width);
 }
@@ -247,22 +244,24 @@ NRF24L01pDriver::RFpower_t NRF24L01pDriver::get_RF_Power(){
     temp &= _NRF24L01P_RF_SETUP_RF_PWR_MASK;
     return (RFpower_t) temp;
 }
-void NRF24L01pDriver::enable_pll_lock(){
+void NRF24L01pDriver::enable_pll_lock(bool sel){
     
 }
-void NRF24L01pDriver::disble_pll_lock(){
-    
+
+void NRF24L01pDriver::enable_cont_wave(bool sel){
+    if(sel){
+        uint8_t temp = read_register(_NRF24L01P_REG_RF_SETUP);
+        temp |= _NRF24L01P_RF_CONT_WAVE;
+        write_register(_NRF24L01P_REG_RF_SETUP,temp);
+    }
+    else{
+        uint8_t temp = read_register(_NRF24L01P_REG_RF_SETUP);
+        temp &= ~_NRF24L01P_RF_CONT_WAVE;
+        write_register(_NRF24L01P_REG_RF_SETUP,temp);
+    }
+
 }
-void NRF24L01pDriver::enable_cont_wave(){
-    uint8_t temp = read_register(_NRF24L01P_REG_RF_SETUP);
-    temp |= _NRF24L01P_RF_CONT_WAVE;
-    write_register(_NRF24L01P_REG_RF_SETUP,temp);
-}
-void NRF24L01pDriver::disable_cont_wave(){
-    uint8_t temp = read_register(_NRF24L01P_REG_RF_SETUP);
-    temp &= ~_NRF24L01P_RF_CONT_WAVE;
-    write_register(_NRF24L01P_REG_RF_SETUP,temp);
-}
+
 
 bool NRF24L01pDriver::get_tx_fifo_full_flag(){
     if(get_status()&_NRF24L01P_STATUS_TX_FULL) return 1;
@@ -317,7 +316,7 @@ bool NRF24L01pDriver::get_rpd(){
     else return 0;
 }
 
-void NRF24L01pDriver::set_RX_pipe_address(pipe_t pipe,pipeAddrType_t address){
+void NRF24L01pDriver::set_RX_pipe_address(pipe_t pipe,PipeAddr_t address){
     int max_pipe_addr_width = 0;
     if((pipe>=0) && (pipe<=1)   ){max_pipe_addr_width = 5;}
     else if ((pipe>=2) && (pipe<=5)   ){max_pipe_addr_width = 1;}
@@ -328,7 +327,7 @@ void NRF24L01pDriver::set_RX_pipe_address(pipe_t pipe,pipeAddrType_t address){
     }
     write_register(_NRF24L01P_REG_RX_ADDR_P0 + pipe,temp,max_pipe_addr_width);
 }
-NRF24L01pDriver::pipeAddrType_t NRF24L01pDriver::get_RX_pipe_address(pipe_t pipe){
+NRF24L01pDriver::PipeAddr_t NRF24L01pDriver::get_RX_pipe_address(pipe_t pipe){
     int max_pipe_addr_width = 0;
     if((pipe>=0) && (pipe<=1)   ){max_pipe_addr_width = 5;}
     else if ((pipe>=2) && (pipe<=5)   ){max_pipe_addr_width = 1;}
@@ -346,7 +345,7 @@ NRF24L01pDriver::pipeAddrType_t NRF24L01pDriver::get_RX_pipe_address(pipe_t pipe
     return temp_addr;   
 }
 
-void NRF24L01pDriver::set_TX_pipe_address(pipeAddrType_t address){
+void NRF24L01pDriver::set_TX_pipe_address(PipeAddr_t address){
     uint8_t temp[5];
     int i;
     for( i=0;i<5;i++){
@@ -354,7 +353,7 @@ void NRF24L01pDriver::set_TX_pipe_address(pipeAddrType_t address){
     }
     write_register(_NRF24L01P_REG_TX_ADDR,temp,5);   
 }
-NRF24L01pDriver::pipeAddrType_t NRF24L01pDriver::get_TX_pipe_address(){
+NRF24L01pDriver::PipeAddr_t NRF24L01pDriver::get_TX_pipe_address(){
     uint8_t temp[5];
     read_register(_NRF24L01P_REG_TX_ADDR,temp,5);
 
@@ -394,53 +393,63 @@ bool NRF24L01pDriver::get_fifo_flag_tx_reuse(){
     else return 0;      
 }
 
-void NRF24L01pDriver::enable_dynamic_payload_pipe(pipe_t pipe){
-    uint8_t temp = read_register(_NRF24L01P_REG_DYNPD);
-    temp |= (1<<pipe);
-    write_register(_NRF24L01P_REG_DYNPD,temp);    
-}
-void NRF24L01pDriver::disable_dynamic_payload_pipe(pipe_t pipe){
-    uint8_t temp = read_register(_NRF24L01P_REG_DYNPD);
-    temp &= ~(1<<pipe);
-    write_register(_NRF24L01P_REG_DYNPD,temp);     
-}
-void NRF24L01pDriver::disable_dynamic_payload_all_pipe(){
-    write_register(_NRF24L01P_REG_DYNPD,0x00);
-}
-
-
-void NRF24L01pDriver::enable_dynamic_payload(){
-    uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
-    temp |= _NRF24L01_FEATURE_EN_DPL;
-    write_register(_NRF24L01P_REG_FEATURE,temp);    
-}
-void NRF24L01pDriver::disable_dynamic_payload(){
-    uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
-    temp &= ~_NRF24L01_FEATURE_EN_DPL;
-    write_register(_NRF24L01P_REG_FEATURE,temp);      
+void NRF24L01pDriver::enable_dynamic_payload_pipe(pipe_t pipe, bool sel){
+    if(sel){
+          uint8_t temp = read_register(_NRF24L01P_REG_DYNPD);
+        temp |= (1<<pipe);
+        write_register(_NRF24L01P_REG_DYNPD,temp);   
+    }else{
+        uint8_t temp = read_register(_NRF24L01P_REG_DYNPD);
+        temp &= ~(1<<pipe);
+        write_register(_NRF24L01P_REG_DYNPD,temp);    
+    }
+   
 }
 
 
 
-void NRF24L01pDriver::enable_payload_with_ack(){
-    uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
-    temp |= _NRF24L01_FEATURE_EN_ACK_PAY;
-    write_register(_NRF24L01P_REG_FEATURE,temp);      
-}
-void NRF24L01pDriver::disable_payload_with_ack(){
-     uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
-    temp &= ~_NRF24L01_FEATURE_EN_ACK_PAY;
-    write_register(_NRF24L01P_REG_FEATURE,temp);       
+void NRF24L01pDriver::enable_dynamic_payload(bool sel){
+    if(sel){
+        uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
+        temp |= _NRF24L01_FEATURE_EN_DPL;
+        write_register(_NRF24L01P_REG_FEATURE,temp);     
+    }
+    else{
+        uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
+        temp &= ~_NRF24L01_FEATURE_EN_DPL;
+        write_register(_NRF24L01P_REG_FEATURE,temp);
+    }
+   
 }
 
 
-void NRF24L01pDriver::enable_dynamic_payload_with_ack(){
-    uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
-    temp |= _NRF24L01_FEATURE_EN_DYN_ACK;
-    write_register(_NRF24L01P_REG_FEATURE,temp);      
+
+void NRF24L01pDriver::enable_payload_with_ack(bool sel){
+    if(sel){
+        uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
+        temp |= _NRF24L01_FEATURE_EN_ACK_PAY;
+        write_register(_NRF24L01P_REG_FEATURE,temp); 
+    }
+    else{
+        uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
+        temp &= ~_NRF24L01_FEATURE_EN_ACK_PAY;
+        write_register(_NRF24L01P_REG_FEATURE,temp); 
+    }
+     
 }
-void NRF24L01pDriver::disable_dynamic_payload_with_ack(){
-      uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
-    temp &= ~_NRF24L01_FEATURE_EN_DYN_ACK;
-    write_register(_NRF24L01P_REG_FEATURE,temp);          
+
+
+
+void NRF24L01pDriver::enable_dynamic_payload_with_no_ack(bool sel){
+    if(sel){
+        uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
+        temp |= _NRF24L01_FEATURE_EN_DYN_ACK;
+        write_register(_NRF24L01P_REG_FEATURE,temp);        
+    }
+    else{
+        uint8_t temp = read_register(_NRF24L01P_REG_FEATURE);
+        temp &= ~_NRF24L01_FEATURE_EN_DYN_ACK;
+        write_register(_NRF24L01P_REG_FEATURE,temp);  
+    }
+     
 }
