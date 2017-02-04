@@ -20,9 +20,7 @@
 
 class NRF24L01p : public NRF24L01pDriver{
 public:
-    NRF24L01p();
-    NRF24L01p(const NRF24L01p& orig);
-    virtual ~NRF24L01p();
+
 
     typedef enum {
            MODE_UNKNOWN = 0,/**< NRF24L01+ unknown mode */
@@ -82,7 +80,12 @@ public:
     RxPipeConfig_t RxPipeConfig[6];
     PipeAddr_t  TxPipeAddress;
     
-    void ResetConfigValues();
+    
+    NRF24L01p();
+    NRF24L01p(const NRF24L01p& orig);
+    virtual ~NRF24L01p();
+    
+    void ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig);
     void RadioMode(RadioState_t mode);
     
     bool readable();

@@ -13,10 +13,11 @@
 
 #include "NRF24L01p.h"
 
+
 NRF24L01p::NRF24L01p() {
     
     port_Initialize();
-    ResetConfigValues();
+    //ResetConfigValues(_RadioConfig, _RxPipeConfig);
     
     
     port_Pin_CE(0);
@@ -47,22 +48,22 @@ NRF24L01p::~NRF24L01p() {
 }
 
 
-void NRF24L01p::ResetConfigValues(){
+void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig){
 
-    RadioConfig.DataReadyInterruptEnabled = 0;
-    RadioConfig.DataSentInterruptFlagEnabled = 0;
-    RadioConfig.MaxRetryInterruptFlagEnabled = 0;
-    RadioConfig.Crc = CONFIG_CRC_16BIT;
-    RadioConfig.AutoReTransmissionCount = 15;;
-    RadioConfig.AutoReTransmitDelayX250us = 15;
-    RadioConfig.frequencyOffset = 2;
-    RadioConfig.datarate = RF_SETUP_RF_DR_2MBPS;
-    RadioConfig.RfPower = RF_SETUP_RF_PWR_0DBM;
-    RadioConfig.PllLock = 0;
-    RadioConfig.ContWaveEnabled = 0;
-    RadioConfig.FeatureDynamicPayloadEnabled = 1;
-    RadioConfig.FeaturePayloadWithAckEnabled = 1;
-    RadioConfig.FeatureDynamicPayloadWithNoAckEnabled = 1;
+    RadioConfig.DataReadyInterruptEnabled = _RadioConfig->DataReadyInterruptEnabled;
+    RadioConfig.DataSentInterruptFlagEnabled = _RadioConfig->DataSentInterruptFlagEnabled;
+    RadioConfig.MaxRetryInterruptFlagEnabled = _RadioConfig->MaxRetryInterruptFlagEnabled;
+    RadioConfig.Crc = _RadioConfig->Crc;
+    RadioConfig.AutoReTransmissionCount = _RadioConfig->AutoReTransmissionCount;
+    RadioConfig.AutoReTransmitDelayX250us = _RadioConfig->AutoReTransmitDelayX250us;
+    RadioConfig.frequencyOffset = _RadioConfig->frequencyOffset;
+    RadioConfig.datarate = _RadioConfig->datarate;
+    RadioConfig.RfPower = _RadioConfig->RfPower;
+    RadioConfig.PllLock = _RadioConfig->PllLock;
+    RadioConfig.ContWaveEnabled = _RadioConfig->ContWaveEnabled;
+    RadioConfig.FeatureDynamicPayloadEnabled = _RadioConfig->FeatureDynamicPayloadEnabled;
+    RadioConfig.FeaturePayloadWithAckEnabled = _RadioConfig->FeaturePayloadWithAckEnabled;
+    RadioConfig.FeatureDynamicPayloadWithNoAckEnabled = _RadioConfig->FeatureDynamicPayloadWithNoAckEnabled;
 
     int i;
     for(i=0;i<6;i++){
@@ -71,13 +72,12 @@ void NRF24L01p::ResetConfigValues(){
         RxPipeConfig[i].dynamicPayloadEnabled = 1;
     }
     
-    RxPipeConfig[0].address = 0xAABBCCDDEE;
-    RxPipeConfig[1].address = 0x6565656501;
-    RxPipeConfig[2].address = 0x6565656502;
-    RxPipeConfig[3].address = 0x6565656503;
-    RxPipeConfig[4].address = 0x6565656504;
-    RxPipeConfig[5].address = 0x6565656505;
-    
+    RxPipeConfig[0].address = _RxPipeConfig[0].address;
+    RxPipeConfig[1].address = _RxPipeConfig[1].address;
+    RxPipeConfig[2].address = _RxPipeConfig[2].address;
+    RxPipeConfig[3].address = _RxPipeConfig[3].address;
+    RxPipeConfig[4].address = _RxPipeConfig[4].address;
+    RxPipeConfig[5].address = _RxPipeConfig[5].address;
     
     enable_dynamic_payload(RadioConfig.FeatureDynamicPayloadEnabled);
     enable_payload_with_ack(RadioConfig.FeaturePayloadWithAckEnabled);
