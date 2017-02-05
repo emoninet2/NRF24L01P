@@ -142,7 +142,8 @@ bool NRF24L01p::readable(){
     return get_data_ready_flag() || !get_fifo_flag_rx_empty(); 
 }
 bool NRF24L01p::writable(){
-    !get_fifo_flag_tx_empty();
+    return !get_fifo_flag_tx_empty();
+    
 }
 bool NRF24L01p::readableOnPipe(pipe_t pipe){
     
@@ -196,18 +197,22 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
         set_RX_pipe_address(PIPE_P0, payload->address);
         
         
-        writeAckPayload(payload);
+        writePayload(payload);
         
         RadioState_t originalState = RadioState;
+        RadioMode(MODE_STANDBY);
         ErrorStatus_t retval;
+
         if(writable()){
             clear_data_sent_flag();
+
             while(1){
                 RadioMode(MODE_TX);   
                 RadioMode(MODE_STANDBY);
                 
                 if(get_data_sent_flag()){
                     retval = SUCCESS;
+                    printf("got ACK\r\n");
                     break;
                 }
                 if(get_max_retry_flag()){
@@ -215,12 +220,14 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
                     if(get_plos_count()>=payload->retransmitCount){
                         set_frequency_offset(RadioConfig.frequencyOffset);
                         retval = RETRANSMIT_REACHED_MAX_PLOS;
+                        printf("failed ACK\r\n");
                         break;
                     }
                 }
             }
-        }
 
+        }
+        
         RadioMode(originalState);
         
         set_RX_pipe_address(PIPE_P0, RxPipeConfig[PIPE_P0].address);
@@ -232,7 +239,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
         }
     }else{
         set_TX_pipe_address(payload->address);
-        writeAckPayload(payload);
+        writePayload(payload);
         RadioState_t originalState = RadioState;
         ErrorStatus_t retval;
         if(writable()){
