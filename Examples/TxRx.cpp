@@ -64,7 +64,14 @@ void RadioReset(){
     RxPipeConfig[5].address = 0x9A4524CE05;
     
 #endif   
-    
+    int i;
+    for(i=0;i<6;i++){
+        RxPipeConfig[i].PipeEnabled = 1;
+        RxPipeConfig[i].autoAckEnabled = 1;
+        RxPipeConfig[i].dynamicPayloadEnabled = 1;
+    }
+        
+        
     Radio.ResetConfigValues(&RadioConfig, RxPipeConfig);
 }
 

@@ -79,6 +79,9 @@ void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_
     RxPipeConfig[4].address = _RxPipeConfig[4].address;
     RxPipeConfig[5].address = _RxPipeConfig[5].address;
     
+    
+    
+    
     enable_dynamic_payload(RadioConfig.FeatureDynamicPayloadEnabled);
     enable_payload_with_ack(RadioConfig.FeaturePayloadWithAckEnabled);
     enable_dynamic_payload_with_no_ack(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
