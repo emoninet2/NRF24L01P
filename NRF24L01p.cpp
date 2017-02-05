@@ -216,7 +216,6 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
                 
                 if(get_data_sent_flag()){
                     error = SUCCESS;
-                    printf("got ACK\r\n");
                     break;
                 }
                 if(get_max_retry_flag()){
@@ -224,7 +223,6 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
                     if(get_plos_count()>=payload->retransmitCount){
                         set_frequency_offset(RadioConfig.frequencyOffset);
                         error = ERROR;
-                        printf("failed ACK\r\n");
                         break;
                     }
                 }
