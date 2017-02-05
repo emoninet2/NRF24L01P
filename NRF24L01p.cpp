@@ -210,7 +210,6 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
 
         if(writable()){
             clear_data_sent_flag();
-
             while(1){
                 RadioMode(MODE_TX);   
                 RadioMode(MODE_STANDBY);
