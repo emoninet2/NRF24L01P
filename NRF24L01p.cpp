@@ -67,9 +67,9 @@ void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_
 
     int i;
     for(i=0;i<6;i++){
-        RxPipeConfig[i].PipeEnabled = 1;
-        RxPipeConfig[i].autoAckEnabled = 1;
-        RxPipeConfig[i].dynamicPayloadEnabled = 1;
+        RxPipeConfig[i].PipeEnabled = _RxPipeConfig[i].PipeEnabled;
+        RxPipeConfig[i].autoAckEnabled = _RxPipeConfig[i].autoAckEnabled;
+        RxPipeConfig[i].dynamicPayloadEnabled = _RxPipeConfig[i].dynamicPayloadEnabled;
     }
     
     RxPipeConfig[0].address = _RxPipeConfig[0].address;
