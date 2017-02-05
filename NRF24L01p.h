@@ -67,10 +67,7 @@ public:
     
     typedef enum{
         SUCCESS = 0,
-        FAIL = -1,
-        DYN_PAYLOAD_NOACK_FEATURE_DISABLED = -2, 
-        AUTO_ACK_PIPE0_DISABLED = -3,
-        RETRANSMIT_REACHED_MAX_PLOS = -4,
+        ERROR = -1,
                 
     }ErrorStatus_t;
     

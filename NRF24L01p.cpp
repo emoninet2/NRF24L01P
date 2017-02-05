@@ -165,7 +165,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::writeAckPayload(Payload_t *payload){
     write_ack_payload(payload->pipe, payload->data, payload->length);
 }
 NRF24L01p::ErrorStatus_t NRF24L01p::readPayload(Payload_t *payload){
-    
+    ErrorStatus_t error;
     payload->pipe = get_rx_payload_pipe();
     
     if(payload->pipe>=0 && payload->pipe<=5){
@@ -174,13 +174,15 @@ NRF24L01p::ErrorStatus_t NRF24L01p::readPayload(Payload_t *payload){
         }else{
             payload->length = get_RX_pipe_width(payload->pipe);
         }
-    read_rx_payload(payload->data,payload->length);
+        read_rx_payload(payload->data,payload->length);
+        error = SUCCESS;
     }
-
+    return error;
 }
 
 
 NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
+    ErrorStatus_t error;
     if(TxPipeAddress != payload->address){
         set_TX_pipe_address(payload->address);
         TxPipeAddress = payload->address;
@@ -201,7 +203,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
         
         RadioState_t originalState = RadioState;
         RadioMode(MODE_STANDBY);
-        ErrorStatus_t retval;
+        
 
         if(writable()){
             clear_data_sent_flag();
@@ -211,7 +213,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
                 RadioMode(MODE_STANDBY);
                 
                 if(get_data_sent_flag()){
-                    retval = SUCCESS;
+                    error = SUCCESS;
                     printf("got ACK\r\n");
                     break;
                 }
@@ -219,7 +221,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
                     clear_max_retry_flag();
                     if(get_plos_count()>=payload->retransmitCount){
                         set_frequency_offset(RadioConfig.frequencyOffset);
-                        retval = RETRANSMIT_REACHED_MAX_PLOS;
+                        error = ERROR;
                         printf("failed ACK\r\n");
                         break;
                     }
@@ -241,23 +243,24 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
         set_TX_pipe_address(payload->address);
         writePayload(payload);
         RadioState_t originalState = RadioState;
-        ErrorStatus_t retval;
         if(writable()){
             clear_data_sent_flag();
             while(1){
                 RadioMode(MODE_TX);   
                 RadioMode(MODE_STANDBY);
                 if(get_data_sent_flag()){
-                    retval = SUCCESS;
+                    error = SUCCESS;
                 break;
                 }
             }
         }
         RadioMode(originalState);
     }
+    return error;
 }
 NRF24L01p::ErrorStatus_t NRF24L01p::ReceivePayload(Payload_t *payload){
+    ErrorStatus_t error;
     clear_data_ready_flag();
-    
-    readPayload(payload);
+    error = readPayload(payload);
+    return error;
 }
