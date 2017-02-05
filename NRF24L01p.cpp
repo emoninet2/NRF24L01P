@@ -37,6 +37,43 @@ NRF24L01p::NRF24L01p() {
     uint8_t config_rst_val = 0x0b;//reset config
     write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
 
+    
+        RadioConfig.DataReadyInterruptEnabled = 0;
+    RadioConfig.DataSentInterruptFlagEnabled = 0;
+    RadioConfig.MaxRetryInterruptFlagEnabled = 0;
+    RadioConfig.Crc = NRF24L01p::CONFIG_CRC_16BIT;
+    RadioConfig.AutoReTransmissionCount = 15;
+    RadioConfig.AutoReTransmitDelayX250us = 15;
+    RadioConfig.frequencyOffset = 2;
+    RadioConfig.datarate = NRF24L01p::RF_SETUP_RF_DR_2MBPS;
+    RadioConfig.RfPower = NRF24L01p::RF_SETUP_RF_PWR_0DBM;
+    RadioConfig.PllLock = 0;
+    RadioConfig.ContWaveEnabled = 0;
+    RadioConfig.FeatureDynamicPayloadEnabled = 1;
+    RadioConfig.FeaturePayloadWithAckEnabled = 1;
+    RadioConfig.FeatureDynamicPayloadWithNoAckEnabled = 1;
+    
+    RxPipeConfig[0].address = 0xe7e7e7e7e7;
+    RxPipeConfig[1].address = 0xc2c2c2c2c2;
+    RxPipeConfig[2].address = 0xc2c2c2c2c3;
+    RxPipeConfig[3].address = 0xc2c2c2c2c4;
+    RxPipeConfig[4].address = 0xc2c2c2c2c5;
+    RxPipeConfig[5].address = 0xc2c2c2c2c6;
+    
+    enable_dynamic_payload(RadioConfig.FeatureDynamicPayloadEnabled);
+    enable_payload_with_ack(RadioConfig.FeaturePayloadWithAckEnabled);
+    enable_dynamic_payload_with_no_ack(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
+    set_auto_retransmission_count(RadioConfig.AutoReTransmissionCount);
+    set_auto_retransmission_delay(RadioConfig.AutoReTransmitDelayX250us);        
+    set_DataRate(RadioConfig.datarate);
+    
+    int i;
+    for(i=0;i<6;i++){
+        enable_rx_on_pipe((pipe_t)i,RxPipeConfig[i].PipeEnabled );
+        enable_auto_ack((pipe_t)i,RxPipeConfig[i].autoAckEnabled );
+        enable_dynamic_payload_pipe((pipe_t)i,RxPipeConfig[i].dynamicPayloadEnabled);
+        set_RX_pipe_address((pipe_t)i,RxPipeConfig[i].address);
+    }
 
     
 }
@@ -67,20 +104,9 @@ void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_
 
     int i;
     for(i=0;i<6;i++){
-        RxPipeConfig[i].PipeEnabled = _RxPipeConfig[i].PipeEnabled;
-        RxPipeConfig[i].autoAckEnabled = _RxPipeConfig[i].autoAckEnabled;
-        RxPipeConfig[i].dynamicPayloadEnabled = _RxPipeConfig[i].dynamicPayloadEnabled;
+        RxPipeConfig[i] = _RxPipeConfig[i];
     }
-    
-    RxPipeConfig[0].address = _RxPipeConfig[0].address;
-    RxPipeConfig[1].address = _RxPipeConfig[1].address;
-    RxPipeConfig[2].address = _RxPipeConfig[2].address;
-    RxPipeConfig[3].address = _RxPipeConfig[3].address;
-    RxPipeConfig[4].address = _RxPipeConfig[4].address;
-    RxPipeConfig[5].address = _RxPipeConfig[5].address;
-    
-    
-    
+
     
     enable_dynamic_payload(RadioConfig.FeatureDynamicPayloadEnabled);
     enable_payload_with_ack(RadioConfig.FeaturePayloadWithAckEnabled);
@@ -88,7 +114,6 @@ void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_
     set_auto_retransmission_count(RadioConfig.AutoReTransmissionCount);
     set_auto_retransmission_delay(RadioConfig.AutoReTransmitDelayX250us);        
     set_DataRate(RadioConfig.datarate);
-    
     
     for(i=0;i<6;i++){
         enable_rx_on_pipe((pipe_t)i,RxPipeConfig[i].PipeEnabled );
