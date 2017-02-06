@@ -235,6 +235,10 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
 
         if(writable()){
             clear_data_sent_flag();
+            printf("%x %x %x\r\n",
+                    read_register(0),
+                    read_register(0x7),
+                    read_register(0x17));
             while(1){
                 RadioMode(MODE_TX);   
                 RadioMode(MODE_STANDBY);
@@ -281,6 +285,8 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
         }
         RadioMode(originalState);
     }
+    
+    flush_tx();
     return error;
 }
 NRF24L01p::ErrorStatus_t NRF24L01p::ReceivePayload(Payload_t *payload){
