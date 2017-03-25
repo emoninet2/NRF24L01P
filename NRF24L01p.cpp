@@ -201,7 +201,7 @@ void NRF24L01p::RadioMode(NRF24L01p::StateType mode){
 
 
 bool NRF24L01p::readable(){
-    return get_data_ready_flag() || !get_fifo_flag_rx_empty(); 
+    return (get_data_ready_flag() || !get_fifo_flag_rx_empty())&& (get_rx_payload_pipe() != 7)  ; 
     //return get_data_ready_flag();
     
 }
