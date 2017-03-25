@@ -11,7 +11,13 @@
  * Created on January 29, 2017, 8:03 AM
  */
 
-#include "NRF24L01pPort.h"
+#include "../NRF24L01pPortConfig.h"
+#include "../NRF24L01pPort.h"
+
+#if (NRF24L01pPort_RPI_WiringPi == 1)
+
+
+
 
 
 #include <wiringPi.h>
@@ -67,3 +73,5 @@ void NRF24L01pPort::port_DelayUs(unsigned int us){
 unsigned int NRF24L01pPort::port_ClockMs(){
     return millis();
 }
+
+#endif
