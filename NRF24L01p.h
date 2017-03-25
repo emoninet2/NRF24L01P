@@ -18,10 +18,6 @@
 #include "NRF24L01pConfig.h"
 
 
-class NRF24L01p : public NRF24L01pDriver{
-public:
-
-
     typedef enum {
            MODE_UNKNOWN = 0,/**< NRF24L01+ unknown mode */
            MODE_POWER_DOWN,/**< NRF24L01+ Power Down mode */
@@ -77,10 +73,7 @@ public:
     RxPipeConfig_t RxPipeConfig[6];
     PipeAddr_t  TxPipeAddress;
     
-    
-    NRF24L01p();
-    NRF24L01p(const NRF24L01p& orig);
-    virtual ~NRF24L01p();
+
     
     void ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig);
     void RadioMode(RadioState_t mode);
@@ -96,10 +89,7 @@ public:
     ErrorStatus_t TransmitPayload(Payload_t *payload);
     ErrorStatus_t ReceivePayload(Payload_t *payload);
     
-    
-private:
 
-};
 
 #endif /* NRF24L01P_H */
 

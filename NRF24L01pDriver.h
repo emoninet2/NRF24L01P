@@ -16,11 +16,10 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "port/NRF24L01pPort.h"
+#include "arch/nrf24l01p_arch_xmega.h"
 #include "NRF24L01pRegisters.h"
 
-class NRF24L01pDriver : public NRF24L01pPort{
-public:
+
      typedef enum {
            CONFIG_CRC_NONE      =  (0),
            CONFIG_CRC_8BIT      =  (_NRF24L01P_CONFIG_EN_CRC),
@@ -56,12 +55,8 @@ public:
     }pipe_t;
 
     typedef uint64_t PipeAddr_t;
-    
 
-    
-    NRF24L01pDriver();
-    NRF24L01pDriver(const NRF24L01pDriver& orig);
-    virtual ~NRF24L01pDriver();
+
     
     void power_up();
     void power_down();
@@ -131,9 +126,9 @@ public:
     void enable_dynamic_payload_with_no_ack(bool sel);
 
     uint8_t read_register(uint8_t address);
-    void read_register(uint8_t address, uint8_t *dataout, int len);
+    void read_register_buffer(uint8_t address, uint8_t *dataout, int len);
     void write_register(uint8_t address, uint8_t datain);
-    void write_register(uint8_t address, uint8_t *datain, int len);
+    void write_register_buffer(uint8_t address, uint8_t *datain, int len);
     void read_rx_payload(uint8_t *dataout, int pay_len);
     void write_tx_payload(uint8_t *datain, int pay_len);
     void flush_tx();
@@ -144,10 +139,6 @@ public:
     void write_tx_payload_noack(uint8_t *datain, int pay_len);
     int get_status(); 
     
-    
-private:
-
-};
 
 #endif /* NRF24L01PDRIVER_H */
 
