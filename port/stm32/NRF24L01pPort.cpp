@@ -21,12 +21,19 @@
 #include "stm32f4xx_hal.h"
 #include <stdbool.h>
 
+/* Kernel includes. */
+#include "FreeRTOS.h" /* Must come first. */
+#include "task.h"     /* RTOS task related API prototypes. */
+#include "queue.h"    /* RTOS queue related API prototypes. */
+#include "timers.h"   /* Software timer related API prototypes. */
+#include "semphr.h"   /* Semaphore related API prototypes. */
+
 
 #define NRF24L01P_SPI				SPI1
-#define NRF24L01P_CE_PORT			GPIOA
-#define NRF24L01P_CE_PIN			GPIO_PIN_3
-#define NRF24L01P_CSN_PORT			GPIOA
-#define NRF24L01P_CSN_PIN			GPIO_PIN_4
+#define NRF24L01P_CE_PORT			GPIOC
+#define NRF24L01P_CE_PIN			GPIO_PIN_7
+#define NRF24L01P_CSN_PORT			GPIOB
+#define NRF24L01P_CSN_PIN			GPIO_PIN_6
 
 
 /* Definition for SPIx clock resources */
@@ -122,6 +129,8 @@ void NRF24L01pPort::port_Initialize(){
 
 		/* Enable GPIOA clock */
 		__HAL_RCC_GPIOA_CLK_ENABLE();
+		__HAL_RCC_GPIOB_CLK_ENABLE();
+		__HAL_RCC_GPIOC_CLK_ENABLE();
 
 
 		HAL_SPI_Init(&nrf24l01p_SpiHandle);
@@ -142,10 +151,10 @@ int NRF24L01pPort::port_SPI_Transcieve(uint8_t *dataInOut, unsigned int size){
 	return HAL_SPI_TransmitReceive(&nrf24l01p_SpiHandle, dataInOut, dataInOut, size,1000);
 }
 void NRF24L01pPort::port_DelayMs(unsigned int ms){
-	HAL_Delay(ms);
+	vTaskDelay(ms);
 }
 void NRF24L01pPort::port_DelayUs(unsigned int us){
-	HAL_Delay(us/1000);
+	vTaskDelay(us/1000);
 }
 unsigned int NRF24L01pPort::port_ClockMs(){
 
