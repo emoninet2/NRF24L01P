@@ -14,9 +14,9 @@
 #ifndef NRF24L01PPORTCONFIG_H
 #define NRF24L01PPORTCONFIG_H
 
-#define NRF24L01pPort_RPI_WiringPi  0
+#define NRF24L01pPort_RPI_WiringPi  1
 #define NRF24L01pPort_mbed          0
-#define NRF24L01pPort_STM32          1
+#define NRF24L01pPort_STM32         0
 
 
 #endif /* NRF24L01PPORTCONFIG_H */
