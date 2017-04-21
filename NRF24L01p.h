@@ -56,10 +56,17 @@ public:
         bool dynamicPayloadEnabled;
     }RxPipeConfig_t;
 
+    typedef enum{
+    	TxPayload,
+        RxPayload,
+    }PayloadType_t;
+
     typedef struct{
-        PipeAddr_t address;
-        pipe_t pipe;
+    	PayloadType_t type;
+        PipeAddr_t address;//if payload type is TX
+        pipe_t pipe; //if payload type is RX
         bool UseAck;
+        bool GotAck;
         uint8_t *data;
         unsigned int length;
         uint8_t retransmitCount;
@@ -67,8 +74,7 @@ public:
     
     typedef enum{
         SUCCESS = 0,
-        ERROR = -1,
-                
+        ERROR = -1,   
     }ErrorStatus_t;
     
     
@@ -96,6 +102,34 @@ public:
     ErrorStatus_t TransmitPayload(Payload_t *payload);
     ErrorStatus_t ReceivePayload(Payload_t *payload);
     
+    
+    
+    //////////////////////////////////////////////////////////////////
+    //FIFO Service
+    
+    typedef struct{
+        Payload_t *payload;
+        unsigned int head;
+        unsigned int tail;
+        unsigned int size;
+    }fifo_t;
+    
+    fifo_t TxFifo;
+    fifo_t RxFifo;
+
+    Payload_t RxFifoBuffer[10];
+    Payload_t TxFifoBuffer[10];
+    
+    ErrorStatus_t fifo_init(fifo_t *f, Payload_t  *pld, unsigned int size);
+    ErrorStatus_t fifo_read(fifo_t *f, Payload_t  *pld);
+    ErrorStatus_t fifo_peek(fifo_t *f, Payload_t  *pld);
+    ErrorStatus_t fifo_write(fifo_t *f, Payload_t  *pld);
+    unsigned int fifo_waiting(fifo_t *f);
+    unsigned int fifo_freeSpace(fifo_t *f);
+    ErrorStatus_t fifo_reset(fifo_t *f);
+
+    
+    void process(void);
     
 private:
 

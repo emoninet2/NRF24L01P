@@ -26,12 +26,25 @@ public:
     
     void port_Initialize();
     void port_DeInitialize();
+    
+    void port_Pin_CE_Initialize();
+    void port_Pin_CSN_Initialize();
+    void port_Pin_IRQ_Initialize();
+    
     void port_Pin_CE(bool val);
     void port_Pin_CSN(bool val);
+    
+    void port_SPI_initialize();
     int port_SPI_Transcieve(uint8_t *dataInOut, unsigned int size);
     void port_DelayMs(unsigned int ms);
     void port_DelayUs(unsigned int us);
     unsigned int port_ClockMs();
+    
+    
+    
+    
+    
+    
     
 private:
 

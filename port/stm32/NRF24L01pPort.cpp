@@ -34,7 +34,8 @@
 #define NRF24L01P_CE_PIN			GPIO_PIN_7
 #define NRF24L01P_CSN_PORT			GPIOB
 #define NRF24L01P_CSN_PIN			GPIO_PIN_6
-
+#define NRF24L01P_IRQ_PORT			GPIOA
+#define NRF24L01P_IRQ_PIN			GPIO_PIN_8
 
 /* Definition for SPIx clock resources */
 #define SPIx                             SPI1
@@ -66,7 +67,7 @@
 static SPI_HandleTypeDef nrf24l01p_SpiHandle;
 static GPIO_InitTypeDef nrf24l01p_CE_pin_Struct = {NRF24L01P_CE_PIN,GPIO_MODE_OUTPUT_PP,GPIO_PULLUP,GPIO_SPEED_FREQ_HIGH,};
 static GPIO_InitTypeDef nrf24l01p_CSN_pin_Struct = {NRF24L01P_CSN_PIN,GPIO_MODE_OUTPUT_PP,GPIO_PULLUP,GPIO_SPEED_FREQ_HIGH,};
-
+static GPIO_InitTypeDef nrf24l01p_IRQ_pin_Struct = {NRF24L01P_IRQ_PIN,GPIO_MODE_IT_FALLING,GPIO_PULLUP,GPIO_SPEED_FREQ_HIGH,};
 
 
 NRF24L01pPort::NRF24L01pPort() {
@@ -79,74 +80,98 @@ NRF24L01pPort::~NRF24L01pPort() {
 }
 
 void NRF24L01pPort::port_Initialize(){
-	// TODO Auto-generated destructor stub
-		/*##-1- Configure the SPI peripheral #######################################*/
-		/* Set the SPI parameters */
-		nrf24l01p_SpiHandle.Instance               = SPIx;
-		nrf24l01p_SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
-		nrf24l01p_SpiHandle.Init.Direction         = SPI_DIRECTION_2LINES;
-		nrf24l01p_SpiHandle.Init.CLKPhase          = SPI_PHASE_1EDGE;
-		nrf24l01p_SpiHandle.Init.CLKPolarity       = SPI_POLARITY_LOW;
-		nrf24l01p_SpiHandle.Init.DataSize          = SPI_DATASIZE_8BIT;
-		nrf24l01p_SpiHandle.Init.FirstBit          = SPI_FIRSTBIT_MSB;
-		nrf24l01p_SpiHandle.Init.TIMode            = SPI_TIMODE_DISABLE;
-		nrf24l01p_SpiHandle.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
-		nrf24l01p_SpiHandle.Init.CRCPolynomial     = 7;
-		//nrf24l01p_SpiHandle.Init.CRCLength         = SPI_CRC_LENGTH_8BIT;
-		nrf24l01p_SpiHandle.Init.NSS               = SPI_NSS_SOFT;
-		//nrf24l01p_SpiHandle.Init.NSSPMode          = SPI_NSS_PULSE_DISABLE;
 
-		nrf24l01p_SpiHandle.Init.Mode = SPI_MODE_MASTER;
+	port_SPI_initialize();
 
-		GPIO_InitTypeDef  GPIO_InitStruct;
-
-		/*##-1- Enable peripherals and GPIO Clocks #################################*/
-		/* Enable GPIO TX/RX clock */
-		SPIx_SCK_GPIO_CLK_ENABLE();
-		SPIx_MISO_GPIO_CLK_ENABLE();
-		SPIx_MOSI_GPIO_CLK_ENABLE();
-		/* Enable SPI clock */
-		SPIx_CLK_ENABLE();
-
-		/*##-2- Configure peripheral GPIO ##########################################*/
-		/* SPI SCK GPIO pin configuration  */
-		GPIO_InitStruct.Pin       = SPIx_SCK_PIN;
-		GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-		GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
-		GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStruct.Alternate = SPIx_SCK_AF;
-		HAL_GPIO_Init(SPIx_SCK_GPIO_PORT, &GPIO_InitStruct);
-
-		/* SPI MISO GPIO pin configuration  */
-		GPIO_InitStruct.Pin = SPIx_MISO_PIN;
-		GPIO_InitStruct.Alternate = SPIx_MISO_AF;
-		HAL_GPIO_Init(SPIx_MISO_GPIO_PORT, &GPIO_InitStruct);
-
-		/* SPI MOSI GPIO pin configuration  */
-		GPIO_InitStruct.Pin = SPIx_MOSI_PIN;
-		GPIO_InitStruct.Alternate = SPIx_MOSI_AF;
-		HAL_GPIO_Init(SPIx_MOSI_GPIO_PORT, &GPIO_InitStruct);
-
-		/* Enable GPIOA clock */
-		__HAL_RCC_GPIOA_CLK_ENABLE();
-		__HAL_RCC_GPIOB_CLK_ENABLE();
-		__HAL_RCC_GPIOC_CLK_ENABLE();
+	/* Enable GPIOA clock */
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 
 
-		HAL_SPI_Init(&nrf24l01p_SpiHandle);
+	HAL_SPI_Init(&nrf24l01p_SpiHandle);
 
-		HAL_GPIO_Init(NRF24L01P_CE_PORT, &nrf24l01p_CE_pin_Struct);
-		HAL_GPIO_Init(NRF24L01P_CSN_PORT, &nrf24l01p_CSN_pin_Struct);
+	port_Pin_CE_Initialize();
+	port_Pin_CSN_Initialize();
+	port_Pin_IRQ_Initialize();
 }
 void NRF24L01pPort::port_DeInitialize(){
     
 }
+
+
+void NRF24L01pPort::port_Pin_CE_Initialize(){
+	HAL_GPIO_Init(NRF24L01P_CE_PORT, &nrf24l01p_CE_pin_Struct);
+}
+void NRF24L01pPort::port_Pin_CSN_Initialize(){
+	HAL_GPIO_Init(NRF24L01P_CSN_PORT, &nrf24l01p_CSN_pin_Struct);
+}
+void NRF24L01pPort::port_Pin_IRQ_Initialize(){
+	HAL_GPIO_Init(NRF24L01P_IRQ_PORT, &nrf24l01p_IRQ_pin_Struct);
+
+	HAL_NVIC_SetPriority(EXTI9_5_IRQn, 10, 0);
+	HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+}
+
+
 void NRF24L01pPort::port_Pin_CE(bool val){
 	HAL_GPIO_WritePin(NRF24L01P_CE_PORT, NRF24L01P_CE_PIN, (GPIO_PinState)val);
 }
 void NRF24L01pPort::port_Pin_CSN(bool val){
 	HAL_GPIO_WritePin(NRF24L01P_CSN_PORT, NRF24L01P_CSN_PIN, (GPIO_PinState)val);
 }
+
+void NRF24L01pPort::port_SPI_initialize(){
+	// TODO Auto-generated destructor stub
+	/*##-1- Configure the SPI peripheral #######################################*/
+	/* Set the SPI parameters */
+	nrf24l01p_SpiHandle.Instance               = SPIx;
+	nrf24l01p_SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+	nrf24l01p_SpiHandle.Init.Direction         = SPI_DIRECTION_2LINES;
+	nrf24l01p_SpiHandle.Init.CLKPhase          = SPI_PHASE_1EDGE;
+	nrf24l01p_SpiHandle.Init.CLKPolarity       = SPI_POLARITY_LOW;
+	nrf24l01p_SpiHandle.Init.DataSize          = SPI_DATASIZE_8BIT;
+	nrf24l01p_SpiHandle.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+	nrf24l01p_SpiHandle.Init.TIMode            = SPI_TIMODE_DISABLE;
+	nrf24l01p_SpiHandle.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+	nrf24l01p_SpiHandle.Init.CRCPolynomial     = 7;
+	//nrf24l01p_SpiHandle.Init.CRCLength         = SPI_CRC_LENGTH_8BIT;
+	nrf24l01p_SpiHandle.Init.NSS               = SPI_NSS_SOFT;
+	//nrf24l01p_SpiHandle.Init.NSSPMode          = SPI_NSS_PULSE_DISABLE;
+
+	nrf24l01p_SpiHandle.Init.Mode = SPI_MODE_MASTER;
+
+	GPIO_InitTypeDef  GPIO_InitStruct;
+
+	/*##-1- Enable peripherals and GPIO Clocks #################################*/
+	/* Enable GPIO TX/RX clock */
+	SPIx_SCK_GPIO_CLK_ENABLE();
+	SPIx_MISO_GPIO_CLK_ENABLE();
+	SPIx_MOSI_GPIO_CLK_ENABLE();
+	/* Enable SPI clock */
+	SPIx_CLK_ENABLE();
+
+	/*##-2- Configure peripheral GPIO ##########################################*/
+	/* SPI SCK GPIO pin configuration  */
+	GPIO_InitStruct.Pin       = SPIx_SCK_PIN;
+	GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Alternate = SPIx_SCK_AF;
+	HAL_GPIO_Init(SPIx_SCK_GPIO_PORT, &GPIO_InitStruct);
+
+	/* SPI MISO GPIO pin configuration  */
+	GPIO_InitStruct.Pin = SPIx_MISO_PIN;
+	GPIO_InitStruct.Alternate = SPIx_MISO_AF;
+	HAL_GPIO_Init(SPIx_MISO_GPIO_PORT, &GPIO_InitStruct);
+
+	/* SPI MOSI GPIO pin configuration  */
+	GPIO_InitStruct.Pin = SPIx_MOSI_PIN;
+	GPIO_InitStruct.Alternate = SPIx_MOSI_AF;
+	HAL_GPIO_Init(SPIx_MOSI_GPIO_PORT, &GPIO_InitStruct);
+}
+
 int NRF24L01pPort::port_SPI_Transcieve(uint8_t *dataInOut, unsigned int size){
 	return HAL_SPI_TransmitReceive(&nrf24l01p_SpiHandle, dataInOut, dataInOut, size,1000);
 }

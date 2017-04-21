@@ -38,7 +38,7 @@ NRF24L01p::NRF24L01p() {
     write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
 
     
-        RadioConfig.DataReadyInterruptEnabled = 0;
+    RadioConfig.DataReadyInterruptEnabled = 0;
     RadioConfig.DataSentInterruptFlagEnabled = 0;
     RadioConfig.MaxRetryInterruptFlagEnabled = 0;
     RadioConfig.Crc = NRF24L01p::CONFIG_CRC_16BIT;
@@ -75,6 +75,8 @@ NRF24L01p::NRF24L01p() {
         set_RX_pipe_address((pipe_t)i,RxPipeConfig[i].address);
     }
 
+    fifo_init(&TxFifo, TxFifoBuffer, 10);
+    fifo_init(&RxFifo, RxFifoBuffer, 10);
     
 }
 
@@ -167,7 +169,8 @@ void NRF24L01p::RadioMode(NRF24L01p::RadioState_t mode){
 
 
 bool NRF24L01p::readable(){
-    return (get_data_ready_flag() || !get_fifo_flag_rx_empty())&& (get_rx_payload_pipe() != 7)  ; 
+    //return (!get_fifo_flag_rx_empty())&& (get_rx_payload_pipe() != 7)  ; 
+    return (!get_fifo_flag_rx_empty()) ; 
 }
 bool NRF24L01p::writable(){
     return !get_fifo_flag_tx_full();
@@ -211,78 +214,68 @@ NRF24L01p::ErrorStatus_t NRF24L01p::readPayload(Payload_t *payload){
 
 NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
     ErrorStatus_t error;
+    if(writable()) {
+    RadioState_t originalState = RadioState;
+    RadioMode(MODE_STANDBY);
+
     if(TxPipeAddress != payload->address){
         set_TX_pipe_address(payload->address);
         TxPipeAddress = payload->address;
     }
 
     if(payload->UseAck){
-        
         if(RxPipeConfig[PIPE_P0].autoAckEnabled == 0){
-            enable_auto_ack(PIPE_P0, 1);
+                enable_auto_ack(PIPE_P0, 1);
         }
         if(RxPipeConfig[PIPE_P0].PipeEnabled == 0){
-            enable_rx_on_pipe(PIPE_P0, 1);
+                enable_rx_on_pipe(PIPE_P0, 1);
         }
         set_RX_pipe_address(PIPE_P0, payload->address);
-        
-        
-        writePayload(payload);
-        
-        RadioState_t originalState = RadioState;
-        RadioMode(MODE_STANDBY);
-        
 
-        if(writable()){
-            clear_data_sent_flag();
-            while(1){
-                RadioMode(MODE_TX);   
+        writePayload(payload);
+        clear_data_sent_flag();
+        while(1){
+                RadioMode(MODE_TX);
                 RadioMode(MODE_STANDBY);
-                
+
                 if(get_data_sent_flag()){
-                    error = SUCCESS;
-                    break;
+                        error = SUCCESS;
+                        payload->GotAck = 1;
+                        break;
                 }
                 if(get_max_retry_flag()){
-                    clear_max_retry_flag();
-                    if(get_plos_count()>=payload->retransmitCount){
-                        set_frequency_offset(RadioConfig.frequencyOffset);
-                        error = ERROR;
-                        break;
-                    }
+                        clear_max_retry_flag();
+                        if(get_plos_count()>=payload->retransmitCount){
+                                set_frequency_offset(RadioConfig.frequencyOffset);
+                                error = ERROR;
+                                break;
+                        }
                 }
-            }
-
         }
-        
-        RadioMode(originalState);
-        
         set_RX_pipe_address(PIPE_P0, RxPipeConfig[PIPE_P0].address);
-        if(RxPipeConfig[PIPE_P0].autoAckEnabled == 0){
-            enable_auto_ack(PIPE_P0, 0);
-        }
-        if(RxPipeConfig[PIPE_P0].PipeEnabled == 0){
-            enable_rx_on_pipe(PIPE_P0, 0);
-        }
-    }else{
-        set_TX_pipe_address(payload->address);
+        enable_auto_ack(PIPE_P0, RxPipeConfig[PIPE_P0].autoAckEnabled);
+        enable_rx_on_pipe(PIPE_P0, RxPipeConfig[PIPE_P0].PipeEnabled);
+    }
+    else{
         writePayload(payload);
-        RadioState_t originalState = RadioState;
-        if(writable()){
-            clear_data_sent_flag();
-            while(1){
-                RadioMode(MODE_TX);   
-                RadioMode(MODE_STANDBY);
-                if(get_data_sent_flag()){
+        clear_data_sent_flag();
+        while(1){
+            RadioMode(MODE_TX);
+            RadioMode(MODE_STANDBY);
+            if(get_data_sent_flag()){
                     error = SUCCESS;
-                break;
-                }
+            break;
             }
         }
-        RadioMode(originalState);
     }
-    
     flush_tx();
+    printf("FIFO : %#x\r\n", read_register(_NRF24L01P_REG_FIFO_STATUS));
+    RadioMode(originalState);
+    return error;
+    }
+    else{
+        error = ERROR;//TX FIFO full
+    }
     return error;
 }
 NRF24L01p::ErrorStatus_t NRF24L01p::ReceivePayload(Payload_t *payload){
@@ -290,4 +283,92 @@ NRF24L01p::ErrorStatus_t NRF24L01p::ReceivePayload(Payload_t *payload){
     clear_data_ready_flag();
     error = readPayload(payload);
     return error;
+}
+
+
+
+
+NRF24L01p::ErrorStatus_t NRF24L01p::fifo_init(fifo_t *f, Payload_t  *pld, unsigned int size){
+    f->head = 0;
+    f->tail = 0;
+    f->size = size;
+    f->payload = pld;
+}
+
+NRF24L01p::ErrorStatus_t NRF24L01p::fifo_read(fifo_t *f, Payload_t  *pld){
+	ErrorStatus_t retval;
+    if(f->tail != f->head){
+        *(pld) = (f->payload[f->tail]);
+        f->tail++;
+        if(f->tail == f->size){
+            f->tail = 0;
+        }
+        retval =  SUCCESS;
+    }
+    else {
+        retval =  ERROR;
+    }
+
+    return retval;
+}
+NRF24L01p::ErrorStatus_t NRF24L01p::fifo_peek(fifo_t *f, Payload_t  *pld){
+	ErrorStatus_t retval;
+    if(f->tail != f->head){
+        *(pld) = (f->payload[f->tail]);
+        retval =  SUCCESS;
+    }
+    else {
+        retval =  ERROR;
+    }
+    return retval;
+}
+NRF24L01p::ErrorStatus_t NRF24L01p::fifo_write(fifo_t *f, Payload_t  *pld){
+	ErrorStatus_t retval;
+    if((f->head + 1 == f->tail) || (f->head+1  == f->size )&&(f->tail == 0)    ){
+        retval =  ERROR;
+    }
+    else{
+        f->payload[f->head] = *(pld);
+        f->head++;
+        if(f->head == f->size){
+            f->head = 0;
+        }
+        retval =  SUCCESS;
+    }
+    return retval;
+}
+
+
+unsigned int NRF24L01p::fifo_waiting(fifo_t *f){
+	if(f->head >= f->tail){
+		return f->head - f->tail;
+	}
+	else{
+		return (f->size - f->tail) + f->head;
+	}
+}
+unsigned int NRF24L01p::fifo_freeSpace(fifo_t *f){
+	return f->size - fifo_waiting(f);
+}
+NRF24L01p::ErrorStatus_t NRF24L01p::fifo_reset(fifo_t *f){
+	f->head = 0;
+	f->tail = 0;
+}
+
+void NRF24L01p::process(void){
+
+    if( get_data_ready_flag() ){
+        clear_data_ready_flag();
+        while(readable()){
+            Payload_t RxPayload;
+            ReceivePayload(&RxPayload);
+            fifo_write(&RxFifo, &RxPayload );
+        }
+    }
+    if(fifo_waiting(&TxFifo) > 0){
+        Payload_t TxPayload;
+        fifo_read(&TxFifo, &TxPayload);
+        TransmitPayload(&TxPayload );
+    }
+
 }
