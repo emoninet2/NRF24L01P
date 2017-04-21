@@ -238,18 +238,30 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
                 RadioMode(MODE_TX);
                 RadioMode(MODE_STANDBY);
 
-                if(get_data_sent_flag()){
+                uint8_t status = get_status();
+                
+                if( (status & (_NRF24L01P_STATUS_TX_DS))  &&   (status & (_NRF24L01P_STATUS_RX_DR))   ){
+                    //printf("ACK with PAYLOAD\r\n");
                         error = SUCCESS;
+                        readPayload(payload);
                         payload->GotAck = 1;
                         break;
                 }
-                if(get_max_retry_flag()){
-                        clear_max_retry_flag();
-                        if(get_plos_count()>=payload->retransmitCount){
-                                set_frequency_offset(RadioConfig.frequencyOffset);
-                                error = ERROR;
-                                break;
-                        }
+
+                else if( (status & (_NRF24L01P_STATUS_TX_DS))  &&   !(status & (_NRF24L01P_STATUS_RX_DR))   ){
+                    //printf("ACK ONLY\r\n");
+                    error = SUCCESS;
+                    payload->GotAck = 0;
+                    break;
+                }
+                
+                else if((status & (_NRF24L01P_STATUS_MAX_RT))){
+                    clear_max_retry_flag();
+                    if(get_plos_count()>=payload->retransmitCount){
+                            set_frequency_offset(RadioConfig.frequencyOffset);
+                            error = ERROR;
+                            break;
+                    }
                 }
         }
         set_RX_pipe_address(PIPE_P0, RxPipeConfig[PIPE_P0].address);
