@@ -16,31 +16,9 @@
 
 NRF24L01p::NRF24L01p() {
     
-    port_Initialize();
-    //ResetConfigValues(_RadioConfig, _RxPipeConfig);
-    
-    
-    port_Pin_CE(0);
-    port_Pin_CSN(0);
-
-    port_DelayMs(_NRF24L01P_TIMING_PowerOnReset_ms);
-
-    RadioMode(MODE_POWER_DOWN);
-    RadioMode(MODE_RX);
-
-    clear_data_ready_flag();
-    flush_rx();
-    flush_tx();
-
-    uint8_t status_rst_val = 0x70;//reset status
-    write_register(_NRF24L01P_REG_STATUS, &status_rst_val,1);
-    uint8_t config_rst_val = 0x0b;//reset config
-    write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
-
-    
-    RadioConfig.DataReadyInterruptEnabled = 0;
-    RadioConfig.DataSentInterruptFlagEnabled = 0;
-    RadioConfig.MaxRetryInterruptFlagEnabled = 0;
+    RadioConfig.DataReadyInterruptEnabled = 1;
+    RadioConfig.DataSentInterruptFlagEnabled = 1;
+    RadioConfig.MaxRetryInterruptFlagEnabled = 1;
     RadioConfig.Crc = NRF24L01p::CONFIG_CRC_16BIT;
     RadioConfig.AutoReTransmissionCount = 15;
     RadioConfig.AutoReTransmitDelayX250us = 15;
@@ -60,6 +38,39 @@ NRF24L01p::NRF24L01p() {
     RxPipeConfig[4].address = 0xc2c2c2c2c5;
     RxPipeConfig[5].address = 0xc2c2c2c2c6;
     
+
+
+}
+
+NRF24L01p::NRF24L01p(const NRF24L01p& orig) {
+}
+
+NRF24L01p::~NRF24L01p() {
+}
+
+void NRF24L01p::Initialize(){
+    port_Initialize();
+    //ResetConfigValues(_RadioConfig, _RxPipeConfig);
+
+
+    port_Pin_CE(0);
+    port_Pin_CSN(0);
+
+    port_DelayMs(_NRF24L01P_TIMING_PowerOnReset_ms);
+
+    RadioMode(MODE_POWER_DOWN);
+    RadioMode(MODE_RX);
+
+    clear_data_ready_flag();
+    flush_rx();
+    flush_tx();
+
+    uint8_t status_rst_val = 0x70;//reset status
+    write_register(_NRF24L01P_REG_STATUS, &status_rst_val,1);
+    uint8_t config_rst_val = 0x0b;//reset config
+    write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
+
+
     enable_dynamic_payload(RadioConfig.FeatureDynamicPayloadEnabled);
     enable_payload_with_ack(RadioConfig.FeaturePayloadWithAckEnabled);
     enable_dynamic_payload_with_no_ack(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
@@ -77,16 +88,7 @@ NRF24L01p::NRF24L01p() {
 
     fifo_init(&TxFifo, TxFifoBuffer, 10);
     fifo_init(&RxFifo, RxFifoBuffer, 10);
-    
 }
-
-NRF24L01p::NRF24L01p(const NRF24L01p& orig) {
-}
-
-NRF24L01p::~NRF24L01p() {
-}
-
-
 void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig){
 
     RadioConfig.DataReadyInterruptEnabled = _RadioConfig->DataReadyInterruptEnabled;
@@ -109,7 +111,9 @@ void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_
         RxPipeConfig[i] = _RxPipeConfig[i];
     }
 
-    
+    enable_dataReady_interrupt(RadioConfig.DataReadyInterruptEnabled);
+    enable_dataSent_interrupt(RadioConfig.DataSentInterruptFlagEnabled);
+    enable_maxRetry_interrupt(RadioConfig.MaxRetryInterruptFlagEnabled);
     enable_dynamic_payload(RadioConfig.FeatureDynamicPayloadEnabled);
     enable_payload_with_ack(RadioConfig.FeaturePayloadWithAckEnabled);
     enable_dynamic_payload_with_no_ack(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
