@@ -82,7 +82,7 @@ public:
     RadioConfig_t RadioConfig;
     RxPipeConfig_t RxPipeConfig[6];
     PipeAddr_t  TxPipeAddress;
-    
+    bool DataReadyFlag, DataSentFlag, MaxRetryFlag;
     
     NRF24L01p();
     NRF24L01p(const NRF24L01p& orig);
@@ -99,13 +99,15 @@ public:
     ErrorStatus_t writeAckPayload(Payload_t *payload);
     ErrorStatus_t readPayload(Payload_t *payload);
     
+#if (_NRF24L01P_INTERRUPT_FEATURE_API == 1)    
+    
     ErrorStatus_t TransmitPayload(Payload_t *payload);
     ErrorStatus_t ReceivePayload(Payload_t *payload);
-    
-    
-    
-//////////////////////////////////////////////////////////////////
-//FIFO Service
+    ErrorStatus_t TransmitPayloadInterruptHandled(Payload_t *payload);
+    ErrorStatus_t ReceivePayloadInterruptHandled(Payload_t *payload);
+    void InterruptHandler(void);
+#endif   
+
 #if (_NRF24L01P_USE_SOFTWARE_FIFO_API == 1)   
     typedef struct{
         Payload_t *payload;
@@ -130,7 +132,9 @@ public:
 
     ErrorStatus_t TransmitPayloadViaFifo(Payload_t *payload);
     ErrorStatus_t ReceivePayloadViaFifo(Payload_t *payload);
+
     void process(void);
+    void processInterruptHandled(void);
     
 #endif
     
