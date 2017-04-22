@@ -173,8 +173,14 @@ void NRF24L01p::RadioMode(NRF24L01p::RadioState_t mode){
 
 
 bool NRF24L01p::readable(){
+<<<<<<< HEAD
     //return (!get_fifo_flag_rx_empty())&& (get_rx_payload_pipe() != 7)  ; 
     return (!get_fifo_flag_rx_empty()) ; 
+=======
+    return (get_data_ready_flag() || !get_fifo_flag_rx_empty())&& (get_rx_payload_pipe() != 7)  ; 
+    //return get_data_ready_flag();
+    
+>>>>>>> ca7748df987842ea3504a3e8d42c33da913a1ab3
 }
 bool NRF24L01p::writable(){
     return !get_fifo_flag_tx_full();
