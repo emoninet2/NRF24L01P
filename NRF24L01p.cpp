@@ -281,7 +281,6 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
         }
     }
     flush_tx();
-    printf("FIFO : %#x\r\n", read_register(_NRF24L01P_REG_FIFO_STATUS));
     RadioMode(originalState);
     return error;
     }
@@ -362,6 +361,15 @@ unsigned int NRF24L01p::fifo_waiting(fifo_t *f){
 unsigned int NRF24L01p::fifo_freeSpace(fifo_t *f){
 	return f->size - fifo_waiting(f);
 }
+
+NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadViaFifo(Payload_t *payload){
+    fifo_write(&TxFifo, payload);
+}
+NRF24L01p::ErrorStatus_t NRF24L01p::ReceivePayloadViaFifo(Payload_t *payload){
+    fifo_read(&RxFifo, payload);
+}
+
+
 NRF24L01p::ErrorStatus_t NRF24L01p::fifo_reset(fifo_t *f){
 	f->head = 0;
 	f->tail = 0;

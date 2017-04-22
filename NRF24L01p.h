@@ -67,7 +67,7 @@ public:
         pipe_t pipe; //if payload type is RX
         bool UseAck;
         bool GotAck;
-        uint8_t *data;
+        uint8_t data[32];
         unsigned int length;
         uint8_t retransmitCount;
     }Payload_t;
@@ -128,7 +128,8 @@ public:
     unsigned int fifo_freeSpace(fifo_t *f);
     ErrorStatus_t fifo_reset(fifo_t *f);
 
-    
+    ErrorStatus_t TransmitPayloadViaFifo(Payload_t *payload);
+    ErrorStatus_t ReceivePayloadViaFifo(Payload_t *payload);
     void process(void);
     
 private:
