@@ -67,7 +67,7 @@ public:
         pipe_t pipe; //if payload type is RX
         bool UseAck;
         bool GotAck;
-        uint8_t data[32];
+        uint8_t data[_NRF24L01P_FIFO_SIZE];
         unsigned int length;
         uint8_t retransmitCount;
     }Payload_t;
@@ -117,8 +117,8 @@ public:
     fifo_t TxFifo;
     fifo_t RxFifo;
 
-    Payload_t RxFifoBuffer[10];
-    Payload_t TxFifoBuffer[10];
+    Payload_t RxFifoBuffer[_NRF24L01P_SOFTWARE_FIFO_SIZE];
+    Payload_t TxFifoBuffer[_NRF24L01P_SOFTWARE_FIFO_SIZE];
     
     ErrorStatus_t fifo_init(fifo_t *f, Payload_t  *pld, unsigned int size);
     ErrorStatus_t fifo_read(fifo_t *f, Payload_t  *pld);
