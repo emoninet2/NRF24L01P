@@ -104,9 +104,9 @@ public:
     
     
     
-    //////////////////////////////////////////////////////////////////
-    //FIFO Service
-    
+//////////////////////////////////////////////////////////////////
+//FIFO Service
+#if (_NRF24L01P_USE_SOFTWARE_FIFO_API == 1)   
     typedef struct{
         Payload_t *payload;
         unsigned int head;
@@ -131,6 +131,8 @@ public:
     ErrorStatus_t TransmitPayloadViaFifo(Payload_t *payload);
     ErrorStatus_t ReceivePayloadViaFifo(Payload_t *payload);
     void process(void);
+    
+#endif
     
 private:
 
