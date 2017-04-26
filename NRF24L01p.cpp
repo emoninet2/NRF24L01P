@@ -200,7 +200,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::writeAckPayload(Payload_t *payload){
     write_ack_payload(payload->pipe, payload->data, payload->length);
 }
 NRF24L01p::ErrorStatus_t NRF24L01p::readPayload(Payload_t *payload){
-    ErrorStatus_t error;
+    ErrorStatus_t error;                                  
     payload->pipe = get_rx_payload_pipe();
     
     if(payload->pipe>=0 && payload->pipe<=5){
@@ -480,8 +480,8 @@ NRF24L01p::ErrorStatus_t NRF24L01p::fifo_reset(fifo_t *f){
 
 
 void NRF24L01p::process(void){
-
-    if( get_data_ready_flag() ){
+/*
+ *     if( get_data_ready_flag() ){
         clear_data_ready_flag();
         while(readable() && fifo_freeSpace(&RxFifo) > 0){
             Payload_t RxPayload;
@@ -489,6 +489,22 @@ void NRF24L01p::process(void){
             fifo_write(&RxFifo, &RxPayload );
         }
     }
+ */
+
+    if( get_data_ready_flag() ){
+        Payload_t RxPayload;
+        ReceivePayload(&RxPayload);
+        fifo_write(&RxFifo, &RxPayload );
+        clear_data_ready_flag();
+        while(readable() && fifo_freeSpace(&RxFifo) > 0){
+            ReceivePayload(&RxPayload);
+            fifo_write(&RxFifo, &RxPayload );
+        }
+    }
+    
+    
+    
+    
     if(fifo_waiting(&TxFifo) > 0){
         while(writable() && fifo_waiting(&TxFifo) > 0){
             Payload_t TxPayload;
@@ -500,14 +516,21 @@ void NRF24L01p::process(void){
 }
 
 void NRF24L01p::processInterruptHandled(void){
+    
     if( DataReadyFlag){
+        Payload_t RxPayload;
+        ReceivePayloadInterruptHandled(&RxPayload);
+        fifo_write(&RxFifo, &RxPayload );
     	DataReadyFlag = 0;
+        clear_data_ready_flag();
         while(readable() && fifo_freeSpace(&RxFifo) > 0){
-            Payload_t RxPayload;
             ReceivePayloadInterruptHandled(&RxPayload);
             fifo_write(&RxFifo, &RxPayload );
         }
     }
+    
+    
+    
     if(fifo_waiting(&TxFifo) > 0){
         while(writable() && fifo_waiting(&TxFifo) > 0){
             Payload_t TxPayload;
