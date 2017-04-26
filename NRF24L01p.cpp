@@ -38,8 +38,6 @@ NRF24L01p::NRF24L01p() {
     RxPipeConfig[4].address = 0xc2c2c2c2c5;
     RxPipeConfig[5].address = 0xc2c2c2c2c6;
     
-
-
 }
 
 NRF24L01p::NRF24L01p(const NRF24L01p& orig) {
@@ -48,11 +46,7 @@ NRF24L01p::NRF24L01p(const NRF24L01p& orig) {
 NRF24L01p::~NRF24L01p() {
 }
 
-void NRF24L01p::Initialize(){
-    port_Initialize();
-    //ResetConfigValues(_RadioConfig, _RxPipeConfig);
-
-
+void NRF24L01p::ReInitialize(){
     port_Pin_CE(0);
     port_Pin_CSN(0);
 
@@ -69,8 +63,10 @@ void NRF24L01p::Initialize(){
     write_register(_NRF24L01P_REG_STATUS, &status_rst_val,1);
     uint8_t config_rst_val = 0x0b;//reset config
     write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
-
-
+    
+    enable_dataReady_interrupt(RadioConfig.DataReadyInterruptEnabled);
+    enable_dataSent_interrupt(RadioConfig.DataSentInterruptFlagEnabled);
+    enable_maxRetry_interrupt(RadioConfig.MaxRetryInterruptFlagEnabled);
     enable_dynamic_payload(RadioConfig.FeatureDynamicPayloadEnabled);
     enable_payload_with_ack(RadioConfig.FeaturePayloadWithAckEnabled);
     enable_dynamic_payload_with_no_ack(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
@@ -85,12 +81,14 @@ void NRF24L01p::Initialize(){
         enable_dynamic_payload_pipe((pipe_t)i,RxPipeConfig[i].dynamicPayloadEnabled);
         set_RX_pipe_address((pipe_t)i,RxPipeConfig[i].address);
     }
-
+    
     fifo_init(&TxFifo, TxFifoBuffer, 10);
     fifo_init(&RxFifo, RxFifoBuffer, 10);
 }
-void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig){
+void NRF24L01p::Initialize(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig){
 
+    port_Initialize();
+    
     RadioConfig.DataReadyInterruptEnabled = _RadioConfig->DataReadyInterruptEnabled;
     RadioConfig.DataSentInterruptFlagEnabled = _RadioConfig->DataSentInterruptFlagEnabled;
     RadioConfig.MaxRetryInterruptFlagEnabled = _RadioConfig->MaxRetryInterruptFlagEnabled;
@@ -106,6 +104,27 @@ void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_
     RadioConfig.FeaturePayloadWithAckEnabled = _RadioConfig->FeaturePayloadWithAckEnabled;
     RadioConfig.FeatureDynamicPayloadWithNoAckEnabled = _RadioConfig->FeatureDynamicPayloadWithNoAckEnabled;
 
+    
+    port_Pin_CE(0);
+    port_Pin_CSN(0);
+
+    port_DelayMs(_NRF24L01P_TIMING_PowerOnReset_ms);
+
+    RadioMode(MODE_POWER_DOWN);
+    RadioMode(MODE_RX);
+
+    clear_data_ready_flag();
+    flush_rx();
+    flush_tx();
+
+    uint8_t status_rst_val = 0x70;//reset status
+    write_register(_NRF24L01P_REG_STATUS, &status_rst_val,1);
+    uint8_t config_rst_val = 0x0b;//reset config
+    write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
+    
+    
+    
+   
     int i;
     for(i=0;i<6;i++){
         RxPipeConfig[i] = _RxPipeConfig[i];
@@ -127,6 +146,10 @@ void NRF24L01p::ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_
         enable_dynamic_payload_pipe((pipe_t)i,RxPipeConfig[i].dynamicPayloadEnabled);
         set_RX_pipe_address((pipe_t)i,RxPipeConfig[i].address);
     }
+    
+    fifo_init(&TxFifo, TxFifoBuffer, 10);
+    fifo_init(&RxFifo, RxFifoBuffer, 10);
+    
 }
 
 void NRF24L01p::RadioMode(NRF24L01p::RadioState_t mode){
@@ -283,7 +306,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
 			}
 		}
 	}
-	flush_tx();
+	//flush_tx();
 	RadioMode(originalState);
 	return error;
 
@@ -369,7 +392,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 			}
 		}
 	}
-	flush_tx();
+	//flush_tx();
 	RadioMode(originalState);
 	return error;
 
@@ -502,16 +525,19 @@ void NRF24L01p::process(void){
         }
     }
     
-    
-    
+
     
     if(fifo_waiting(&TxFifo) > 0){
         while(writable() && fifo_waiting(&TxFifo) > 0){
             Payload_t TxPayload;
             fifo_read(&TxFifo, &TxPayload);
-            TransmitPayload(&TxPayload );
+            if( TransmitPayload(&TxPayload ) == ERROR){
+                flush_tx();
+            }
         }
     }
+
+    hardwareCheck();
 
 }
 
@@ -535,9 +561,16 @@ void NRF24L01p::processInterruptHandled(void){
         while(writable() && fifo_waiting(&TxFifo) > 0){
             Payload_t TxPayload;
             fifo_read(&TxFifo, &TxPayload);
-            TransmitPayloadInterruptHandled(&TxPayload );
+            if(TransmitPayloadInterruptHandled(&TxPayload ) == ERROR){
+                flush_tx();
+            }
         }
     }
 
+    hardwareCheck();
+}
 
+void NRF24L01p::hardwareCheck(){
+    //Initialize();
+    //ResetConfigValues(&RadioConfig, RxPipeConfig);
 }

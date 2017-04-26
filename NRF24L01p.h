@@ -88,8 +88,8 @@ public:
     NRF24L01p(const NRF24L01p& orig);
     virtual ~NRF24L01p();
     
-    void Initialize();
-    void ResetConfigValues(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig);
+    void ReInitialize();
+    void Initialize(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig);
     void RadioMode(RadioState_t mode);
     
     bool readable();
@@ -136,6 +136,8 @@ public:
 
     void process(void);
     void processInterruptHandled(void);
+    
+    void hardwareCheck();
     
 #endif
     
