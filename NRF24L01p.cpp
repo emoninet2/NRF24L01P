@@ -121,10 +121,7 @@ void NRF24L01p::Initialize(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeC
     write_register(_NRF24L01P_REG_STATUS, &status_rst_val,1);
     uint8_t config_rst_val = 0x0b;//reset config
     write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
-    
-    
-    
-   
+
     int i;
     for(i=0;i<6;i++){
         RxPipeConfig[i] = _RxPipeConfig[i];
@@ -196,7 +193,6 @@ void NRF24L01p::RadioMode(NRF24L01p::RadioState_t mode){
 
 
 bool NRF24L01p::readable(){
-    //return (!get_fifo_flag_rx_empty())&& (get_rx_payload_pipe() != 7)  ; 
     return (!get_fifo_flag_rx_empty()) ; 
 }
 bool NRF24L01p::writable(){
@@ -571,6 +567,16 @@ void NRF24L01p::processInterruptHandled(void){
 }
 
 void NRF24L01p::hardwareCheck(){
-    //Initialize();
+    if(get_status() == 0) {
+        //printf("Radio Disconnected\r\n");
+        while(get_status() == 0){
+            ReInitialize();
+            port_DelayMs(1000);
+        }
+        //printf("Radio Reconnected\r\n");
+    }
+    
+    
+    ReInitialize();
     //ResetConfigValues(&RadioConfig, RxPipeConfig);
 }
