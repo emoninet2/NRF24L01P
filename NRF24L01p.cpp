@@ -154,6 +154,8 @@ NRF24L01p::RadioState_t NRF24L01p::RadioMode(){
     uint8_t _config = read_register(_NRF24L01P_REG_CONFIG)  ;
     bool _pwr = (_config>>1)&0x01;
     bool _txrx = (_config>>0)&0x01;
+
+    //printf("CE:%d CONFIG:%#x PWR:%d RXTX:%d\r\n", _ce, _config, _pwr, _txrx);
     
     if(_pwr == 0){
         return MODE_POWER_DOWN;
@@ -169,10 +171,7 @@ NRF24L01p::RadioState_t NRF24L01p::RadioMode(){
                 return MODE_RX;
             }
         }
-    }
-    
-    
-    
+    } 
 }
 
 void NRF24L01p::RadioMode(NRF24L01p::RadioState_t mode){
