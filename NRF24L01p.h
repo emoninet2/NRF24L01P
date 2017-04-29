@@ -90,6 +90,7 @@ public:
     
     void ReInitialize();
     void Initialize(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig);
+    RadioState_t RadioMode();
     void RadioMode(RadioState_t mode);
     
     bool readable();

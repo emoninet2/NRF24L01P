@@ -31,6 +31,8 @@ public:
     void port_Pin_CSN_Initialize();
     void port_Pin_IRQ_Initialize();
     
+    bool port_Pin_CE();
+    bool port_Pin_CSN();
     void port_Pin_CE(bool val);
     void port_Pin_CSN(bool val);
     

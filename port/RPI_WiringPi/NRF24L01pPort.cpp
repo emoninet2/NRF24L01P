@@ -55,6 +55,12 @@ void NRF24L01pPort::port_Initialize(){
 void NRF24L01pPort::port_DeInitialize(){
     
 }
+bool NRF24L01pPort::port_Pin_CE(){
+    return digitalRead(nrf24l01p_ce_pin);
+}
+bool NRF24L01pPort::port_Pin_CSN(){
+    return digitalRead(nrf24l01p_csn_pin);
+}
 void NRF24L01pPort::port_Pin_CE(bool val){
     digitalWrite(nrf24l01p_ce_pin,val);
 }
