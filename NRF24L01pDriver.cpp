@@ -181,7 +181,6 @@ void NRF24L01pDriver::enable_rx_on_pipe(pipe_t pipe, bool sel){
         _nrf24l01p_clr_bit(temp,pipe);
         write_register(_NRF24L01P_REG_EN_RXADDR,temp);
     }
-
 }
 
 void NRF24L01pDriver::set_address_width(aw_t width){
@@ -299,8 +298,8 @@ uint8_t NRF24L01pDriver::get_arc_count(){
     uint8_t temp = read_register(_NRF24L01P_REG_OBSERVE_TX);
     return ((temp&_NRF24L01P_OBSERVE_TX_ARC_CNT_MASK)>>_NRF24L01P_OBSERVE_TX_ARC_CNT_BP);
     //return (temp&0x0F)>>0;
-
 }
+
 uint8_t NRF24L01pDriver::get_plos_count(){
     uint8_t temp;
     read_register(_NRF24L01P_REG_OBSERVE_TX,&temp,sizeof(temp));
@@ -365,13 +364,15 @@ NRF24L01pDriver::PipeAddr_t NRF24L01pDriver::get_TX_pipe_address(){
     }
     return temp_addr;   
 }
-
+void NRF24L01pDriver::set_RX_pipe_width(pipe_t pipe, uint8_t width){
+    uint8_t temp = width*0x3F;
+    write_register((_NRF24L01P_REG_RX_PW_P0+pipe),&temp,sizeof(temp));
+}
 uint8_t NRF24L01pDriver::get_RX_pipe_width(pipe_t pipe){
     uint8_t temp;
     read_register((_NRF24L01P_REG_RX_PW_P0+pipe),&temp,sizeof(temp));
     return (temp&(0x3F));
 }
-
 bool NRF24L01pDriver::get_fifo_flag_rx_empty(){
     if(read_register(_NRF24L01P_REG_FIFO_STATUS)&_NRF24L01P_FIFO_STATUS_RX_EMPTY ) return 1;
     else return 0;
@@ -403,7 +404,6 @@ void NRF24L01pDriver::enable_dynamic_payload_pipe(pipe_t pipe, bool sel){
         temp &= ~(1<<pipe);
         write_register(_NRF24L01P_REG_DYNPD,temp);    
     }
-   
 }
 
 
@@ -435,7 +435,6 @@ void NRF24L01pDriver::enable_payload_with_ack(bool sel){
         temp &= ~_NRF24L01_FEATURE_EN_ACK_PAY;
         write_register(_NRF24L01P_REG_FEATURE,temp); 
     }
-     
 }
 
 

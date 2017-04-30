@@ -184,15 +184,7 @@
 /** @name NRF24L01+ default values 
  *  These are bits of the default values 
  */
-/**@{*/ 
-#define DEFAULT_NRF24L01P_ADDRESS       ((unsigned long long) 0xE7E7E7E7E7 )
-#define DEFAULT_NRF24L01P_ADDRESS_WIDTH  5
-#define DEFAULT_NRF24L01P_CRC            NRF24L01P_CRC_8_BIT
-#define DEFAULT_NRF24L01P_RF_FREQUENCY  (NRF24L01P_MIN_RF_FREQUENCY + 2)
-#define DEFAULT_NRF24L01P_DATARATE       NRF24L01P_DATARATE_1_MBPS
-#define DEFAULT_NRF24L01P_TX_PWR         NRF24L01P_TX_PWR_ZERO_DB
-#define DEFAULT_NRF24L01P_TRANSFER_SIZE  4
-/**@}*/ 
+
 
 #endif /* NRF24L01PREGISTERS_H */
 

@@ -41,9 +41,9 @@ public:
     }RFpower_t;
 
     typedef enum {
-           RF_SETUP_RF_DR_250KBPS    =    (_NRF24L01P_RF_SETUP_RF_DR_LOW_BIT),
+           RF_SETUP_RF_DR_250KBPS    =    (_NRF24L01P_RF_SETUP_RF_DR_LOW_BIT),//(1 << 5)
            RF_SETUP_RF_DR_1MBPS      =    (0),
-           RF_SETUP_RF_DR_2MBPS      =    (_NRF24L01P_RF_SETUP_RF_DR_HIGH_BIT),
+           RF_SETUP_RF_DR_2MBPS      =    (_NRF24L01P_RF_SETUP_RF_DR_HIGH_BIT),//(1 << 3)
     }datarate_t;
 
     typedef enum {
@@ -116,6 +116,7 @@ public:
     void set_TX_pipe_address(PipeAddr_t address);
     PipeAddr_t get_TX_pipe_address();
     
+    void set_RX_pipe_width(pipe_t pipe, uint8_t width);
     uint8_t get_RX_pipe_width(pipe_t pipe);
     
     bool get_fifo_flag_rx_empty();
