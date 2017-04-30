@@ -526,16 +526,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::fifo_reset(fifo_t *f){
 
 
 void NRF24L01p::process(void){
-/*
- *     if( get_data_ready_flag() ){
-        clear_data_ready_flag();
-        while(readable() && fifo_freeSpace(&RxFifo) > 0){
-            Payload_t RxPayload;
-            ReceivePayload(&RxPayload);
-            fifo_write(&RxFifo, &RxPayload );
-        }
-    }
- */
+
 
     if( get_data_ready_flag() ){
         Payload_t RxPayload;
@@ -577,8 +568,6 @@ void NRF24L01p::processInterruptHandled(void){
             fifo_write(&RxFifo, &RxPayload );
         }
     }
-    
-    
     
     if(fifo_waiting(&TxFifo) > 0){
         while(writable() && fifo_waiting(&TxFifo) > 0){
