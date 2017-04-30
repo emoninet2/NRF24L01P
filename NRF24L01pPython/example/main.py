@@ -1,11 +1,11 @@
 import sys
 sys.path.insert(0, '../port')
 sys.path.insert(0, '..')
-from NRF24L01p import NRF24L01p
+from NRF24L01pHAL import NRF24L01pHAL
 
 
 
-Radio = NRF24L01p()
+Radio = NRF24L01pHAL()
 
 print("EMON is AWESOME");
 

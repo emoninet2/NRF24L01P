@@ -5,7 +5,7 @@ from NRF24L01pPort import NRF24L01pPort
 from NRF24L01pReg import *
 
 
-class NRF24L01p:
+class NRF24L01pHAL:
 	def __init__(self):
 		self.NRF24L01pPort = NRF24L01pPort()
 	def read_Registers(self, addr, len):
