@@ -85,10 +85,10 @@ void NRF24L01p::ReInitialize(){
     fifo_init(&TxFifo, TxFifoBuffer, 10);
     fifo_init(&RxFifo, RxFifoBuffer, 10);
 }
-void NRF24L01p::Initialize(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig){
+void NRF24L01p::Initialize(){
 
     port_Initialize();
-    
+/*  
     RadioConfig.DataReadyInterruptEnabled = _RadioConfig->DataReadyInterruptEnabled;
     RadioConfig.DataSentInterruptFlagEnabled = _RadioConfig->DataSentInterruptFlagEnabled;
     RadioConfig.MaxRetryInterruptFlagEnabled = _RadioConfig->MaxRetryInterruptFlagEnabled;
@@ -103,7 +103,17 @@ void NRF24L01p::Initialize(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeC
     RadioConfig.FeatureDynamicPayloadEnabled = _RadioConfig->FeatureDynamicPayloadEnabled;
     RadioConfig.FeaturePayloadWithAckEnabled = _RadioConfig->FeaturePayloadWithAckEnabled;
     RadioConfig.FeatureDynamicPayloadWithNoAckEnabled = _RadioConfig->FeatureDynamicPayloadWithNoAckEnabled;
-
+ 
+    int i;
+    for(i=0;i<6;i++){fdf
+        RxPipeConfig[i].address = _RxPipeConfig[i].address;
+        RxPipeConfig[i].PipeEnabled = _RxPipeConfig[i].PipeEnabled;
+        RxPipeConfig[i].autoAckEnabled = _RxPipeConfig[i].autoAckEnabled;
+        RxPipeConfig[i].MaxWidth = _RxPipeConfig[i].MaxWidth;
+        RxPipeConfig[i].dynamicPayloadEnabled = _RxPipeConfig[i].dynamicPayloadEnabled;
+        
+    }
+*/
     
     port_Pin_CE(0);
     port_Pin_CSN(0);
@@ -122,10 +132,7 @@ void NRF24L01p::Initialize(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeC
     uint8_t config_rst_val = 0x0b;//reset config
     write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
 
-    int i;
-    for(i=0;i<6;i++){
-        RxPipeConfig[i] = _RxPipeConfig[i];
-    }
+
 
     enable_dataReady_interrupt(RadioConfig.DataReadyInterruptEnabled);
     enable_dataSent_interrupt(RadioConfig.DataSentInterruptFlagEnabled);
@@ -137,6 +144,7 @@ void NRF24L01p::Initialize(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeC
     set_auto_retransmission_delay(RadioConfig.AutoReTransmitDelayX250us);        
     set_DataRate(RadioConfig.datarate);
     
+    int i;
     for(i=0;i<6;i++){
         enable_rx_on_pipe((pipe_t)i,RxPipeConfig[i].PipeEnabled );
         enable_auto_ack((pipe_t)i,RxPipeConfig[i].autoAckEnabled );
@@ -542,12 +550,15 @@ void NRF24L01p::process(void){
 
     
     if(fifo_waiting(&TxFifo) > 0){
+
         while(writable() && fifo_waiting(&TxFifo) > 0){
             Payload_t TxPayload;
             fifo_read(&TxFifo, &TxPayload);
+            printf("now writing [%s][%d] to %#llx\r\n",TxPayload.data, TxPayload.length, TxPayload.address );
             if( TransmitPayload(&TxPayload ) == ERROR){
                 flush_tx();
             }
+             flush_tx();//test
         }
     }
 
@@ -584,15 +595,15 @@ void NRF24L01p::processInterruptHandled(void){
 
 void NRF24L01p::hardwareCheck(){
     if(get_status() == 0) {
-        //printf("Radio Disconnected\r\n");
+        printf("Radio Disconnected\r\n");
         while(get_status() == 0){
             ReInitialize();
             port_DelayMs(1000);
         }
-        //printf("Radio Reconnected\r\n");
+        printf("Radio Reconnected\r\n");
     }
     
     
-    ReInitialize();
+    //ReInitialize();
     //ResetConfigValues(&RadioConfig, RxPipeConfig);
 }

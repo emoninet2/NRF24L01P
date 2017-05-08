@@ -89,7 +89,7 @@ public:
     virtual ~NRF24L01p();
     
     void ReInitialize();
-    void Initialize(RadioConfig_t *_RadioConfig, RxPipeConfig_t *_RxPipeConfig);
+    void Initialize();
     RadioState_t RadioMode();
     void RadioMode(RadioState_t mode);
     
