@@ -242,6 +242,7 @@ bool NRF24L01p::readableOnPipe(pipe_t pipe){
 NRF24L01p::ErrorStatus_t NRF24L01p::writePayload(Payload_t *payload){
     set_TX_pipe_address(payload->address);
     if(payload->UseAck == 1){
+        printf("payload length gonna be %d\r\n", payload->length);
         write_tx_payload(payload->data,payload->length);
     }else{
         if(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled == 1){
@@ -554,7 +555,7 @@ void NRF24L01p::process(void){
         while(writable() && fifo_waiting(&TxFifo) > 0){
             Payload_t TxPayload;
             fifo_read(&TxFifo, &TxPayload);
-            printf("now writing [%s][%d] to %#llx\r\n",TxPayload.data, TxPayload.length, TxPayload.address );
+            printf("now writing to send[%s][%d] to %#llx\r\n",TxPayload.data, TxPayload.length, TxPayload.address );
             if( TransmitPayload(&TxPayload ) == ERROR){
                 flush_tx();
             }

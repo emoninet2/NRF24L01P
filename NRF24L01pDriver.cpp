@@ -56,14 +56,23 @@ void NRF24L01pDriver::read_rx_payload(uint8_t *dataout, int pay_len){
     port_Pin_CSN(0);
     uint8_t temp = (_NRF24L01P_SPI_CMD_RD_RX_PAYLOAD);
     port_SPI_Transcieve(&temp,1);
-    port_SPI_Transcieve(dataout,pay_len);
+    if(pay_len<=32){
+        port_SPI_Transcieve(dataout,pay_len);
+    }else{
+        port_SPI_Transcieve(dataout,32);
+    }
     port_Pin_CSN(1);
 }
 void NRF24L01pDriver::write_tx_payload(uint8_t *datain, int pay_len){
     port_Pin_CSN(0);
     uint8_t temp = (_NRF24L01P_SPI_CMD_WR_TX_PAYLOAD);
     port_SPI_Transcieve(&temp,1);
-    port_SPI_Transcieve(datain,pay_len);
+    if(pay_len<=32){
+        port_SPI_Transcieve(datain,pay_len);
+    }else{
+        port_SPI_Transcieve(datain,32);
+    }
+    
     port_Pin_CSN(1);
 }
 void NRF24L01pDriver::flush_tx(){
@@ -96,14 +105,26 @@ void NRF24L01pDriver::write_ack_payload(pipe_t pipe, uint8_t *datain, int pay_le
     port_Pin_CSN(0);
     uint8_t temp = (_NRF24L01P_SPI_CMD_W_ACK_PAYLOAD | pipe);
     port_SPI_Transcieve(&temp,1);
-    port_SPI_Transcieve(datain,pay_len);
+    if(pay_len<=32){
+        port_SPI_Transcieve(datain,pay_len);
+    }else{
+        port_SPI_Transcieve(datain,32);
+    }
+    
+    
+    
     port_Pin_CSN(1);
 }
 void NRF24L01pDriver::write_tx_payload_noack(uint8_t *datain, int pay_len){
     port_Pin_CSN(0);
     uint8_t temp = (_NRF24L01P_SPI_CMD_W_TX_PYLD_NO_ACK);
     port_SPI_Transcieve(&temp,1);
-    port_SPI_Transcieve(datain,pay_len);
+    if(pay_len<=32){
+        port_SPI_Transcieve(datain,pay_len);
+    }else{
+        port_SPI_Transcieve(datain,32);
+    }
+    
     port_Pin_CSN(1);
 }
 int NRF24L01pDriver::get_status(){
