@@ -16,12 +16,12 @@
 
 #if (NRF24L01pPort_mbed == 1)
 
-#define NRF24L01p_MBED_CE_PIN           D9
+#define NRF24L01p_MBED_CE_PIN           D6
 #define NRF24L01p_MBED_CSN_PIN          D10
 #define NRF24L01p_MBED_SPI_MOSI_PIN     SPI_MOSI//D12
 #define NRF24L01p_MBED_SPI_MISO_PIN     SPI_MISO//D11
 #define NRF24L01p_MBED_SPI_SCK_PIN      SPI_SCK//D13
-#define NRF24L01p_MBED_IRQ_PIN          D7
+#define NRF24L01p_MBED_IRQ_PIN          D5
 
 
 #include "mbed.h"
@@ -49,6 +49,14 @@ void NRF24L01pPort::port_Initialize(){
 void NRF24L01pPort::port_DeInitialize(){
     
 }
+bool NRF24L01pPort::port_Pin_CE(){
+	return nrf24l01p_ce;
+}
+bool NRF24L01pPort::port_Pin_CSN(){
+	return nrf24l01p_csn;
+}
+
+
 void NRF24L01pPort::port_Pin_CE(bool val){
     nrf24l01p_ce = val;
 }
@@ -61,10 +69,10 @@ int NRF24L01pPort::port_SPI_Transcieve(uint8_t *dataInOut, unsigned int size){
         dataInOut[i] = nrf24l01p_spi.write(dataInOut[i]);   
     }
 }
-void NRF24L01pPort::port_DelayMs(int ms){
+void NRF24L01pPort::port_DelayMs(unsigned int ms){
     wait_ms(ms);
 }
-void NRF24L01pPort::port_DelayUs(int us){
+void NRF24L01pPort::port_DelayUs(unsigned int us){
     wait_us(us);
 }
 unsigned int NRF24L01pPort::port_ClockMs(){
