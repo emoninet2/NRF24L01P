@@ -300,15 +300,19 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
 
 				if( (status & (_NRF24L01P_STATUS_TX_DS))  &&   (status & (_NRF24L01P_STATUS_RX_DR))   ){
 					//printf("ACK with PAYLOAD\r\n");
+                                                clear_data_sent_flag();
+                                                clear_data_ready_flag();
 						error = SUCCESS;
 						readPayload(payload);
 						payload->GotAck = 1;
+
 						break;
 				}
 
 				else if( (status & (_NRF24L01P_STATUS_TX_DS))  &&   !(status & (_NRF24L01P_STATUS_RX_DR))   ){
 					//printf("ACK ONLY\r\n");
-					error = SUCCESS;
+					clear_data_sent_flag();
+                                        error = SUCCESS;
 					payload->GotAck = 0;
 					break;
 				}
@@ -328,12 +332,13 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
 	}
 	else{
 		writePayload(payload);
-		clear_data_sent_flag();
+		
 		while(1){
 			RadioMode(MODE_TX);
 			RadioMode(MODE_STANDBY);
 			if(get_data_sent_flag()){
-					error = SUCCESS;
+                            clear_data_sent_flag();
+                            error = SUCCESS;
 			break;
 			}
 		}
@@ -384,7 +389,9 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 
 				if( (DataSentFlag)  &&   (DataReadyFlag)   ){
 					//printf("ACK with PAYLOAD\r\n");
-						error = SUCCESS;
+						clear_data_sent_flag();
+                                                clear_data_ready_flag();
+                                                error = SUCCESS;
 						readPayload(payload);
 						payload->GotAck = 1;
 						break;
@@ -392,8 +399,10 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 
 				else if( (DataSentFlag)  &&   !(DataReadyFlag)   ){
 					//printf("ACK ONLY\r\n");
-					error = SUCCESS;
+					clear_data_sent_flag();
+                                        error = SUCCESS;
 					payload->GotAck = 0;
+                                        
 					break;
 				}
 
@@ -412,6 +421,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 	}
 	else{
 		writePayload(payload);
+                
 		DataReadyFlag = 0;
 		DataSentFlag = 0;
 		MaxRetryFlag = 0;
@@ -419,7 +429,8 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 			RadioMode(MODE_TX);
 			RadioMode(MODE_STANDBY);
 			if(get_data_sent_flag()){
-					error = SUCCESS;
+                            clear_data_sent_flag();
+                            error = SUCCESS;
 			break;
 			}
 		}

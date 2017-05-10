@@ -67,7 +67,7 @@ public:
         pipe_t pipe; //if payload type is RX
         bool UseAck;
         bool GotAck;
-        uint8_t data[_NRF24L01P_FIFO_SIZE + 3];
+        uint8_t data[_NRF24L01P_FIFO_SIZE ];
         unsigned int length;
         uint8_t retransmitCount;
     }Payload_t;
