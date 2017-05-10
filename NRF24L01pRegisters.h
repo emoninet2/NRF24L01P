@@ -125,7 +125,8 @@
  */
 /**@{*/ 
 #define _NRF24L01P_STATUS_TX_FULL        (1<<0)
-#define _NRF24L01P_STATUS_RX_P_NO        (0x7<<1)
+#define _NRF24L01P_STATUS_RX_P_NO_BM     (0x7<<1)
+#define _NRF24L01P_STATUS_RX_P_NO_BP        1
 #define _NRF24L01P_STATUS_MAX_RT         (1<<4)
 #define _NRF24L01P_STATUS_TX_DS          (1<<5)
 #define _NRF24L01P_STATUS_RX_DR          (1<<6)

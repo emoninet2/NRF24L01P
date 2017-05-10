@@ -55,7 +55,9 @@ void NRF24L01p::ReInitialize(){
     RadioMode(MODE_POWER_DOWN);
     RadioMode(MODE_RX);
 
-    clear_data_ready_flag();
+    clearDataReadyFlag();
+    clearDataSentFlag();
+    clearMaxRetryFlag();
     flush_rx();
     flush_tx();
 
@@ -64,22 +66,22 @@ void NRF24L01p::ReInitialize(){
     uint8_t config_rst_val = 0x0b;//reset config
     write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
     
-    enable_dataReady_interrupt(RadioConfig.DataReadyInterruptEnabled);
-    enable_dataSent_interrupt(RadioConfig.DataSentInterruptFlagEnabled);
-    enable_maxRetry_interrupt(RadioConfig.MaxRetryInterruptFlagEnabled);
-    enable_dynamic_payload(RadioConfig.FeatureDynamicPayloadEnabled);
-    enable_payload_with_ack(RadioConfig.FeaturePayloadWithAckEnabled);
-    enable_dynamic_payload_with_no_ack(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
-    set_auto_retransmission_count(RadioConfig.AutoReTransmissionCount);
-    set_auto_retransmission_delay(RadioConfig.AutoReTransmitDelayX250us);        
-    set_DataRate(RadioConfig.datarate);
+    dataReadyInterruptMask(RadioConfig.DataReadyInterruptEnabled);
+    dataSentInterruptMask(RadioConfig.DataSentInterruptFlagEnabled);
+    maxRetryInterruptMask(RadioConfig.MaxRetryInterruptFlagEnabled);
+    dynamicPayloadFeature(RadioConfig.FeatureDynamicPayloadEnabled);
+    payloadWithAckFeature(RadioConfig.FeaturePayloadWithAckEnabled);
+    dynamicPayloadWithNoAck(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
+    maxAutoRetransmissionCount(RadioConfig.AutoReTransmissionCount);
+    autoRetransmissionDelay(RadioConfig.AutoReTransmitDelayX250us);        
+    DataRate(RadioConfig.datarate);
     
     int i;
     for(i=0;i<6;i++){
-        enable_rx_on_pipe((pipe_t)i,RxPipeConfig[i].PipeEnabled );
-        enable_auto_ack((pipe_t)i,RxPipeConfig[i].autoAckEnabled );
-        enable_dynamic_payload_pipe((pipe_t)i,RxPipeConfig[i].dynamicPayloadEnabled);
-        set_RX_pipe_address((pipe_t)i,RxPipeConfig[i].address);
+        RxOnPipe((pipe_t)i,RxPipeConfig[i].PipeEnabled );
+        autoAckOnPipe((pipe_t)i,RxPipeConfig[i].autoAckEnabled );
+        dynamicPayloadOnPipe((pipe_t)i,RxPipeConfig[i].dynamicPayloadEnabled);
+        rxPipeAddress((pipe_t)i,RxPipeConfig[i].address);
     }
     
     fifo_init(&TxFifo, TxFifoBuffer, 10);
@@ -134,22 +136,22 @@ void NRF24L01p::Initialize(){
 
 
 
-    enable_dataReady_interrupt(RadioConfig.DataReadyInterruptEnabled);
-    enable_dataSent_interrupt(RadioConfig.DataSentInterruptFlagEnabled);
-    enable_maxRetry_interrupt(RadioConfig.MaxRetryInterruptFlagEnabled);
-    enable_dynamic_payload(RadioConfig.FeatureDynamicPayloadEnabled);
-    enable_payload_with_ack(RadioConfig.FeaturePayloadWithAckEnabled);
-    enable_dynamic_payload_with_no_ack(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
-    set_auto_retransmission_count(RadioConfig.AutoReTransmissionCount);
-    set_auto_retransmission_delay(RadioConfig.AutoReTransmitDelayX250us);        
-    set_DataRate(RadioConfig.datarate);
+    dataReadyInterruptMask(RadioConfig.DataReadyInterruptEnabled);
+    dataSentInterruptMask(RadioConfig.DataSentInterruptFlagEnabled);
+    maxRetryInterruptMask(RadioConfig.MaxRetryInterruptFlagEnabled);
+    dynamicPayloadFeature(RadioConfig.FeatureDynamicPayloadEnabled);
+    payloadWithAckFeature(RadioConfig.FeaturePayloadWithAckEnabled);
+    dynamicPayloadWithNoAck(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
+    maxAutoRetransmissionCount(RadioConfig.AutoReTransmissionCount);
+    autoRetransmissionDelay(RadioConfig.AutoReTransmitDelayX250us);        
+    DataRate(RadioConfig.datarate);
     
     int i;
     for(i=0;i<6;i++){
-        enable_rx_on_pipe((pipe_t)i,RxPipeConfig[i].PipeEnabled );
-        enable_auto_ack((pipe_t)i,RxPipeConfig[i].autoAckEnabled );
-        enable_dynamic_payload_pipe((pipe_t)i,RxPipeConfig[i].dynamicPayloadEnabled);
-        set_RX_pipe_address((pipe_t)i,RxPipeConfig[i].address);
+        RxOnPipe((pipe_t)i,RxPipeConfig[i].PipeEnabled );
+        autoAckOnPipe((pipe_t)i,RxPipeConfig[i].autoAckEnabled );
+        dynamicPayloadOnPipe((pipe_t)i,RxPipeConfig[i].dynamicPayloadEnabled);
+        rxPipeAddress((pipe_t)i,RxPipeConfig[i].address);
     }
     
     fifo_init(&TxFifo, TxFifoBuffer, 10);

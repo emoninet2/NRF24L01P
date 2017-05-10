@@ -136,6 +136,278 @@ int NRF24L01pDriver::get_status(){
 }
 
 
+void NRF24L01pDriver::powerUp(bool sel){
+    if(sel) write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) | _NRF24L01P_CONFIG_PWR_UP);
+    else write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) & ~_NRF24L01P_CONFIG_PWR_UP);
+}
+bool NRF24L01pDriver::powerUp(){
+    return read_register(_NRF24L01P_REG_CONFIG) & _NRF24L01P_CONFIG_PWR_UP;
+}
+void NRF24L01pDriver::RxTxMode(bool sel){
+    if(sel) write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) | _NRF24L01P_CONFIG_PRIM_RX);
+    else write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) & ~_NRF24L01P_CONFIG_PRIM_RX);
+}
+bool NRF24L01pDriver::RxTxMode(){
+    return read_register(_NRF24L01P_REG_CONFIG) & _NRF24L01P_CONFIG_PRIM_RX;
+}
+void NRF24L01pDriver::CRC(crc_t opt){
+    write_register(_NRF24L01P_REG_CONFIG, (read_register(_NRF24L01P_REG_CONFIG) & ~ _NRF24L01P_CONFIG_CRC_MASK) | opt);
+}
+NRF24L01pDriver::crc_t NRF24L01pDriver::CRC(){
+    return (crc_t) (read_register(_NRF24L01P_REG_CONFIG) &  _NRF24L01P_CONFIG_CRC_MASK);
+}
+void NRF24L01pDriver::dataReadyInterruptMask(bool sel){
+    if(sel) write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) | _NRF24L01P_CONFIG_MASK_RX_DR);
+    else write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) & ~_NRF24L01P_CONFIG_MASK_RX_DR);
+}
+bool NRF24L01pDriver::dataReadyInterruptMask(){
+    read_register(_NRF24L01P_REG_CONFIG) & _NRF24L01P_CONFIG_MASK_RX_DR;
+}
+void NRF24L01pDriver::dataSentInterruptMask(bool sel){
+        if(sel) write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) | _NRF24L01P_CONFIG_MASK_TX_DS);
+    else write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) & ~_NRF24L01P_CONFIG_MASK_TX_DS);
+}
+bool NRF24L01pDriver::dataSentInterruptMask(){
+    read_register(_NRF24L01P_REG_CONFIG) & _NRF24L01P_CONFIG_MASK_TX_DS;
+}
+void NRF24L01pDriver::maxRetryInterruptMask(bool sel){
+        if(sel) write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) | _NRF24L01P_CONFIG_MASK_MAX_RT);
+    else write_register(_NRF24L01P_REG_CONFIG,read_register(_NRF24L01P_REG_CONFIG) & ~_NRF24L01P_CONFIG_MASK_MAX_RT);
+}
+bool NRF24L01pDriver::maxRetryInterruptMask(){
+    read_register(_NRF24L01P_REG_CONFIG) & _NRF24L01P_CONFIG_MASK_MAX_RT;
+}
+void NRF24L01pDriver::autoAckOnPipe(pipe_t pipe, bool sel){
+    if(sel) write_register(_NRF24L01P_REG_EN_AA,read_register(_NRF24L01P_REG_EN_AA) | (1<< (int)pipe));
+    else write_register(_NRF24L01P_REG_EN_AA,read_register(_NRF24L01P_REG_EN_AA) & ~(1<<(int)pipe));
+}
+bool NRF24L01pDriver::autoAckOnPipe(pipe_t pipe){
+    return read_register(_NRF24L01P_REG_EN_AA) & (1<<(int)pipe);
+}
+void NRF24L01pDriver::RxOnPipe(pipe_t pipe, bool sel){
+    if(sel) write_register(_NRF24L01P_REG_EN_RXADDR,read_register(_NRF24L01P_REG_EN_RXADDR) | (1<< (int)pipe));
+    else write_register(_NRF24L01P_REG_EN_RXADDR,read_register(_NRF24L01P_REG_EN_RXADDR) & ~(1<<(int)pipe));
+}
+bool NRF24L01pDriver::RxOnPipe(pipe_t pipe){
+     return read_register(_NRF24L01P_REG_EN_AA) & (1<<(int)pipe);
+}
+void NRF24L01pDriver::addressWidth(aw_t width){
+    write_register(_NRF24L01P_REG_SETUP_AW,(uint8_t) width);
+}
+NRF24L01pDriver::aw_t NRF24L01pDriver::addressWidth(){
+    return (aw_t) read_register(_NRF24L01P_REG_SETUP_AW); 
+}
+void NRF24L01pDriver::maxAutoRetransmissionCount(uint8_t count){
+    write_register(_NRF24L01P_REG_SETUP_RETR,  
+            (read_register(_NRF24L01P_REG_SETUP_RETR)& ~_NRF24L01P_OBSERVE_TX_ARC_CNT_MASK) 
+            | (count<<_NRF24L01P_OBSERVE_TX_ARC_CNT_BP)   );
+}
+uint8_t NRF24L01pDriver::maxAutoRetransmissionCount(){
+    return read_register(_NRF24L01P_REG_SETUP_RETR) & _NRF24L01P_OBSERVE_TX_ARC_CNT_MASK;
+}
+void NRF24L01pDriver::autoRetransmissionDelay(uint8_t times250us){
+        write_register(_NRF24L01P_REG_SETUP_RETR,  
+            (read_register(_NRF24L01P_REG_SETUP_RETR)& ~_NRF24L01P_OBSERVE_TX_PLOS_CNT_MASK) 
+            | (times250us<<_NRF24L01P_OBSERVE_TX_PLOS_CNT_BP)   );
+}
+uint8_t NRF24L01pDriver::autoRetransmissionDelay(){
+    return (read_register(_NRF24L01P_REG_SETUP_RETR) & _NRF24L01P_OBSERVE_TX_PLOS_CNT_MASK) >> _NRF24L01P_OBSERVE_TX_PLOS_CNT_BP;
+}
+void NRF24L01pDriver::freqOffset(uint8_t offset){
+    if( (offset >=0)  && ( offset <= 125)){
+            write_register(_NRF24L01P_REG_RF_CH,offset);
+    }
+}
+uint8_t NRF24L01pDriver::freqOffset(){
+    return read_register(_NRF24L01P_REG_RF_CH);
+}
+void NRF24L01pDriver::DataRate(datarate_t DataRate){
+    write_register(_NRF24L01P_REG_RF_SETUP,(   read_register(_NRF24L01P_REG_RF_SETUP) & ~_NRF24L01P_RF_SETUP_RF_DR_MASK ) | DataRate);
+}
+NRF24L01pDriver::datarate_t NRF24L01pDriver::DataRate(){
+    return (datarate_t) (read_register(_NRF24L01P_REG_RF_SETUP) & _NRF24L01P_RF_SETUP_RF_DR_MASK);
+
+}
+void NRF24L01pDriver::RfPower(RFpower_t RFpower){
+    write_register(_NRF24L01P_REG_RF_SETUP,(   read_register(_NRF24L01P_REG_RF_SETUP) & ~_NRF24L01P_RF_SETUP_RF_PWR_MASK ) | RFpower);
+}
+NRF24L01pDriver::RFpower_t NRF24L01pDriver::RfPower(){
+    return (RFpower_t) (read_register(_NRF24L01P_REG_RF_SETUP) & _NRF24L01P_RF_SETUP_RF_PWR_MASK);
+}
+void NRF24L01pDriver::pllLock(bool sel){
+    if(sel) write_register(_NRF24L01P_REG_RF_SETUP,read_register(_NRF24L01P_REG_RF_SETUP) | _NRF24L01P_RF_SETUP_PLL_LOCK);
+    else write_register(_NRF24L01P_REG_RF_SETUP,read_register(_NRF24L01P_REG_RF_SETUP) & ~_NRF24L01P_RF_SETUP_PLL_LOCK);
+}
+bool NRF24L01pDriver::pllLock(){
+    return read_register(_NRF24L01P_REG_RF_SETUP) & _NRF24L01P_RF_SETUP_PLL_LOCK;
+}
+void NRF24L01pDriver::contWave(bool sel){
+    if(sel) write_register(_NRF24L01P_REG_RF_SETUP,read_register(_NRF24L01P_REG_RF_SETUP) | _NRF24L01P_RF_CONT_WAVE);
+    else write_register(_NRF24L01P_REG_RF_SETUP,read_register(_NRF24L01P_REG_RF_SETUP) & ~_NRF24L01P_RF_CONT_WAVE);
+}
+bool NRF24L01pDriver::contWave(){
+    return read_register(_NRF24L01P_REG_RF_SETUP) & _NRF24L01P_RF_CONT_WAVE;
+}
+bool NRF24L01pDriver::TxFifoFullFlag(){
+    return get_status()&_NRF24L01P_STATUS_TX_FULL;
+}
+bool NRF24L01pDriver::MaxRetryFlag(){
+    return get_status()&_NRF24L01P_STATUS_MAX_RT;
+}
+void NRF24L01pDriver::clearMaxRetryFlag(){
+    write_register(_NRF24L01P_REG_STATUS,_NRF24L01P_STATUS_MAX_RT);
+}
+bool NRF24L01pDriver::DataSentFlag(){
+    return get_status()&_NRF24L01P_STATUS_TX_DS;
+}
+void NRF24L01pDriver::clearDataSentFlag(){
+    write_register(_NRF24L01P_REG_STATUS,_NRF24L01P_STATUS_TX_DS);
+}
+bool NRF24L01pDriver::DataReadyFlag(){
+        return get_status()&_NRF24L01P_STATUS_RX_DR;
+}
+void NRF24L01pDriver::clearDataReadyFlag(){
+    write_register(_NRF24L01P_REG_STATUS,_NRF24L01P_STATUS_RX_DR);
+}
+NRF24L01pDriver::pipe_t NRF24L01pDriver::rxPayloadOnPipe(){
+    return (pipe_t) ((get_status()&_NRF24L01P_STATUS_RX_P_NO_BM)>>_NRF24L01P_STATUS_RX_P_NO_BP);
+}
+uint8_t NRF24L01pDriver::arcCount(){
+    return ((read_register(_NRF24L01P_REG_OBSERVE_TX)&_NRF24L01P_OBSERVE_TX_ARC_CNT_MASK)>>_NRF24L01P_OBSERVE_TX_ARC_CNT_BP);
+}
+uint8_t NRF24L01pDriver::plosCount(){
+    return ((read_register(_NRF24L01P_REG_OBSERVE_TX)&_NRF24L01P_OBSERVE_TX_PLOS_CNT_MASK)>>_NRF24L01P_OBSERVE_TX_PLOS_CNT_BP);
+}
+void NRF24L01pDriver::clearPlosCount(){
+    freqOffset(freqOffset());
+}
+bool NRF24L01pDriver::rpd(){
+    return read_register(_NRF24L01P_REG_RPD);
+}
+void NRF24L01pDriver::rxPipeAddress(pipe_t pipe,PipeAddr_t address){
+    int max_pipe_addr_width = 0;
+    if((pipe>=0) && (pipe<=1)   ){max_pipe_addr_width = 5;}
+    else if ((pipe>=2) && (pipe<=5)   ){max_pipe_addr_width = 1;}
+    uint8_t temp[5];
+    int i;
+    for(i=0;i<max_pipe_addr_width;i++){
+            temp[i] = (address>>(8*i))&0xFF;
+    }
+    write_register(_NRF24L01P_REG_RX_ADDR_P0 + pipe,temp,max_pipe_addr_width);
+    
+}
+NRF24L01pDriver::PipeAddr_t NRF24L01pDriver::rxPipeAddress(pipe_t pipe){
+    int max_pipe_addr_width = 0;
+    if((pipe>=0) && (pipe<=1)   ){max_pipe_addr_width = 5;}
+    else if ((pipe>=2) && (pipe<=5)   ){max_pipe_addr_width = 1;}
+
+    uint8_t temp[5];
+    read_register(_NRF24L01P_REG_RX_ADDR_P0 + pipe,temp,max_pipe_addr_width);
+
+    uint64_t temp_addr = 0;
+    uint8_t *temp_addr_ptr = (uint8_t*) &temp_addr;
+    int i;
+    for(i=0;i<max_pipe_addr_width;i++){
+            *(temp_addr_ptr+i)|= (temp[i]);
+    }
+
+    return temp_addr;  
+}
+void NRF24L01pDriver::txPipeAddress(PipeAddr_t address){
+    uint8_t temp[5];
+    int i;
+    for( i=0;i<5;i++){
+            temp[i] = (address>>(8*i))&0xFF;
+    }
+    write_register(_NRF24L01P_REG_TX_ADDR,temp,5);  
+}
+NRF24L01pDriver::PipeAddr_t NRF24L01pDriver::txPipeAddress(){
+    uint8_t temp[5];
+    read_register(_NRF24L01P_REG_TX_ADDR,temp,5);
+
+    uint64_t temp_addr = 0;
+    uint8_t *temp_addr_ptr = (uint8_t*) &temp_addr;
+    int i;
+    for(i=0;i<5;i++){
+            *(temp_addr_ptr+i)|= (temp[i]);
+    }
+    return temp_addr;  
+}
+void NRF24L01pDriver::rxPipeWidth(pipe_t pipe, uint8_t width){
+    uint8_t temp = width*0x3F;
+    write_register((_NRF24L01P_REG_RX_PW_P0+pipe),&temp,sizeof(temp));
+}
+uint8_t NRF24L01pDriver::rxPipeWidth(pipe_t pipe){
+    uint8_t temp;
+    read_register((_NRF24L01P_REG_RX_PW_P0+pipe),&temp,sizeof(temp));
+    return (temp&(0x3F));
+}
+bool NRF24L01pDriver::FifoRxEmptyFlag(){
+    return (read_register(_NRF24L01P_REG_FIFO_STATUS)&_NRF24L01P_FIFO_STATUS_RX_EMPTY) ;
+}
+bool NRF24L01pDriver::FifoRxFullFlag(){
+    return (read_register(_NRF24L01P_REG_FIFO_STATUS)&_NRF24L01P_FIFO_STATUS_RX_FULL );
+}
+bool NRF24L01pDriver::FifoTxEmptyFlag(){
+    return (read_register(_NRF24L01P_REG_FIFO_STATUS)&_NRF24L01P_FIFO_STATUS_TX_EMPTY );
+}
+bool NRF24L01pDriver::FifoTxFullFlag(){
+    return (read_register(_NRF24L01P_REG_FIFO_STATUS)&_NRF24L01P_FIFO_STATUS_TX_FULL );
+}
+bool NRF24L01pDriver::FifoTxReuseFlag(){
+    return (read_register(_NRF24L01P_REG_FIFO_STATUS)&_NRF24L01P_FIFO_STATUS_RX_REUSE );
+}
+void NRF24L01pDriver::dynamicPayloadOnPipe(pipe_t pipe, bool sel){
+    if(sel) write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) | (1<<pipe));
+    else write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) & ~(1<<pipe));
+}
+bool NRF24L01pDriver::dynamicPayloadOnPipe(pipe_t pipe){
+    return (read_register(_NRF24L01P_REG_DYNPD) & (1<<pipe));
+}
+void NRF24L01pDriver::dynamicPayloadFeature(bool sel){
+    if(sel) write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) | (_NRF24L01_FEATURE_EN_DPL));
+    else write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) & ~_NRF24L01_FEATURE_EN_DPL);
+}
+bool NRF24L01pDriver::dynamicPayloadFeature( ){
+    return (read_register(_NRF24L01P_REG_DYNPD) & _NRF24L01_FEATURE_EN_DPL);
+}
+void NRF24L01pDriver::payloadWithAckFeature(bool sel){
+        if(sel) write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) | (_NRF24L01_FEATURE_EN_ACK_PAY));
+    else write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) & ~_NRF24L01_FEATURE_EN_ACK_PAY);
+}
+bool NRF24L01pDriver::payloadWithAckFeature(){
+    return (read_register(_NRF24L01P_REG_DYNPD) & _NRF24L01_FEATURE_EN_ACK_PAY);
+}
+void NRF24L01pDriver::dynamicPayloadWithNoAck(bool sel){
+        if(sel) write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) | (_NRF24L01_FEATURE_EN_DYN_ACK));
+    else write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) & ~_NRF24L01_FEATURE_EN_DYN_ACK);
+}
+bool NRF24L01pDriver::dynamicPayloadWithNoAck( ){
+    return (read_register(_NRF24L01P_REG_DYNPD) & _NRF24L01_FEATURE_EN_DYN_ACK);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void NRF24L01pDriver::power_up(){
     uint8_t temp = read_register(_NRF24L01P_REG_CONFIG);
     temp |= _NRF24L01P_CONFIG_PWR_UP;
@@ -312,7 +584,7 @@ void NRF24L01pDriver::clear_data_ready_flag(){
     write_register(_NRF24L01P_REG_STATUS,&temp,sizeof(temp));
 }
 NRF24L01pDriver::pipe_t NRF24L01pDriver::get_rx_payload_pipe(){
-    return (pipe_t) ((get_status()&_NRF24L01P_STATUS_RX_P_NO)>>1);
+    return (pipe_t) ((get_status()&_NRF24L01P_STATUS_RX_P_NO_BM)>>_NRF24L01P_STATUS_RX_P_NO_BP);
 }
 
 uint8_t NRF24L01pDriver::get_arc_count(){

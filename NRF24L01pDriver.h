@@ -63,6 +63,74 @@ public:
     NRF24L01pDriver(const NRF24L01pDriver& orig);
     virtual ~NRF24L01pDriver();
     
+    
+    void powerUp(bool sel);
+    bool powerUp();
+    void RxTxMode(bool sel);
+    bool RxTxMode();
+    void CRC(crc_t opt);
+    crc_t CRC();
+    void dataReadyInterruptMask(bool sel);
+    bool dataReadyInterruptMask();
+    void dataSentInterruptMask(bool sel);
+    bool dataSentInterruptMask();
+    void maxRetryInterruptMask(bool sel);
+    bool maxRetryInterruptMask();
+    void autoAckOnPipe(pipe_t pipe, bool sel);
+    bool autoAckOnPipe(pipe_t pipe);
+    void RxOnPipe(pipe_t pipe, bool sel);
+    bool RxOnPipe(pipe_t pipe);
+    void addressWidth(aw_t width);
+    aw_t addressWidth();
+    void maxAutoRetransmissionCount(uint8_t count);
+    uint8_t maxAutoRetransmissionCount();
+    void autoRetransmissionDelay(uint8_t times250us);
+    uint8_t autoRetransmissionDelay();
+    void freqOffset(uint8_t offset);
+    uint8_t freqOffset();
+    void DataRate(datarate_t DataRate);
+    datarate_t DataRate();
+    void RfPower(RFpower_t RFpower);
+    RFpower_t RfPower();
+    void pllLock(bool sel);
+    bool pllLock();
+    void contWave(bool sel);
+    bool contWave();
+    bool TxFifoFullFlag();
+    bool MaxRetryFlag();
+    void clearMaxRetryFlag();
+    bool DataSentFlag();
+    void clearDataSentFlag();
+    bool DataReadyFlag();
+    void clearDataReadyFlag();
+    pipe_t rxPayloadOnPipe();
+    uint8_t arcCount();
+    uint8_t plosCount();
+    void clearPlosCount();
+    bool rpd();
+    void rxPipeAddress(pipe_t pipe,PipeAddr_t address);
+    PipeAddr_t rxPipeAddress(pipe_t pipe);
+    void txPipeAddress(PipeAddr_t address);
+    PipeAddr_t txPipeAddress();
+    void rxPipeWidth(pipe_t pipe, uint8_t width);
+    uint8_t rxPipeWidth(pipe_t pipe);
+    bool FifoRxEmptyFlag();
+    bool FifoRxFullFlag();
+    bool FifoTxEmptyFlag();
+    bool FifoTxFullFlag();
+    bool FifoTxReuseFlag();
+    void dynamicPayloadOnPipe(pipe_t pipe, bool sel);
+    bool dynamicPayloadOnPipe(pipe_t pipe);
+    void dynamicPayloadFeature(bool sel);
+    bool dynamicPayloadFeature( );
+    void payloadWithAckFeature(bool sel);
+    bool payloadWithAckFeature();
+    void dynamicPayloadWithNoAck(bool sel);
+    bool dynamicPayloadWithNoAck( );
+    
+
+    
+    
     void power_up();
     void power_down();
     void rx_mode();
@@ -92,7 +160,6 @@ public:
     void set_RF_Power(RFpower_t RFpower);
     RFpower_t get_RF_Power();
     void enable_pll_lock(bool sel);
-
     void enable_cont_wave(bool sel);
 
     bool get_tx_fifo_full_flag();
@@ -118,6 +185,7 @@ public:
     
     void set_RX_pipe_width(pipe_t pipe, uint8_t width);
     uint8_t get_RX_pipe_width(pipe_t pipe);
+
     
     bool get_fifo_flag_rx_empty();
     bool get_fifo_flag_rx_full();
@@ -131,6 +199,10 @@ public:
     void enable_payload_with_ack(bool sel);
     void enable_dynamic_payload_with_no_ack(bool sel);
 
+    
+    
+    
+    
     uint8_t read_register(uint8_t address);
     void read_register(uint8_t address, uint8_t *dataout, int len);
     void write_register(uint8_t address, uint8_t datain);
