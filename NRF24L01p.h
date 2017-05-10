@@ -52,7 +52,7 @@ public:
         bool PipeEnabled;
         bool autoAckEnabled;
         uint64_t address;
-        aw_t MaxWidth;
+        uint8_t MaxWidth;
         bool dynamicPayloadEnabled;
     }RxPipeConfig_t;
 
