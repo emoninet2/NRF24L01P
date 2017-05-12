@@ -315,7 +315,8 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
 					//printf("ACK ONLY\r\n");
 					clear_data_sent_flag();
                                         error = SUCCESS;
-					payload->GotAck = 0;
+					payload->GotAck = 1;
+                                        payload->length = 0;
 					break;
 				}
 
@@ -391,29 +392,29 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 
 				if( (DataSentFlag)  &&   (DataReadyFlag)   ){
 					//printf("ACK with PAYLOAD\r\n");
-						clear_data_sent_flag();
-                                                clear_data_ready_flag();
-                                                error = SUCCESS;
-						readPayload(payload);
-						payload->GotAck = 1;
-						break;
+                                        clear_data_sent_flag();
+                                        clear_data_ready_flag();
+                                        error = SUCCESS;
+                                        readPayload(payload);
+                                        payload->GotAck = 1;
+                                        break;
 				}
 
 				else if( (DataSentFlag)  &&   !(DataReadyFlag)   ){
 					//printf("ACK ONLY\r\n");
 					clear_data_sent_flag();
                                         error = SUCCESS;
-					payload->GotAck = 0;
-                                        
+					payload->GotAck = 1;
+                                        payload->length = 0;
 					break;
 				}
 
 				else if(MaxRetryFlag){
 					clear_max_retry_flag();
 					if(get_plos_count()>=payload->retransmitCount){
-							set_frequency_offset(RadioConfig.frequencyOffset);
-							error = ERROR;
-							break;
+                                                set_frequency_offset(RadioConfig.frequencyOffset);
+                                                error = ERROR;
+                                                break;
 					}
 				}
 		}
