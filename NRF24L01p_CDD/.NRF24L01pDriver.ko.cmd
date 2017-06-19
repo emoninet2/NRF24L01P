@@ -1,0 +1,1 @@
+cmd_/home/pi/Desktop/NRF24L01p_CDD/NRF24L01pDriver.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/Desktop/NRF24L01p_CDD/NRF24L01pDriver.ko /home/pi/Desktop/NRF24L01p_CDD/NRF24L01pDriver.o /home/pi/Desktop/NRF24L01p_CDD/NRF24L01pDriver.mod.o ;  true

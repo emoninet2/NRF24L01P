@@ -5,39 +5,20 @@
  */
 
 /* 
- * File:   NRF24L01pRegisters.h
- * Author: emon1
+ * File:   NRF24L01pDefines.h
+ * Author: emon
  *
- * Created on December 11, 2016, 8:46 PM
+ * Created on June 15, 2017, 3:52 PM
  */
 
-#ifndef NRF24L01PREGISTERS_H
-#define NRF24L01PREGISTERS_H
+#ifndef NRF24L01PDEFINES_H
+#define NRF24L01PDEFINES_H
 
-#define _nrf24l01p_set_bit(reg,bit) reg|= (1<<bit);
-#define _nrf24l01p_clr_bit(reg,bit) reg&= ~(1<<bit);
-#define _nrf24l01p_tgl_bit(reg,bit) reg^= (1<<bit);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-
-#define _NRF24L01P_TX_FIFO_COUNT   3
-#define _NRF24L01P_RX_FIFO_COUNT   3
-
-#define _NRF24L01P_FIFO_SIZE   32
-
-
-#define _NRF24L01P_SPI_MAX_DATA_RATE     10000000
-
-
-
-#define _NRF24L01P_EN_AA_NONE            0
-#define _NRF24L01P_EN_RXADDR_NONE        0
-#define _NRF24L01P_SETUP_AW_AW_MASK      (0x3<<0)
-
-#define _NRF24L01P_MIN_RF_FREQUENCY    2400
-#define _NRF24L01P_MAX_RF_FREQUENCY    2525
-#define _NRF24L01P_DUMMYBYTE	0x65
-
-
+    
 /** @name NRF24L01+ commands
  *  These are the commands 
  */
@@ -125,7 +106,8 @@
  */
 /**@{*/ 
 #define _NRF24L01P_STATUS_TX_FULL        (1<<0)
-#define _NRF24L01P_STATUS_RX_P_NO        (0x7<<1)
+#define _NRF24L01P_STATUS_RX_P_NO_BM     (0x7<<1)
+#define _NRF24L01P_STATUS_RX_P_NO_BP        1
 #define _NRF24L01P_STATUS_MAX_RT         (1<<4)
 #define _NRF24L01P_STATUS_TX_DS          (1<<5)
 #define _NRF24L01P_STATUS_RX_DR          (1<<6)
@@ -179,12 +161,13 @@
 #define _NRF24L01P_TIMING_Tpd2stby_us        4500   // 4.5mS worst case
 #define _NRF24L01P_TIMING_Tpece2csn_us          4   //   4uS
 /**@}*/ 
+    
 
+    
+    
+#ifdef __cplusplus
+}
+#endif
 
-/** @name NRF24L01+ default values 
- *  These are bits of the default values 
- */
-
-
-#endif /* NRF24L01PREGISTERS_H */
+#endif /* NRF24L01PDEFINES_H */
 

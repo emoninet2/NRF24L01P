@@ -6,23 +6,24 @@
 
 /* 
  * File:   NRF24L01pConfig.h
- * Author: emon1
+ * Author: emon
  *
- * Created on January 29, 2017, 7:11 AM
+ * Created on June 15, 2017, 3:56 PM
  */
 
 #ifndef NRF24L01PCONFIG_H
 #define NRF24L01PCONFIG_H
 
-#include <string.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-#define NRF24L01P_PORT_RPI3
 
-#define _NRF24L01P_INTERRUPT_FEATURE_API 1
-#define _NRF24L01P_USE_SOFTWARE_FIFO_API 1
-#define _NRF24L01P_SOFTWARE_FIFO_SIZE 10
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NRF24L01PCONFIG_H */
 

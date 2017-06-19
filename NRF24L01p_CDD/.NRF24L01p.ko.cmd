@@ -1,0 +1,1 @@
+cmd_/home/pi/Desktop/NRF24L01p_CDD/NRF24L01p.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/Desktop/NRF24L01p_CDD/NRF24L01p.ko /home/pi/Desktop/NRF24L01p_CDD/NRF24L01p.o /home/pi/Desktop/NRF24L01p_CDD/NRF24L01p.mod.o ;  true
