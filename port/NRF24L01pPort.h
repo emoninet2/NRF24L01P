@@ -16,7 +16,11 @@
 
 #include <stdint.h>
 
-
+typedef enum{
+     __NRF24L01p_GPIO_CSN,
+     __NRF24L01p_GPIO_CE,
+     __NRF24L01p_GPIO_IRQ,
+ }__NRF24L01pGPIO_t;
 
 class NRF24L01pPort {
 public:
@@ -43,7 +47,22 @@ public:
     unsigned int port_ClockMs();
     
     
-    
+    void __NRF24L01p_port_initialize(void);
+    void __NRF24L01p_port_deinitialize(void);
+
+    void __NRF24L01p_port_GPIO_initialize(__NRF24L01pGPIO_t pin);
+    void __NRF24L01p_port_GPIO_deinitialize(__NRF24L01pGPIO_t pin);
+    bool __NRF24L01p_port_GPIO_read(__NRF24L01pGPIO_t pin);
+    void __NRF24L01p_port_GPIO_write(__NRF24L01pGPIO_t pin, bool val);
+
+    void __NRF24L01p_port_SPI_initialize(void);
+    void __NRF24L01p_port_SPI_deinitialize(void);
+    void __NRF24L01p_port_SPI_Transceive(uint8_t *data, unsigned int size);
+
+    void __NRF24L01p_port_DelayMs(unsigned int ms);
+    void __NRF24L01p_port_DelayUs(unsigned int us);
+    unsigned int __NRF24L01p_port_ClockMS(void);
+
     
     
     
