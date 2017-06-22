@@ -607,10 +607,10 @@ int main(int argc, char** argv)
                     break;
                 bzero(buffer,1024);
                 while(1){
-                    n = read(newsockfd,buffer,255);
+                    n = read(newsockfd,buffer,1023);
                     if (n <= 0) break;
                     
-                    *buffer = '\0';
+                    buffer[n] = '\0';
                     printf("\tmessage[%d]: %s\r\n",n, buffer);
  
                     int cmd = processRadioCommand(buffer, n);
