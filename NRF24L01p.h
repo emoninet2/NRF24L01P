@@ -33,9 +33,10 @@ public:
     
     typedef struct {
         bool DataReadyInterruptEnabled;
-        bool DataSentInterruptFlagEnabled;
-        bool MaxRetryInterruptFlagEnabled;
+        bool DataSentInterruptEnabled;
+        bool MaxRetryInterruptEnabled;
         crc_t Crc;
+        aw_t addressWidth;
         uint8_t AutoReTransmissionCount;
         uint8_t AutoReTransmitDelayX250us;
         uint8_t frequencyOffset;
@@ -82,7 +83,7 @@ public:
     RadioConfig_t RadioConfig;
     RxPipeConfig_t RxPipeConfig[6];
     PipeAddr_t  TxPipeAddress;
-    bool DataReadyFlag, DataSentFlag, MaxRetryFlag;
+    bool drFlag, dsFlag, mrFlag;
     
     NRF24L01p();
     NRF24L01p(const NRF24L01p& orig);
@@ -100,11 +101,10 @@ public:
     ErrorStatus_t writePayload(Payload_t *payload);
     ErrorStatus_t writeAckPayload(Payload_t *payload);
     ErrorStatus_t readPayload(Payload_t *payload);
-    
-#if (_NRF24L01P_INTERRUPT_FEATURE_API == 1)    
-    
     ErrorStatus_t TransmitPayload(Payload_t *payload);
     ErrorStatus_t ReceivePayload(Payload_t *payload);
+    
+#if (_NRF24L01P_INTERRUPT_FEATURE_API == 1)    
     ErrorStatus_t TransmitPayloadInterruptHandled(Payload_t *payload);
     ErrorStatus_t ReceivePayloadInterruptHandled(Payload_t *payload);
     void InterruptHandler(void);
@@ -131,16 +131,15 @@ public:
     unsigned int fifo_waiting(fifo_t *f);
     unsigned int fifo_freeSpace(fifo_t *f);
     ErrorStatus_t fifo_reset(fifo_t *f);
-
     ErrorStatus_t TransmitPayloadViaFifo(Payload_t *payload);
     ErrorStatus_t ReceivePayloadViaFifo(Payload_t *payload);
-
     void process(void);
     void processInterruptHandled(void);
     
-    void hardwareCheck();
     
 #endif
+    
+    void hardwareCheck();
     
 private:
 

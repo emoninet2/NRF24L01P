@@ -17,8 +17,8 @@
 NRF24L01p::NRF24L01p() {
     
     RadioConfig.DataReadyInterruptEnabled = 1;
-    RadioConfig.DataSentInterruptFlagEnabled = 1;
-    RadioConfig.MaxRetryInterruptFlagEnabled = 1;
+    RadioConfig.DataSentInterruptEnabled = 1;
+    RadioConfig.MaxRetryInterruptEnabled = 1;
     RadioConfig.Crc = NRF24L01p::CONFIG_CRC_16BIT;
     RadioConfig.AutoReTransmissionCount = 15;
     RadioConfig.AutoReTransmitDelayX250us = 15;
@@ -67,8 +67,8 @@ void NRF24L01p::ReInitialize(){
     write_register(_NRF24L01P_REG_CONFIG, &config_rst_val,1);
     
     dataReadyInterruptMask(RadioConfig.DataReadyInterruptEnabled);
-    dataSentInterruptMask(RadioConfig.DataSentInterruptFlagEnabled);
-    maxRetryInterruptMask(RadioConfig.MaxRetryInterruptFlagEnabled);
+    dataSentInterruptMask(RadioConfig.DataSentInterruptEnabled);
+    maxRetryInterruptMask(RadioConfig.MaxRetryInterruptEnabled);
     dynamicPayloadFeature(RadioConfig.FeatureDynamicPayloadEnabled);
     payloadWithAckFeature(RadioConfig.FeaturePayloadWithAckEnabled);
     dynamicPayloadWithNoAck(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
@@ -83,9 +83,10 @@ void NRF24L01p::ReInitialize(){
         dynamicPayloadOnPipe((pipe_t)i,RxPipeConfig[i].dynamicPayloadEnabled);
         rxPipeAddress((pipe_t)i,RxPipeConfig[i].address);
     }
-    
+#if (_NRF24L01P_USE_SOFTWARE_FIFO_API == 1)      
     fifo_init(&TxFifo, TxFifoBuffer, 10);
     fifo_init(&RxFifo, RxFifoBuffer, 10);
+#endif
 }
 void NRF24L01p::Initialize(){
 
@@ -137,8 +138,8 @@ void NRF24L01p::Initialize(){
 
 
     dataReadyInterruptMask(RadioConfig.DataReadyInterruptEnabled);
-    dataSentInterruptMask(RadioConfig.DataSentInterruptFlagEnabled);
-    maxRetryInterruptMask(RadioConfig.MaxRetryInterruptFlagEnabled);
+    dataSentInterruptMask(RadioConfig.DataSentInterruptEnabled);
+    maxRetryInterruptMask(RadioConfig.MaxRetryInterruptEnabled);
     dynamicPayloadFeature(RadioConfig.FeatureDynamicPayloadEnabled);
     payloadWithAckFeature(RadioConfig.FeaturePayloadWithAckEnabled);
     dynamicPayloadWithNoAck(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled);
@@ -154,9 +155,10 @@ void NRF24L01p::Initialize(){
         rxPipeAddress((pipe_t)i,RxPipeConfig[i].address);
     }
     
+#if (_NRF24L01P_USE_SOFTWARE_FIFO_API == 1)  
     fifo_init(&TxFifo, TxFifoBuffer, 10);
     fifo_init(&RxFifo, RxFifoBuffer, 10);
-    
+#endif    
 }
 
 NRF24L01p::RadioState_t NRF24L01p::RadioMode(){
@@ -361,7 +363,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::ReceivePayload(Payload_t *payload){
     return error;
 }
 
-
+#if (_NRF24L01P_INTERRUPT_FEATURE_API == 1)   
 
 NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *payload){
 	ErrorStatus_t error;
@@ -383,14 +385,14 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 		set_RX_pipe_address(PIPE_P0, payload->address);
 
 		writePayload(payload);
-		DataReadyFlag = 0;
-		DataSentFlag = 0;
-		MaxRetryFlag = 0;
+		drFlag = 0;
+		dsFlag = 0;
+		mrFlag = 0;
 		while(1){
 				RadioMode(MODE_TX);
 				RadioMode(MODE_STANDBY);
 
-				if( (DataSentFlag)  &&   (DataReadyFlag)   ){
+				if( (dsFlag)  &&   (drFlag)   ){
 					//printf("ACK with PAYLOAD\r\n");
                                         clear_data_sent_flag();
                                         clear_data_ready_flag();
@@ -400,7 +402,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
                                         break;
 				}
 
-				else if( (DataSentFlag)  &&   !(DataReadyFlag)   ){
+				else if( (dsFlag)  &&   !(drFlag)   ){
 					//printf("ACK ONLY\r\n");
 					clear_data_sent_flag();
                                         error = SUCCESS;
@@ -409,7 +411,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 					break;
 				}
 
-				else if(MaxRetryFlag){
+				else if(mrFlag){
 					clear_max_retry_flag();
 					if(get_plos_count()>=payload->retransmitCount){
                                                 set_frequency_offset(RadioConfig.frequencyOffset);
@@ -425,9 +427,9 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 	else{
 		writePayload(payload);
                 
-		DataReadyFlag = 0;
-		DataSentFlag = 0;
-		MaxRetryFlag = 0;
+		drFlag = 0;
+		dsFlag = 0;
+		mrFlag = 0;
 		while(1){
 			RadioMode(MODE_TX);
 			RadioMode(MODE_STANDBY);
@@ -459,17 +461,25 @@ NRF24L01p::ErrorStatus_t NRF24L01p::ReceivePayloadInterruptHandled(Payload_t *pa
 void NRF24L01p::InterruptHandler(void){
 	uint8_t status = get_status();
 
-	if(status & _NRF24L01P_STATUS_RX_DR) DataReadyFlag = 1;
-	else DataReadyFlag = 0;
+	if(status & _NRF24L01P_STATUS_RX_DR) drFlag = 1;
+	else drFlag = 0;
 
-	if(status & _NRF24L01P_STATUS_TX_DS) DataSentFlag = 1;
-	else DataSentFlag = 0;
+	if(status & _NRF24L01P_STATUS_TX_DS) dsFlag = 1;
+	else dsFlag = 0;
 
-	if(status & _NRF24L01P_STATUS_MAX_RT) MaxRetryFlag = 1;
-	else MaxRetryFlag = 0;
+	if(status & _NRF24L01P_STATUS_MAX_RT) mrFlag = 1;
+	else mrFlag = 0;
 
 	clear_data_ready_flag();
 }
+
+#endif
+
+
+
+
+
+#if (_NRF24L01P_USE_SOFTWARE_FIFO_API == 1)   
 
 NRF24L01p::ErrorStatus_t NRF24L01p::fifo_init(fifo_t *f, Payload_t  *pld, unsigned int size){
     f->head = 0;
@@ -583,11 +593,11 @@ void NRF24L01p::process(void){
 
 void NRF24L01p::processInterruptHandled(void){
     
-    if( DataReadyFlag){
+    if( drFlag){
         Payload_t RxPayload;
         ReceivePayloadInterruptHandled(&RxPayload);
         fifo_write(&RxFifo, &RxPayload );
-    	DataReadyFlag = 0;
+    	drFlag = 0;
         clear_data_ready_flag();
         while(readable() && fifo_freeSpace(&RxFifo) > 0){
             ReceivePayloadInterruptHandled(&RxPayload);
@@ -607,6 +617,9 @@ void NRF24L01p::processInterruptHandled(void){
 
     hardwareCheck();
 }
+
+
+#endif
 
 void NRF24L01p::hardwareCheck(){
     if(get_status() == 0) {

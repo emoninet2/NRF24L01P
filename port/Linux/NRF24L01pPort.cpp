@@ -29,8 +29,6 @@
 #include <linux/spi/spidev.h>
 #include <unistd.h>
 
-#include <wiringPi.h>
-#include <wiringPiSPI.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -46,7 +44,7 @@
 extern "C" {
 #endif
 
-void GPIO_export (int pin){
+static void GPIO_export (int pin){
     int fd;
     char buf[255];
     fd = open("/sys/class/gpio/export", O_WRONLY);
@@ -54,7 +52,7 @@ void GPIO_export (int pin){
     write(fd, buf, strlen(buf));
     close(fd);
 }
-void GPIO_unexport (int pin){
+static void GPIO_unexport (int pin){
     int fd;
     char buf[255];
     fd = open("/sys/class/gpio/unexport", O_WRONLY);
@@ -63,7 +61,7 @@ void GPIO_unexport (int pin){
     close(fd);
 }
 
-void GPIO_direction(int pin, int dir){
+static void GPIO_direction(int pin, int dir){
     int fd;
     char buf[255];
     sprintf(buf, "/sys/class/gpio/gpio%d/direction", pin);
@@ -80,7 +78,7 @@ void GPIO_direction(int pin, int dir){
     close(fd);
 }
 
-void GPIO_write(int pin, int val){
+static void GPIO_write(int pin, int val){
     int fd;
     char buf[255];
     sprintf(buf, "/sys/class/gpio/gpio%d/value", pin);
@@ -90,7 +88,7 @@ void GPIO_write(int pin, int val){
     
     close(fd);
 }
-int GPIO_read(int pin){
+static int GPIO_read(int pin){
     int fd;
     char buf[255];
     sprintf(buf, "/sys/class/gpio/gpio%d/value", pin);
@@ -107,10 +105,10 @@ static const uint16_t    spiDelay = 0 ;
 static uint32_t    spiSpeeds [2] ;
 static int         spiFds [2] ;
 
-int SPI_GetFd     (int channel) {
+static int SPI_GetFd     (int channel) {
     return spiFds [channel & 1] ;
 }
-int SPI_DataRW    (int channel, unsigned char *data, int len) {
+static int SPI_DataRW    (int channel, unsigned char *data, int len) {
  struct spi_ioc_transfer spi ;
 
   channel &= 1 ;
@@ -131,7 +129,7 @@ int SPI_DataRW    (int channel, unsigned char *data, int len) {
 }
 
 
-int SPI_SetupMode (int channel, int speed, int mode) {
+static int SPI_SetupMode (int channel, int speed, int mode) {
      int fd ;
 
   mode    &= 3 ;        // Mode is 0, 1, 2 or 3
@@ -160,13 +158,16 @@ int SPI_SetupMode (int channel, int speed, int mode) {
 
   return fd ;
 }
-int SPI_Setup     (int channel, int speed) {
+static int SPI_Setup     (int channel, int speed) {
     return SPI_SetupMode (channel, speed, 0) ;
 }
 
 #ifdef __cplusplus
 }
 #endif
+
+
+
 
 
 
