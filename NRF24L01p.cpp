@@ -244,15 +244,21 @@ bool NRF24L01p::readableOnPipe(pipe_t pipe){
 
 
 NRF24L01p::ErrorStatus_t NRF24L01p::writePayload(Payload_t *payload){
+    ErrorStatus_t error;
     set_TX_pipe_address(payload->address);
     if(payload->UseAck == 1){
-        printf("payload length gonna be %d\r\n", payload->length);
         write_tx_payload(payload->data,payload->length);
+        error = SUCCESS;
     }else{
         if(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled == 1){
             write_tx_payload_noack(payload->data,payload->length); 
+            error = SUCCESS;
+        }
+        else{
+            error = ERROR; //feature dynamic payload with no ack is not enabled
         }
     }
+    return error;
 }
 
 NRF24L01p::ErrorStatus_t NRF24L01p::writeAckPayload(Payload_t *payload){
@@ -336,8 +342,10 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
 		enable_rx_on_pipe(PIPE_P0, RxPipeConfig[PIPE_P0].PipeEnabled);
 	}
 	else{
-		writePayload(payload);
-		
+		error = writePayload(payload);
+		if(error == ERROR) return error;
+                
+                
 		while(1){
 			RadioMode(MODE_TX);
 			RadioMode(MODE_STANDBY);
@@ -425,7 +433,8 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 		enable_rx_on_pipe(PIPE_P0, RxPipeConfig[PIPE_P0].PipeEnabled);
 	}
 	else{
-		writePayload(payload);
+		error = writePayload(payload);
+		if(error == ERROR) return error;
                 
 		drFlag = 0;
 		dsFlag = 0;

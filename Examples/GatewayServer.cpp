@@ -524,18 +524,20 @@ int processRadioCommand(char *buffer, int size){
         
     }
     else if(!strcmp(tokenV[0], "tx")){
+        printf("thank you \r\n");
         uint64_t addr;
         NRF24L01p::Payload_t payload;
         payload.address = strtoll(tokenV[1], NULL, 16);
-        payload.retransmitCount = atoi (tokenV[2]);
-        payload.UseAck = atoi(tokenV[3]);
+        payload.UseAck = atoi(tokenV[2]);
+        payload.retransmitCount = atoi (tokenV[3]);
         payload.length = atoi(tokenV[4]);
         memcpy(payload.data, tokenV[5], payload.length);
         
         int retval = Radio.TransmitPayload(&payload);
+        Radio.flush_tx();
+
         if(payload.UseAck == 0) sprintf(buffer,"%d\r\n", retval);
         else sprintf(buffer,"%d %d %s\r\n", retval , payload.length, payload.data);
-        
     }
     else if(!strcmp(tokenV[0], "flushTx")){
         Radio.flush_tx();
@@ -569,6 +571,7 @@ int main(int argc, char** argv)
 
     
     Debug(0, "starting NRF24L01p server\r\n");
+    printf("author : Emon\r\n");
     //debug(5, "thats the way i like it\r\n");
     //return 0;
     
