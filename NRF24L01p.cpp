@@ -94,33 +94,7 @@ void NRF24L01p::ReInitialize(){
 void NRF24L01p::Initialize(){
 
     port_Initialize();
-/*  
-    RadioConfig.DataReadyInterruptEnabled = _RadioConfig->DataReadyInterruptEnabled;
-    RadioConfig.DataSentInterruptFlagEnabled = _RadioConfig->DataSentInterruptFlagEnabled;
-    RadioConfig.MaxRetryInterruptFlagEnabled = _RadioConfig->MaxRetryInterruptFlagEnabled;
-    RadioConfig.Crc = _RadioConfig->Crc;
-    RadioConfig.AutoReTransmissionCount = _RadioConfig->AutoReTransmissionCount;
-    RadioConfig.AutoReTransmitDelayX250us = _RadioConfig->AutoReTransmitDelayX250us;
-    RadioConfig.frequencyOffset = _RadioConfig->frequencyOffset;
-    RadioConfig.datarate = _RadioConfig->datarate;
-    RadioConfig.RfPower = _RadioConfig->RfPower;
-    RadioConfig.PllLock = _RadioConfig->PllLock;
-    RadioConfig.ContWaveEnabled = _RadioConfig->ContWaveEnabled;
-    RadioConfig.FeatureDynamicPayloadEnabled = _RadioConfig->FeatureDynamicPayloadEnabled;
-    RadioConfig.FeaturePayloadWithAckEnabled = _RadioConfig->FeaturePayloadWithAckEnabled;
-    RadioConfig.FeatureDynamicPayloadWithNoAckEnabled = _RadioConfig->FeatureDynamicPayloadWithNoAckEnabled;
- 
-    int i;
-    for(i=0;i<6;i++){fdf
-        RxPipeConfig[i].address = _RxPipeConfig[i].address;
-        RxPipeConfig[i].PipeEnabled = _RxPipeConfig[i].PipeEnabled;
-        RxPipeConfig[i].autoAckEnabled = _RxPipeConfig[i].autoAckEnabled;
-        RxPipeConfig[i].MaxWidth = _RxPipeConfig[i].MaxWidth;
-        RxPipeConfig[i].dynamicPayloadEnabled = _RxPipeConfig[i].dynamicPayloadEnabled;
-        
-    }
-*/
-    
+
     port_Pin_CE(0);
     port_Pin_CSN(0);
 
@@ -158,11 +132,6 @@ void NRF24L01p::Initialize(){
     dynamicPayloadFeature(RadioConfig.FeatureDynamicPayloadEnabled);
     payloadWithAckFeature(RadioConfig.FeaturePayloadWithAckEnabled );
     dynamicPayloadWithNoAck(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled );
-    
-    
-    dynamicPayloadFeature(1);
-    payloadWithAckFeature(1);
-    dynamicPayloadWithNoAck(1 );
     
     
     int i;
