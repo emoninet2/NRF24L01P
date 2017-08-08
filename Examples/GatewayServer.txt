@@ -226,7 +226,7 @@ int processRadioCommand(char *buffer, int size){
                 }break;
 
             }
-            Radio.CRC(Radio.RadioConfig.Crc);
+            Radio.CrcBytes(Radio.RadioConfig.Crc);
             *buffer = '\0';
  
         }
@@ -340,7 +340,7 @@ int processRadioCommand(char *buffer, int size){
             }
         }
         else if(!strcmp(tokenV[1], "crc")){
-            NRF24L01p::crc_t crc = Radio.CRC();
+            NRF24L01p::crc_t crc = Radio.CrcBytes();
             switch(crc){
                 case NRF24L01p::CONFIG_CRC_NONE : {
                     sprintf(buffer,"%d none\r\n", 0);
