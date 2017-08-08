@@ -41,7 +41,7 @@ public:
         uint8_t AutoReTransmitDelayX250us;
         uint8_t frequencyOffset;
         datarate_t datarate;
-        RFpower_t RfPower;
+        RFpower_t RfPowerDb;
         bool PllLock;
         bool ContWaveEnabled;
         bool FeatureDynamicPayloadEnabled;

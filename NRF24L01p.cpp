@@ -16,6 +16,9 @@
 
 NRF24L01p::NRF24L01p() {
     
+    RadioState = MODE_UNKNOWN;
+    
+    
     RadioConfig.DataReadyInterruptEnabled = 1;
     RadioConfig.DataSentInterruptEnabled = 1;
     RadioConfig.MaxRetryInterruptEnabled = 1;
@@ -24,7 +27,7 @@ NRF24L01p::NRF24L01p() {
     RadioConfig.AutoReTransmitDelayX250us = 15;
     RadioConfig.frequencyOffset = 2;
     RadioConfig.datarate = NRF24L01p::RF_SETUP_RF_DR_2MBPS;
-    RadioConfig.RfPower = NRF24L01p::RF_SETUP_RF_PWR_0DBM;
+    RadioConfig.RfPowerDb = NRF24L01p::RF_SETUP_RF_PWR_0DBM;
     RadioConfig.PllLock = 0;
     RadioConfig.ContWaveEnabled = 0;
     RadioConfig.FeatureDynamicPayloadEnabled = 1;
@@ -146,6 +149,21 @@ void NRF24L01p::Initialize(){
     maxAutoRetransmissionCount(RadioConfig.AutoReTransmissionCount);
     autoRetransmissionDelay(RadioConfig.AutoReTransmitDelayX250us);        
     DataRate(RadioConfig.datarate);
+    freqOffset(RadioConfig.frequencyOffset);
+    
+
+    RfPower(RadioConfig.RfPowerDb);
+    pllLock(RadioConfig.PllLock);
+    contWave(RadioConfig.ContWaveEnabled);
+    dynamicPayloadFeature(RadioConfig.FeatureDynamicPayloadEnabled);
+    payloadWithAckFeature(RadioConfig.FeaturePayloadWithAckEnabled );
+    dynamicPayloadWithNoAck(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled );
+    
+    
+    dynamicPayloadFeature(1);
+    payloadWithAckFeature(1);
+    dynamicPayloadWithNoAck(1 );
+    
     
     int i;
     for(i=0;i<6;i++){
@@ -167,8 +185,7 @@ NRF24L01p::RadioState_t NRF24L01p::RadioMode(){
     bool _pwr = (_config>>1)&0x01;
     bool _txrx = (_config>>0)&0x01;
 
-    //printf("CE:%d CONFIG:%#x PWR:%d RXTX:%d\r\n", _ce, _config, _pwr, _txrx);
-    
+
     if(_pwr == 0){
         return MODE_POWER_DOWN;
     }
@@ -250,6 +267,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::writePayload(Payload_t *payload){
         write_tx_payload(payload->data,payload->length);
         error = SUCCESS;
     }else{
+        
         if(RadioConfig.FeatureDynamicPayloadWithNoAckEnabled == 1){
             write_tx_payload_noack(payload->data,payload->length); 
             error = SUCCESS;
@@ -344,15 +362,16 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
 	else{
 		error = writePayload(payload);
 		if(error == ERROR) return error;
-                
-                
+                clear_data_sent_flag();
+                clear_max_retry_flag();
 		while(1){
 			RadioMode(MODE_TX);
 			RadioMode(MODE_STANDBY);
+           
 			if(get_data_sent_flag()){
                             clear_data_sent_flag();
                             error = SUCCESS;
-			break;
+                            break;
 			}
 		}
 	}

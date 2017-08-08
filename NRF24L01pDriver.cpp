@@ -365,25 +365,25 @@ bool NRF24L01pDriver::dynamicPayloadOnPipe(pipe_t pipe){
     return (read_register(_NRF24L01P_REG_DYNPD) & (1<<pipe));
 }
 void NRF24L01pDriver::dynamicPayloadFeature(bool sel){
-    if(sel) write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) | (_NRF24L01_FEATURE_EN_DPL));
-    else write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) & ~_NRF24L01_FEATURE_EN_DPL);
+    if(sel) write_register(_NRF24L01P_REG_FEATURE,read_register(_NRF24L01P_REG_FEATURE) | (_NRF24L01_FEATURE_EN_DPL));
+    else write_register(_NRF24L01P_REG_FEATURE,read_register(_NRF24L01P_REG_FEATURE) & ~_NRF24L01_FEATURE_EN_DPL);
 }
 bool NRF24L01pDriver::dynamicPayloadFeature( ){
-    return (read_register(_NRF24L01P_REG_DYNPD) & _NRF24L01_FEATURE_EN_DPL);
+    return (read_register(_NRF24L01P_REG_FEATURE) & _NRF24L01_FEATURE_EN_DPL);
 }
 void NRF24L01pDriver::payloadWithAckFeature(bool sel){
-        if(sel) write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) | (_NRF24L01_FEATURE_EN_ACK_PAY));
-    else write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) & ~_NRF24L01_FEATURE_EN_ACK_PAY);
+        if(sel) write_register(_NRF24L01P_REG_FEATURE,read_register(_NRF24L01P_REG_FEATURE) | (_NRF24L01_FEATURE_EN_ACK_PAY));
+    else write_register(_NRF24L01P_REG_FEATURE,read_register(_NRF24L01P_REG_FEATURE) & ~_NRF24L01_FEATURE_EN_ACK_PAY);
 }
 bool NRF24L01pDriver::payloadWithAckFeature(){
-    return (read_register(_NRF24L01P_REG_DYNPD) & _NRF24L01_FEATURE_EN_ACK_PAY);
+    return (read_register(_NRF24L01P_REG_FEATURE) & _NRF24L01_FEATURE_EN_ACK_PAY);
 }
 void NRF24L01pDriver::dynamicPayloadWithNoAck(bool sel){
-        if(sel) write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) | (_NRF24L01_FEATURE_EN_DYN_ACK));
-    else write_register(_NRF24L01P_REG_DYNPD,read_register(_NRF24L01P_REG_DYNPD) & ~_NRF24L01_FEATURE_EN_DYN_ACK);
+        if(sel) write_register(_NRF24L01P_REG_FEATURE,read_register(_NRF24L01P_REG_FEATURE) | (_NRF24L01_FEATURE_EN_DYN_ACK));
+    else write_register(_NRF24L01P_REG_FEATURE,read_register(_NRF24L01P_REG_FEATURE) & ~_NRF24L01_FEATURE_EN_DYN_ACK);
 }
 bool NRF24L01pDriver::dynamicPayloadWithNoAck( ){
-    return (read_register(_NRF24L01P_REG_DYNPD) & _NRF24L01_FEATURE_EN_DYN_ACK);
+    return (read_register(_NRF24L01P_REG_FEATURE) & _NRF24L01_FEATURE_EN_DYN_ACK);
 }
 
 
