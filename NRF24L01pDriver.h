@@ -68,8 +68,8 @@ public:
     bool powerUp();
     void RxTxMode(bool sel);
     bool RxTxMode();
-    void CRC(crc_t opt);
-    crc_t CRC();
+    void CrcBytes(crc_t opt);
+    crc_t CrcBytes();
     void dataReadyInterruptMask(bool sel);
     bool dataReadyInterruptMask();
     void dataSentInterruptMask(bool sel);

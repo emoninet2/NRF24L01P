@@ -150,10 +150,10 @@ void NRF24L01pDriver::RxTxMode(bool sel){
 bool NRF24L01pDriver::RxTxMode(){
     return read_register(_NRF24L01P_REG_CONFIG) & _NRF24L01P_CONFIG_PRIM_RX;
 }
-void NRF24L01pDriver::CRC(crc_t opt){
+void NRF24L01pDriver::CrcBytes(crc_t opt){
     write_register(_NRF24L01P_REG_CONFIG, (read_register(_NRF24L01P_REG_CONFIG) & ~ _NRF24L01P_CONFIG_CRC_MASK) | opt);
 }
-NRF24L01pDriver::crc_t NRF24L01pDriver::CRC(){
+NRF24L01pDriver::crc_t NRF24L01pDriver::CrcBytes(){
     return (crc_t) (read_register(_NRF24L01P_REG_CONFIG) &  _NRF24L01P_CONFIG_CRC_MASK);
 }
 void NRF24L01pDriver::dataReadyInterruptMask(bool sel){
