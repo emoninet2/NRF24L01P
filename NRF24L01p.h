@@ -137,6 +137,12 @@ public:
     void processInterruptHandled(void);
     
     
+    
+    ////////////////testing carrier API//////////////
+
+    void GenerateCarrierQualityReport(unsigned int readtimes);
+
+    
 #endif
     
     void hardwareCheck();

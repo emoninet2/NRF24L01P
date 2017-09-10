@@ -26,7 +26,7 @@
 #include <stdio.h>
 
 #define nrf24l01p_csn_pin 11
-#define nrf24l01p_ce_pin 26
+#define nrf24l01p_ce_pin 21
 
 #define nrf24l01p_SPI 0
 

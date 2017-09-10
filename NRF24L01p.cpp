@@ -627,8 +627,31 @@ void NRF24L01p::hardwareCheck(){
         }
         printf("Radio Reconnected\r\n");
     }
-    
-    
+
     //ReInitialize();
     //ResetConfigValues(&RadioConfig, RxPipeConfig);
+}
+
+
+
+void NRF24L01p::GenerateCarrierQualityReport(unsigned int readtimes){
+    int j=0;
+    for(j=0;j<125;j++){
+        //int engageTimes = CarrierQualityTest(i,readtimes);
+        
+        freqOffset(j);
+        int TotalRpdCount = 0;
+        int i = 0;
+            for(i=0;i<readtimes;i++){
+            if(rpd() == 1){
+                TotalRpdCount++;
+                //printf(".");
+            }
+        }
+        float quality = float((  (float)TotalRpdCount/(float)readtimes)*100.0);
+        printf("Freq : %d ;RPD high : %d/%d\t:\t[%6.3f] \r\n", 2400+j, TotalRpdCount,readtimes , 100.0 - quality );
+        
+    }
+    printf("setting back to original frequency: %d\r\n", RadioConfig.frequencyOffset + 2400);
+    freqOffset(RadioConfig.frequencyOffset);
 }
