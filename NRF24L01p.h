@@ -139,7 +139,7 @@ public:
     
     
     ////////////////testing carrier API//////////////
-
+    float TestCarrierQuality(unsigned int frequencyOffset, unsigned int readtimes);
     void GenerateCarrierQualityReport(unsigned int readtimes);
 
     

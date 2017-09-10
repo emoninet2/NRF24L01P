@@ -633,7 +633,24 @@ void NRF24L01p::hardwareCheck(){
 }
 
 
-
+float NRF24L01p::TestCarrierQuality(unsigned int frequencyOffset, unsigned int readtimes){
+    freqOffset(frequencyOffset);
+    int TotalRpdCount = 0;
+    int i = 0;
+        for(i=0;i<readtimes;i++){
+        if(rpd() == 1){
+            TotalRpdCount++;
+            //printf(".");
+        }
+    }
+    float careerFreePercent = float((  (float)TotalRpdCount/(float)readtimes)*100.0);
+    //printf("Freq : %d ;RPD high : %d/%d\t:\t[%6.3f] \r\n", 2400+frequencyOffset, TotalRpdCount,readtimes , 100.0 - careerFreePercent );
+    
+    //printf("setting back to original frequency: %d\r\n", RadioConfig.frequencyOffset + 2400);
+    freqOffset(RadioConfig.frequencyOffset);
+    
+    return careerFreePercent;
+}
 void NRF24L01p::GenerateCarrierQualityReport(unsigned int readtimes){
     int j=0;
     for(j=0;j<125;j++){
