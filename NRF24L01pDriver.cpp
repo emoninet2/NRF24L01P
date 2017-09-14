@@ -282,7 +282,7 @@ void NRF24L01pDriver::clearPlosCount(){
     freqOffset(freqOffset());
 }
 bool NRF24L01pDriver::rpd(){
-    return read_register(_NRF24L01P_REG_RPD);
+    return read_register(_NRF24L01P_REG_RPD) &0x01;
 }
 void NRF24L01pDriver::rxPipeAddress(pipe_t pipe,PipeAddr_t address){
     int max_pipe_addr_width = 0;

@@ -46,7 +46,7 @@ void NRF24L01pPort::port_Initialize(){
     wiringPiSetup () ;
     pinMode(nrf24l01p_csn_pin ,OUTPUT);//CSN pin as OUTPUT
     pinMode(nrf24l01p_ce_pin ,OUTPUT);//CE pin as OUTPUT
-    wiringPiSPISetup(nrf24l01p_SPI,500000);
+    wiringPiSPISetup(nrf24l01p_SPI,8000000);
 }
 void NRF24L01pPort::port_DeInitialize(){
     
@@ -62,6 +62,16 @@ void NRF24L01pPort::port_Pin_CE(bool val){
 }
 void NRF24L01pPort::port_Pin_CSN(bool val){
     digitalWrite(nrf24l01p_csn_pin,val);
+}
+int NRF24L01pPort::port_SPI_Transcieve(uint8_t *dataOut, uint8_t *dataIn, unsigned int size){
+    int error = 0;
+    int i;
+    for(i=0;i<size;i++){
+        uint8_t temp = dataIn[i];
+        wiringPiSPIDataRW(nrf24l01p_SPI, (unsigned char*)&temp,1);
+        dataOut[i] = temp;
+    }
+    
 }
 int NRF24L01pPort::port_SPI_Transcieve(uint8_t *dataInOut, unsigned int size){
     return wiringPiSPIDataRW(nrf24l01p_SPI, (unsigned char*)dataInOut,size);

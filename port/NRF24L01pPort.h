@@ -41,6 +41,7 @@ public:
     void port_Pin_CSN(bool val);
     
     void port_SPI_initialize();
+    int port_SPI_Transcieve(uint8_t *dataOut, uint8_t *dataIn, unsigned int size);
     int port_SPI_Transcieve(uint8_t *dataInOut, unsigned int size);
     void port_DelayMs(unsigned int ms);
     void port_DelayUs(unsigned int us);

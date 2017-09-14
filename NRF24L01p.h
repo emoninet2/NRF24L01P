@@ -62,15 +62,19 @@ public:
         RxPayload,
     }PayloadType_t;
 
+
     typedef struct{
-    	PayloadType_t type;
-        PipeAddr_t address;//if payload type is TX
-        pipe_t pipe; //if payload type is RX
+        uint8_t Data[_NRF24L01P_FIFO_SIZE ];
+        
         bool UseAck;
+        PipeAddr_t TxAddress;//if payload type is TX
+        pipe_t TxAckPipe;
+        unsigned int TxDataLen;
+        
+        
         bool GotAck;
-        uint8_t data[_NRF24L01P_FIFO_SIZE ];
-        unsigned int length;
-        uint8_t retransmitCount;
+        pipe_t RxPipe; //if payload type is RX
+        unsigned int RxDataLen;
     }Payload_t;
     
     typedef enum{
@@ -97,6 +101,19 @@ public:
     bool readable();
     bool writable();
     bool readableOnPipe(pipe_t pipe);
+    
+    
+    
+    
+    ErrorStatus_t writePayloadv2(Payload_t *payload);
+    ErrorStatus_t writeAckPayloadv2(Payload_t *payload);
+    ErrorStatus_t readPayloadv2(Payload_t *payload);
+    ErrorStatus_t TransmitPayloadv2(Payload_t *payload);
+    ErrorStatus_t ReceivePayloadv2(Payload_t *payload);
+    
+    
+    
+    
     
     ErrorStatus_t writePayload(Payload_t *payload);
     ErrorStatus_t writeAckPayload(Payload_t *payload);
@@ -137,6 +154,9 @@ public:
     void processInterruptHandled(void);
     
     
+    
+    ////////////////API under development//////////////
+    ErrorStatus_t CarrierDetectAndTransmitPayload(Payload_t *payload);
     
     ////////////////testing carrier API//////////////
     float TestCarrierQuality(unsigned int frequencyOffset, unsigned int readtimes);
