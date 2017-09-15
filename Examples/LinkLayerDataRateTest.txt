@@ -22,8 +22,8 @@ NRF24L01pNetwork Radio;
 
 
 //Change the values to set the unit as a TX unit or RX unit
-#define TX_UNIT 1
-#define RX_UNIT 0
+#define TX_UNIT 0
+#define RX_UNIT 1
 
 
 
@@ -113,7 +113,7 @@ int TX_MODULE(void){
     unsigned int timestamp = Radio.port_ClockMs();
     unsigned int total_bytes = 0;;
 
-    uint8_t dataToSend[33] = "PING PONG DING DONG DING KING TO";
+    //uint8_t dataToSend[33] = "PING PONG DING DONG DING KING TO";
 
     
 
@@ -125,22 +125,16 @@ int TX_MODULE(void){
         //payload.length = strlen(myMesg);
         //payload.retransmitCount = 15;
         
-        //sprintf((char*)payload.TxData, "PING PONG DING DONG DING-> %d", i++);
-        //payload.TxDataLen = strlen((char*)payload.TxData);
+        sprintf((char*)payload.Data, "PING PONG DING DONG DING-> %d", i++);
+        payload.TxDataLen = strlen((char*)payload.Data);
         
         payload.TxDataLen = 32;
 
-        int j;
-        for(j=0;j<32;j++){
-            payload.TxData[j] = dataToSend[j];
-        }
        
         
         int paylen = payload.TxDataLen;
-        printf("will send 1: %s\r\n", payload.TxData);
+        printf("will send 1: %s\r\n", payload.Data);
         int err = Radio.TransmitPayload(&payload);
-        printf("will send 2: [%d] %s\r\n",payload.TxDataLen, payload.TxData);
-        //printf("error : %d\r\n", err);
         if(err < 0) {
             errorCnt++;
         }else{
@@ -223,14 +217,14 @@ int RX_MODULE(void) {
             
             Radio.clear_data_ready_flag();
             Radio.readPayload(&payload);
-            //payload.data[payload.length] = '\0';
-            //printf("DATA[%d] : ", payload.length);
-            int i;
+            payload.Data[payload.TxDataLen] = '\0';
+            printf("DATA[%d] : ", payload.TxDataLen);
+            int k;
             //putc('c', stdout);
-            //for(i=0;i<payload.length;i++){
-            //    putc(payload.data[i], stdout);   
-            //}
-            //printf("\r\n");
+            for(k=0;k<payload.TxDataLen;k++){
+                putc(payload.Data[k], stdout);   
+            }
+            printf("\r\n");
             //printf("DATA P%d %d: %s\r\n", payload.pipe, payload.length, payload.data);
             Radio.flush_rx();
             
