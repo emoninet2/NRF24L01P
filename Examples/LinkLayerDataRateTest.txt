@@ -21,6 +21,7 @@ using namespace std;
 NRF24L01pNetwork Radio;
 
 
+
 //Change the values to set the unit as a TX unit or RX unit
 #define TX_UNIT 0
 #define RX_UNIT 1
@@ -102,9 +103,9 @@ int TX_MODULE(void){
     NRF24L01p::Payload_t payload;
     
     payload.UseAck = 1;
-    payload.TxAddress = 0x9A4524CE01;
-    payload.TxDataLen = strlen(myMesg);
-    //payload.SoftRtransmitCount = 15;
+    payload.address = 0x9A4524CE01;
+    payload.length = strlen(myMesg);
+    payload.retransmitCount = 15;
     
 
     int i = 0;
@@ -113,36 +114,27 @@ int TX_MODULE(void){
     unsigned int timestamp = Radio.port_ClockMs();
     unsigned int total_bytes = 0;;
 
-    //uint8_t dataToSend[33] = "PING PONG DING DONG DING KING TO";
-
     
-
     while(1){
         
         
         payload.UseAck = 1;
-        payload.TxAddress = 0x9A4524CE01;
+        payload.address = 0x9A4524CE01;
         //payload.length = strlen(myMesg);
         //payload.retransmitCount = 15;
         
-        sprintf((char*)payload.Data, "PING PONG DING DONG DING-> %d", i++);
-        payload.TxDataLen = strlen((char*)payload.Data);
+        sprintf((char*)payload.data, "PING PONG DING DONG DING-> %d", i++);
         
-        payload.TxDataLen = 32;
-
-       
-        
-        int paylen = payload.TxDataLen;
-        printf("will send 1: %s\r\n", payload.Data);
+        payload.length = strlen((char*)payload.data);
+        int paylen = payload.length;
+        //printf("will send : %s\r\n", payload.data);
         int err = Radio.TransmitPayload(&payload);
+        //printf("error : %d\r\n", err);
         if(err < 0) {
             errorCnt++;
         }else{
             total_bytes += paylen;
         }
-        
-        i++;
-        //Radio.port_DelayMs(1000);
         
         if(i%1000 == 0){
             //printf("\r\n");
@@ -160,6 +152,11 @@ int TX_MODULE(void){
             
             return 0;
         }
+        
+        
+        
+        
+        
         
         Radio.flush_rx();
         Radio.flush_tx();
@@ -191,38 +188,29 @@ int RX_MODULE(void) {
     NRF24L01p::Payload_t payload;
     
     payload.UseAck = 1;
-    payload.TxAddress = 0x9A4524CE01;
-    //payload.SoftRtransmitCount = 15;
-    payload.RxPipe = NRF24L01p::PIPE_P1;
+    payload.address = 0x9A4524CE01;
+    payload.retransmitCount = 15;
+    payload.pipe = NRF24L01p::PIPE_P1;
     
     int i=0;
-    //sprintf((char*)payload.data, "PONG -> %d", i++);
-    //payload.length = strlen((char*)payload.data);
-    //Radio.writeAckPayload(&payload);
-    
-    
-    int PackCnt = 0;
-    
+    sprintf((char*)payload.data, "PONG -> %d", i++);
+    payload.length = strlen((char*)payload.data);
+    Radio.writeAckPayload(&payload);
     while(1){
-        
         //Radio.port_DelayMs(1000);
 
         if(Radio.readable()){
-            PackCnt++;
-            
-            //printf("%d\r\n", PackCnt);
-            
-            
+
             NRF24L01p::Payload_t payload;
             
             Radio.clear_data_ready_flag();
             Radio.readPayload(&payload);
-            payload.Data[payload.TxDataLen] = '\0';
-            printf("DATA[%d] : ", payload.TxDataLen);
-            int k;
+            //payload.data[payload.length] = '\0';
+            printf("DATA[%d] : ", payload.length);
+            int i;
             //putc('c', stdout);
-            for(k=0;k<payload.TxDataLen;k++){
-                putc(payload.Data[k], stdout);   
+            for(i=0;i<payload.length;i++){
+                putc(payload.data[i], stdout);   
             }
             printf("\r\n");
             //printf("DATA P%d %d: %s\r\n", payload.pipe, payload.length, payload.data);
@@ -234,10 +222,6 @@ int RX_MODULE(void) {
             //Radio.writeAckPayload(&payload);
       
         }
-        
-        //Radio.port_DelayUs(3000);
-        
-        
         //printf("status : %x\r\n", Radio.get_status());
         //printf("config : %x\r\n", Radio.read_register(0));
         //printf("%c[2K", 27);

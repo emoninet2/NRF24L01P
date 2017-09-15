@@ -69,17 +69,13 @@ public:
      * This structure is common for both payload to send and receive
      */
     typedef struct{
-
-        PipeAddr_t address;//if payload type is TX
+        
+        /// to be deprecated
         pipe_t pipe; //if payload type is RX
-        //bool UseAck;
-        //bool GotAck;
-        uint8_t data[_NRF24L01P_FIFO_SIZE ];
         unsigned int length;
-        uint8_t retransmitCount;
-        
-        
-        
+
+ 
+        ///to be used
         uint8_t Data[_NRF24L01P_FIFO_SIZE ]; //*< this contains the 32 bytes buffer data to send and receive into */
         bool UseAck;//*< used in TX mode to send the payload with ack if set to high and without ack if set to low*/
         PipeAddr_t TxAddress;//*< this is the 5-byte hardware address of the radio to send data to*/
