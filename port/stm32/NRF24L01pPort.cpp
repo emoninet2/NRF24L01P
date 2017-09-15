@@ -118,7 +118,12 @@ void NRF24L01pPort::port_Pin_CE(bool val){
 void NRF24L01pPort::port_Pin_CSN(bool val){
 	HAL_GPIO_WritePin(NRF24L01P_CSN_PORT, NRF24L01P_CSN_PIN, (GPIO_PinState)val);
 }
-
+bool NRF24L01pPort::port_Pin_CE(){
+	return HAL_GPIO_ReadPin(NRF24L01P_CE_PORT, NRF24L01P_CE_PIN);
+}
+bool NRF24L01pPort::port_Pin_CSN(){
+	return HAL_GPIO_ReadPin(NRF24L01P_CSN_PORT, NRF24L01P_CSN_PIN);
+}
 void NRF24L01pPort::port_SPI_initialize(){
 	// TODO Auto-generated destructor stub
 	/*##-1- Configure the SPI peripheral #######################################*/
