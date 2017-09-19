@@ -255,13 +255,13 @@ NRF24L01p::ErrorStatus_t NRF24L01p::writeAckPayload(Payload_t *payload){
 }
 NRF24L01p::ErrorStatus_t NRF24L01p::readPayload(Payload_t *payload){
     ErrorStatus_t error;                                  
-    payload->TxAckPipe = get_rx_payload_pipe();
+    payload->RxPipe = get_rx_payload_pipe();
     
     if(payload->TxAckPipe>=0 && payload->TxAckPipe<=5){
         if(RadioConfig.FeatureDynamicPayloadEnabled == 1){
             payload->length = read_rx_payload_width();
         }else{
-            payload->length = get_RX_pipe_width(payload->TxAckPipe);
+            payload->length = get_RX_pipe_width(payload->RxPipe);
         }
         read_rx_payload(payload->Data,payload->length);
         error = SUCCESS;
