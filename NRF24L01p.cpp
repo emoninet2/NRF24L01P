@@ -257,7 +257,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::readPayload(Payload_t *payload){
     ErrorStatus_t error;                                  
     payload->RxPipe = get_rx_payload_pipe();
     
-    if(payload->TxAckPipe>=0 && payload->TxAckPipe<=5){
+    if(payload->RxPipe>=0 && payload->RxPipe<=5){
         if(RadioConfig.FeatureDynamicPayloadEnabled == 1){
             payload->length = read_rx_payload_width();
         }else{
