@@ -83,7 +83,7 @@ public:
         pipe_t TxAckPipe;//*< used when an ack payload has to be written in RX mode. when a payload is received , the ack payload is automatically sent*/
         bool GotAck;//*< this value is set high if the transmitter receives and ack.*/
         pipe_t RxPipe; //*< the pipe in which the data the data has been received and read from*/
-        unsigned int RxDataLen;//*< the size of the data received. In Tx Mode, the size of the ack payload received*/
+        //unsigned int RxDataLen;//*< the size of the data received. In Tx Mode, the size of the ack payload received*/
     }Payload_t;
     
     /**
