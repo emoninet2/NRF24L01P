@@ -72,15 +72,15 @@ public:
         
         /// to be deprecated
         pipe_t pipe; //if payload type is RX
-        unsigned int length;
 
  
         ///to be used
         uint8_t Data[_NRF24L01P_FIFO_SIZE ]; //*< this contains the 32 bytes buffer data to send and receive into */
+        unsigned int length;//*< the length of the data to send  or received*/
+        
         bool UseAck;//*< used in TX mode to send the payload with ack if set to high and without ack if set to low*/
         PipeAddr_t TxAddress;//*< this is the 5-byte hardware address of the radio to send data to*/
         pipe_t TxAckPipe;//*< used when an ack payload has to be written in RX mode. when a payload is received , the ack payload is automatically sent*/
-        unsigned int TxDataLen;//*< the length of the data to send  */
         bool GotAck;//*< this value is set high if the transmitter receives and ack.*/
         pipe_t RxPipe; //*< the pipe in which the data the data has been received and read from*/
         unsigned int RxDataLen;//*< the size of the data received. In Tx Mode, the size of the ack payload received*/
