@@ -263,8 +263,16 @@ NRF24L01p::ErrorStatus_t NRF24L01p::readPayload(Payload_t *payload){
         }else{
             payload->length = get_RX_pipe_width(payload->RxPipe);
         }
-        read_rx_payload(payload->Data,payload->length);
-        error = SUCCESS;
+        
+        if(payload->length <= 32){
+            read_rx_payload(payload->Data,payload->length);
+            error = SUCCESS;
+        }
+        else{
+            error = ERROR;
+        }
+        
+        
     }
     return error;
 }
