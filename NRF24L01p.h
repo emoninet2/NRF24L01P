@@ -73,7 +73,6 @@ public:
         /// to be deprecated
         pipe_t pipe; //if payload type is RX
 
- 
         ///to be used
         uint8_t Data[_NRF24L01P_FIFO_SIZE ]; //*< this contains the 32 bytes buffer data to send and receive into */
         unsigned int length;//*< the length of the data to send  or received*/

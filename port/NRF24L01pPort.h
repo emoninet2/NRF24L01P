@@ -15,6 +15,8 @@
 #define NRF24L01PPORT_H
 
 #include <stdint.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 typedef enum{
      __NRF24L01p_GPIO_CSN,
@@ -110,6 +112,20 @@ public:
     unsigned int port_ClockMs();
     
     
+    /**
+     * 
+     * @param format
+     * @param ...
+     */
+    void debug(const char *format, ...);
+    
+    /**
+     * 
+     * @param condition
+     * @param format
+     * @param ...
+     */
+    void debug_if(bool condition, const char *format, ...);
     
     
     

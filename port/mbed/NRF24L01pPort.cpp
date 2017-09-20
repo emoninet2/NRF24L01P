@@ -16,12 +16,23 @@
 
 #if (NRF24L01pPort_mbed == 1)
 
-#define NRF24L01p_MBED_CE_PIN           D6
-#define NRF24L01p_MBED_CSN_PIN          D10
-#define NRF24L01p_MBED_SPI_MOSI_PIN     SPI_MOSI//D12
-#define NRF24L01p_MBED_SPI_MISO_PIN     SPI_MISO//D11
-#define NRF24L01p_MBED_SPI_SCK_PIN      SPI_SCK//D13
-#define NRF24L01p_MBED_IRQ_PIN          D5
+#if (NRF24L01pPort_mbed_K64F ==1)
+    #define NRF24L01p_MBED_CE_PIN           PTB20
+    #define NRF24L01p_MBED_CSN_PIN          PTD4
+    #define NRF24L01p_MBED_SPI_MOSI_PIN     PTD6
+    #define NRF24L01p_MBED_SPI_MISO_PIN     PTD7
+    #define NRF24L01p_MBED_SPI_SCK_PIN      PTD5
+    #define NRF24L01p_MBED_IRQ_PIN               
+#endif
+
+#if (NRF24L01pPort_mbed_nucleo_F446RE ==1        ) 
+    #define NRF24L01p_MBED_CE_PIN           D6
+    #define NRF24L01p_MBED_CSN_PIN          D10
+    #define NRF24L01p_MBED_SPI_MOSI_PIN     SPI_MOSI//D12
+    #define NRF24L01p_MBED_SPI_MISO_PIN     SPI_MISO//D11
+    #define NRF24L01p_MBED_SPI_SCK_PIN      SPI_SCK//D13
+    #define NRF24L01p_MBED_IRQ_PIN          D5
+#endif
 
 
 #include "mbed.h"
@@ -78,5 +89,22 @@ void NRF24L01pPort::port_DelayUs(unsigned int us){
 unsigned int NRF24L01pPort::port_ClockMs(){
     return t.read_ms ();
 }
+
+void NRF24L01pPort::debug(const char *format, ...){
+    va_list args;
+    va_start(args,format);
+    vfprintf(stdout,format, args);
+    va_end(args);
+}
+
+void NRF24L01pPort::debug_if(bool condition, const char *format, ...){
+    if(condition){
+        va_list args;
+        va_start(args,format);
+        vfprintf(stdout,format, args);
+        va_end(args);
+    }
+}
+
 
 #endif

@@ -260,10 +260,8 @@ NRF24L01p::ErrorStatus_t NRF24L01p::readPayload(Payload_t *payload){
     if(payload->RxPipe>=0 && payload->RxPipe<=5){
         if(RadioConfig.FeatureDynamicPayloadEnabled == 1){
             payload->length = read_rx_payload_width();
-            printf("size : %d\r\n", payload->length);
         }else{
             payload->length = get_RX_pipe_width(payload->RxPipe);
-            printf("size : %d\r\n", payload->length);
         }
         read_rx_payload(payload->Data,payload->length);
         error = SUCCESS;

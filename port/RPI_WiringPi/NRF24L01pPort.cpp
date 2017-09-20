@@ -86,4 +86,23 @@ unsigned int NRF24L01pPort::port_ClockMs(){
     return millis();
 }
 
+
+void NRF24L01pPort::debug(const char *format, ...){
+    va_list args;
+    va_start(args,format);
+    vfprintf(stdout,format, args);
+    va_end(args);
+}
+
+void NRF24L01pPort::debug_if(bool condition, const char *format, ...){
+    if(condition){
+        va_list args;
+        va_start(args,format);
+        vfprintf(stdout,format, args);
+        va_end(args);
+    }
+}
+
+
+
 #endif

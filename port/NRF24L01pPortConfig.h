@@ -15,10 +15,19 @@
 #define NRF24L01PPORTCONFIG_H
 
 
+
+
+
+
 #define NRF24L01pPort_RPI_WiringPi  1
 #define NRF24L01pPort_mbed          0
 #define NRF24L01pPort_STM32         0
 #define NRF24L01pPort_Linux         0 //unstable and not tested
+
+
+
+#define NRF24L01pPort_mbed_K64F                   0
+#define NRF24L01pPort_mbed_NUCLEO_F446RE          0
 
 #endif /* NRF24L01PPORTCONFIG_H */
 
