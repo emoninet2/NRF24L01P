@@ -25,7 +25,7 @@
     #define NRF24L01p_MBED_IRQ_PIN               
 #endif
 
-#if (NRF24L01pPort_mbed_nucleo_F446RE ==1        ) 
+#if (NRF24L01pPort_mbed_NUCLEO_F446RE ==1        ) 
     #define NRF24L01p_MBED_CE_PIN           D6
     #define NRF24L01p_MBED_CSN_PIN          D10
     #define NRF24L01p_MBED_SPI_MOSI_PIN     SPI_MOSI//D12
