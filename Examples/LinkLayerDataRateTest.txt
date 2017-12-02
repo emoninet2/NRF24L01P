@@ -26,9 +26,6 @@ NRF24L01pNetwork Radio;
 #define TX_UNIT 0
 #define RX_UNIT 1
 
-
-
-
 void NRF24L01p_RadioReset(){
 
     Radio.RadioConfig.DataReadyInterruptEnabled = 1;
@@ -84,6 +81,7 @@ void NRF24L01p_RadioReset(){
 
 
 
+
 int TX_MODULE(void){
  printf("TX NODE\r\n");
     NRF24L01p_RadioReset();
@@ -103,9 +101,9 @@ int TX_MODULE(void){
     NRF24L01p::Payload_t payload;
     
     payload.UseAck = 1;
-    payload.address = 0x9A4524CE01;
+    payload.TxAddress = 0x9A4524CE01;
     payload.length = strlen(myMesg);
-    payload.retransmitCount = 15;
+    //payload.retransmitCount = 15;
     
 
     int i = 0;
@@ -119,13 +117,13 @@ int TX_MODULE(void){
         
         
         payload.UseAck = 1;
-        payload.address = 0x9A4524CE01;
+        payload.TxAddress = 0x9A4524CE01;
         //payload.length = strlen(myMesg);
         //payload.retransmitCount = 15;
         
-        sprintf((char*)payload.data, "PING PONG DING DONG DING-> %d", i++);
+        sprintf((char*)payload.Data, "PING PONG DING DONG DING-> %d", i++);
         
-        payload.length = strlen((char*)payload.data);
+        payload.length = strlen((char*)payload.Data);
         int paylen = payload.length;
         //printf("will send : %s\r\n", payload.data);
         int err = Radio.TransmitPayload(&payload);
@@ -188,13 +186,13 @@ int RX_MODULE(void) {
     NRF24L01p::Payload_t payload;
     
     payload.UseAck = 1;
-    payload.address = 0x9A4524CE01;
-    payload.retransmitCount = 15;
+    payload.TxAddress = 0x9A4524CE01;
+    //payload.retransmitCount = 15;
     payload.pipe = NRF24L01p::PIPE_P1;
     
     int i=0;
-    sprintf((char*)payload.data, "PONG -> %d", i++);
-    payload.length = strlen((char*)payload.data);
+    sprintf((char*)payload.Data, "PONG -> %d", i++);
+    payload.length = strlen((char*)payload.Data);
     Radio.writeAckPayload(&payload);
     while(1){
         //Radio.port_DelayMs(1000);
@@ -210,7 +208,7 @@ int RX_MODULE(void) {
             int i;
             //putc('c', stdout);
             for(i=0;i<payload.length;i++){
-                putc(payload.data[i], stdout);   
+                putc(payload.Data[i], stdout);   
             }
             printf("\r\n");
             //printf("DATA P%d %d: %s\r\n", payload.pipe, payload.length, payload.data);

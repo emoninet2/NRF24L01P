@@ -34,6 +34,15 @@
     #define NRF24L01p_MBED_IRQ_PIN          D5
 #endif
 
+#if (NRF24L01pPort_mbed_NUCLEO_F303K8 ==1        ) 
+    #define NRF24L01p_MBED_CE_PIN           A2
+    #define NRF24L01p_MBED_CSN_PIN          A3
+    #define NRF24L01p_MBED_SPI_MOSI_PIN     A6
+    #define NRF24L01p_MBED_SPI_MISO_PIN     A5
+    #define NRF24L01p_MBED_SPI_SCK_PIN      A4
+    #define NRF24L01p_MBED_IRQ_PIN          A1
+#endif
+
 
 #include "mbed.h"
 

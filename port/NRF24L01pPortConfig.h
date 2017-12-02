@@ -28,6 +28,7 @@
 
 #define NRF24L01pPort_mbed_K64F                   0
 #define NRF24L01pPort_mbed_NUCLEO_F446RE          0
+#define NRF24L01pPort_mbed_NUCLEO_F303K8          0
 
 #endif /* NRF24L01PPORTCONFIG_H */
 
