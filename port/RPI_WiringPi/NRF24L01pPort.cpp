@@ -85,6 +85,9 @@ void NRF24L01pPort::port_DelayUs(unsigned int us){
 unsigned int NRF24L01pPort::port_ClockMs(){
     return millis();
 }
+unsigned int NRF24L01pPort::port_ClockUs(){
+    return micros();
+}
 
 
 void NRF24L01pPort::debug(const char *format, ...){

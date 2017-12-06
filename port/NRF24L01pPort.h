@@ -110,7 +110,11 @@ public:
      * @return the global clock time elapsed since start in milliseconds
      */
     unsigned int port_ClockMs();
-    
+     /**
+     * the global clock time elapsed in milliseconds
+     * @return the global clock time elapsed since start in microseconds
+     */
+    unsigned int port_ClockUs();    
     
     /**
      * 
