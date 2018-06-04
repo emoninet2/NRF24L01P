@@ -299,6 +299,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayload(Payload_t *payload){
 
 		writePayload(payload);
 		clear_data_sent_flag();
+		payload->GotAck = 0;
 		while(1){
 				RadioMode(MODE_TX);
 				RadioMode(MODE_STANDBY);
@@ -391,6 +392,7 @@ NRF24L01p::ErrorStatus_t NRF24L01p::TransmitPayloadInterruptHandled(Payload_t *p
 		drFlag = 0;
 		dsFlag = 0;
 		mrFlag = 0;
+		payload->GotAck = 0;
 		while(1){
 				RadioMode(MODE_TX);
 				RadioMode(MODE_STANDBY);
